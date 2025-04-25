@@ -1,3 +1,5 @@
 Django
 Pillow
 gunicorn
+oauth2client
+gspread
