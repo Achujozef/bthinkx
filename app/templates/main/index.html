@@ -1,0 +1,887 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>  BThinkX - Night Mode</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Night Sky Theme */
+        body {
+            background: linear-gradient(to right, 
+                        rgba(0, 0, 0, 1) 0%,  
+                        rgba(0, 0, 0, 0.92) 12%, 
+                        black 50%, 
+                        rgba(0, 0, 0, 0.92) 88%, 
+                        rgba(0, 0, 0, 1) 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background-color: black !important;
+            padding: 5px 0;
+        }
+
+        /* Text Styling - Like Stars */
+        h1, h2, h4, p, a {
+            color: white !important;
+
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            background-color: black;
+            padding: 20px 0;
+        }
+        h4 {
+            text-shadow: none !important;
+            opacity: 1 !important;
+            mix-blend-mode: normal !important;
+        }
+        .team-card {
+            background: #1E293B;
+            color: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+    
+        .team-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0px 10px 20px rgba(255, 255, 255, 0.2);
+        }
+    
+        .team-img {
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+        }
+    
+        .social-link {
+            color: #fff;
+            margin-right: 12px;
+            transition: color 0.3s ease-in-out;
+        }
+    
+        .social-link:hover {
+            color: #FFC107;
+        }
+    
+        .join-btn {
+            background: linear-gradient(135deg, #FFC107, #FF9800);
+            color: #000;
+            border-radius: 10px;
+            padding: 15px 30px;
+            transition: transform 0.3s ease-in-out;
+        }
+    
+        .join-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 5px 15px rgba(255, 193, 7, 0.4);
+        }
+        ::placeholder {
+            color: #ffffff !important;
+            opacity: 1; /* Ensures it's not semi-transparent */
+          }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container d-flex justify-content-center">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link text-white fw-bold text-uppercase text-center px-2 px-md-4"
+                   style="font-family: 'Poppins', sans-serif; 
+                          letter-spacing: 0.5px; 
+                          text-shadow: 1px 1px 5px rgba(255,255,255,0.2); 
+                          white-space: nowrap;">
+                    Hire from Us
+                </a>
+            </li>
+            <li class="nav-item mx-2 mx-md-4">
+                <a class="nav-link text-white fw-bold text-uppercase text-center px-2 px-md-4"
+                   style="font-family: 'Poppins', sans-serif; 
+                          letter-spacing: 0.5px; 
+                          text-shadow: 1px 1px 5px rgba(255,255,255,0.2); 
+                          white-space: nowrap;">
+                    Change Your Career with Us
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+    
+    
+   <header class="text-center py-5 position-relative"
+    style="margin-top: 100px; font-family: 'Poppins', sans-serif;">
+
+    <div class="container-fluid px-3"> <!-- Changed to container-fluid & reduced padding -->
+        <div class="row align-items-center justify-content-center gap-5">
+
+            <!-- Left Section: Image -->
+            <div class="col-12 col-md-5 text-center text-md-start">
+                <img src="{% static 'main/images/abcd.png' %}" alt="Achu Joseph S L" class="img-fluid shadow-lg"
+                    style="max-width: 100%; height: auto; object-fit: cover; border-radius: 0 0 50px 50px;">
+            </div>
+
+            <!-- Right Section: Text & CTA -->
+            <div class="col-12 col-md-6 text-center text-md-start">
+
+                <!-- Main Heading -->
+                <h1 class="fw-bold display-4 text-light"
+                    style="letter-spacing: 1px; text-shadow: 2px 2px 5px rgba(255,255,255,0.1);">
+                    Welcome to   BThinkX
+                </h1>
+
+                <p class="fs-5 text-secondary">
+                    Your Gateway to a Successful IT Career  
+                </p>
+
+                <!-- Powerful Messaging -->
+                <div class="mb-4">
+                    <p class="fw-bold text-light fs-5" style="line-height: 1.6;">
+                        If you're ready to invest your time and have the urge to learn,  
+                        <span class="text-warning fw-bold">we're ready to transform your life.</span>  
+                        This is not just a training center – it's a <span class="text-success">Transformation Hub</span>.  
+                        Gain <span class="text-warning">communication skills, presentation confidence, and industry-ready expertise.</span>
+                    </p>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="d-flex flex-column flex-md-row gap-3 justify-content-center justify-content-md-start">
+                    <a href="#courses" class="btn px-4 py-3 fw-bold fs-5 shadow-sm"
+                        style="background: linear-gradient(135deg, #222, #444); color: #fff; border-radius: 10px;
+                                transition: all 0.3s ease; font-family: 'Poppins', sans-serif;">
+                        🎓 Explore Courses
+                    </a>
+
+                    <a href="https://wa.me/YOUR_NUMBER_HERE" target="_blank" class="btn px-4 py-3 fw-bold fs-5 shadow-sm"
+                        style="background: linear-gradient(135deg, #00c853, #009624); color: #fff; border-radius: 10px;
+                                transition: all 0.3s ease; font-family: 'Poppins', sans-serif;">
+                        📞 Get Free Career Guidance
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<section id="about" class="py-5 position-relative">
+    <div class="container"> 
+        
+        <!-- Common Heading (Centered) -->
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-uppercase"
+                    style="font-family: 'Poppins', sans-serif; 
+                           letter-spacing: 1.5px;
+                           text-shadow: 0 0 15px rgba(255,255,255,0.6);">
+                    🚀 About <span class="text-warning">  BThinkX</span>
+                </h2>
+            </div>
+        </div>
+
+        <!-- Video & Text Content -->
+        <div class="row align-items-center">
+            
+            <!-- Left Side: YouTube Video -->
+            <div class="col-lg-6 mb-4 mb-lg-0 text-center">
+                <div class="position-relative shadow-lg rounded-4 overflow-hidden w-100">
+                    <iframe width="100%" height="615" 
+                        src="https://www.youtube.com/embed/Xh8B6W7RUfA?si=m_AKfoBsoaIFRBih" 
+                        title="YouTube video player" frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
+                        class="rounded-4" 
+                        style="border: 5px solid rgba(255,255,255,0.1);">
+                    </iframe>
+                </div>
+            </div>
+
+            <!-- Right Side: Text Content -->
+            <div class="col-lg-6 text-center text-lg-start">
+                <p class="fs-5 text-light" 
+                   style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                    **  BThinkX is not just a training center – it’s a transformation hub.**  
+                    We help passionate learners **bridge the gap between education and the IT industry**  
+                    through real-world projects, mentorship from industry experts, and hands-on learning.  
+                </p>
+
+                <ul class="list-unstyled fs-5 mt-3" 
+                    style="font-family: 'Poppins', sans-serif; line-height: 1.8;">
+                    <li>✅ Learn from <span class="text-warning fw-bold">real-world professionals</span></li>
+                    <li>✅ Gain <span class="text-success fw-bold">job-ready skills</span> through hands-on projects</li>
+                    <li>✅ Master <span class="text-primary fw-bold">communication & presentation</span> for career success</li>
+                </ul>
+
+                <!-- Call to Action -->
+                <div class="mt-4">
+                    <a href="#courses" class="btn fw-bold px-4 py-3 shadow-sm"
+                       style="background: linear-gradient(135deg, #FFC107, #FF9800); color: #000; border-radius: 10px;">
+                        🎓 Explore Our Programs
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+<section id="courses" class="py-5 position-relative">
+    <div class="container">
+        <!-- Section Title -->
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-uppercase"
+                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px; text-shadow: 0 0 15px rgba(255,255,255,0.6);">
+                🎓 Our <span class="text-warning">Courses</span>
+            </h2>
+            <p class="fs-5 text-light   " 
+               style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                Elevate your career with **industry-driven programs**.  
+                Learn from **expert professionals** and gain **real-world experience**.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Course: MERN Stack -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
+                     style="background: #1E293B; color: #fff;">
+                    <img src="{% static 'main/images/Online-Course-2.JPEG' %}" class="card-img-top" alt="MERN Stack Course">
+                    <div class="card-body text-center">
+                        <h4 class="fw-bold text-warning text-uppercase"
+                            style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
+                            MERN Stack Development
+                        </h4>
+                        <p class="fs-5 text-light   "
+                           style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                            Master **MongoDB, Express.js, React.js, and Node.js**.  
+                            Build **powerful, scalable web applications**.
+                        </p>
+                        <a href="#" class="btn btn-warning fw-bold px-4 py-2 rounded-pill">
+                            Learn More 🚀
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course: MEAN Stack -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
+                     style="background: #1E293B; color: #fff;">
+                    <img src="{% static 'main/images/Online-Course-2.JPEG' %}" class="card-img-top" alt="MEAN Stack Course">
+                    <div class="card-body text-center">
+                        <h4 class="fw-bold text-success text-uppercase"
+                            style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
+                            MEAN Stack Development
+                        </h4>
+                        <p class="fs-5 text-light   "
+                           style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                            Learn **MongoDB, Express.js, Angular, and Node.js**.  
+                            Build **enterprise-grade applications**.
+                        </p>
+                        <a href="#" class="btn btn-success fw-bold px-4 py-2 rounded-pill">
+                            Learn More 🚀
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course: AI/ML -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
+                     style="background: #1E293B; color: #fff;">
+                    <img src="{% static 'main/images/Online-Course-2.JPEG' %}" class="card-img-top" alt="AI/ML Course">
+                    <div class="card-body text-center">
+                        <h4 class="fw-bold text-danger text-uppercase"
+                            style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
+                            Artificial Intelligence & ML
+                        </h4>
+                        <p class="fs-5 text-light   "
+                           style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                            Dive into **AI & Machine Learning**.  
+                            Work on **real-world AI applications**.
+                        </p>
+                        <a href="#" class="btn btn-danger fw-bold px-4 py-2 rounded-pill">
+                            Learn More 🚀
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course: Data Science -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
+                     style="background: #1E293B; color: #fff;">
+                    <img src="{% static 'main/images/Online-Course-2.JPEG' %}" class="card-img-top" alt="Data Science Course">
+                    <div class="card-body text-center">
+                        <h4 class="fw-bold text-info text-uppercase"
+                            style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
+                            Data Science & Analytics
+                        </h4>
+                        <p class="fs-5 text-light   "
+                           style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                            Master **Python, SQL, Pandas, and ML**.  
+                            **Analyze data like a pro**.
+                        </p>
+                        <a href="#" class="btn btn-info fw-bold px-4 py-2 rounded-pill">
+                            Learn More 🚀
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course: Python + React -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
+                     style="background: #1E293B; color: #fff;">
+                    <img src="{% static 'main/images/Online-Course-2.JPEG' %}" class="card-img-top" alt="Python & React Course">
+                    <div class="card-body text-center">
+                        <h4 class="fw-bold text-primary text-uppercase"
+                            style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
+                            Python Django + React
+                        </h4>
+                        <p class="fs-5 text-light "
+                           style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                            Build **full-stack web applications**  
+                            with **Django and React**.
+                        </p>
+                        <a href="#" class="btn btn-primary fw-bold px-4 py-2 rounded-pill">
+                            Learn More 🚀
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course: Mobile App Development -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
+                     style="background: #1E293B; color: #fff;">
+                    <img src="{% static 'main/images/Online-Course-2.JPEG' %}" class="card-img-top" alt="Mobile App Development">
+                    <div class="card-body text-center">
+                        <h4 class="fw-bold text-warning text-uppercase"
+                            style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
+                            Mobile App Development
+                        </h4>
+                        <p class="fs-5 text-light "
+                           style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                            Develop **cross-platform apps**  
+                            using **React Native & Flutter**.
+                        </p>
+                        <a href="#" class="btn btn-warning fw-bold px-4 py-2 rounded-pill">
+                            Learn More 🚀
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-5">
+            <a href="#register" class="btn btn-lg fw-bold px-5 py-3 shadow-sm"
+               style="background: linear-gradient(135deg, #FFC107, #FF9800); color: #000; border-radius: 10px;">
+                🔥 Enroll Now & Transform Your Career!
+            </a>
+        </div>
+    </div>
+</section>
+
+
+    
+
+
+<section id="team" class="py-5 position-relative"
+>
+    <div class="container">
+        <!-- Section Title -->
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-uppercase"
+                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px;">
+                💼 Meet <span class="text-warning">Our Team</span>
+            </h2>
+            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                A **team of elite professionals** with over **3+ years of expertise**,  
+                exceptional communication skills, and a passion for **mentoring future talent**.
+            </p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Team Member 1 -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 rounded-4 text-center team-card">
+                    <img src="{% static 'main/images/men.jpg' %}" class="card-img-top rounded-top team-img" alt="Achu Joseph S L">
+                    <div class="card-body">
+                        <h4 class="fw-bold text-warning">Achu Joseph S L</h4>
+                        <p class="text-light">Founder & Lead Instructor</p>
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="#" class="social-link"><i class="fab fa-linkedin fa-lg"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-github fa-lg"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter fa-lg"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 2 -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 rounded-4 text-center team-card">
+                    <img src="{% static 'main/images/woman.jpg' %}" class="card-img-top rounded-top team-img" alt="Razia">
+                    <div class="card-body">
+                        <h4 class="fw-bold text-success">Razia</h4>
+                        <p class="text-light">Operations Manager</p>
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="#" class="social-link"><i class="fab fa-linkedin fa-lg"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-github fa-lg"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter fa-lg"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 3 -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 rounded-4 text-center team-card">
+                    <img src="{% static 'main/images/men.jpg' %}" class="card-img-top rounded-top team-img" alt="Vishnu">
+                    <div class="card-body">
+                        <h4 class="fw-bold text-primary">Vishnu</h4>
+                        <p class="text-light">Senior Software Engineer</p>
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="#" class="social-link"><i class="fab fa-linkedin fa-lg"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-github fa-lg"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter fa-lg"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 4 -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 rounded-4 text-center team-card">
+                    <img src="{% static 'main/images/woman.Jpg' %}" class="card-img-top rounded-top team-img" alt="John Doe">
+                    <div class="card-body">
+                        <h4 class="fw-bold text-danger">John Doe</h4>
+                        <p class="text-light">Marketing & Growth</p>
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="#" class="social-link"><i class="fab fa-linkedin fa-lg"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-github fa-lg"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter fa-lg"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-5">
+            <a href="#contact" class="btn btn-lg fw-bold px-5 py-3 shadow-sm join-btn">
+                🚀 Join Our Team
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Founder & CEO Section -->
+<section id="founder" class="py-5 text-center position-relative">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="fw-bold text-uppercase"
+                    style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px;">
+                    🚀 Meet Our <span class="text-warning">Founders</span>
+                </h2>
+                <p class="fs-5 text-light mt-3"
+                   style="max-width: 700px; margin: auto; line-height: 1.8;">
+                    **Visionaries, Engineers & Mentors**—shaping the future of **technology education**  
+                    through hands-on learning, **career-focused training**, and real-world mentorship.
+                </p>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mt-5">
+            <!-- Founder 1: Achu Joseph S L -->
+            <div class="col-md-5 mb-4">
+                <div class="card shadow-lg border-0 rounded-4 text-center"
+                     style="background: #1E293B; color: #fff; padding: 30px;">
+                    <img src="{% static 'main/images/ceo.jpg' %}" class="rounded-circle shadow-lg mb-3"
+                         width="180" height="180" alt="Achu Joseph S L"
+                         style="border: 5px solid rgba(255,255,255,0.2);">
+                    <h3 class="fw-bold text-warning">Achu Joseph S L</h3>
+                    <p class="text-light fs-5">Co-Founder & Lead Instructor</p>
+                    <p class="text-light small">
+                        A **Software Engineer & Entrepreneur**, passionate about bridging the gap between  
+                        **education & industry** by mentoring the next generation of developers.
+                    </p>
+                    <div class="mt-3">
+                        <a href="https://linkedin.com" class="text-light me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="https://github.com" class="text-light me-3"><i class="fab fa-github fa-lg"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Founder 2: Veena JV -->
+            <div class="col-md-5 mb-4">
+                <div class="card shadow-lg border-0 rounded-4 text-center"
+                     style="background: #1E293B; color: #fff; padding: 30px;">
+                    <img src="{% static 'main/images/ceo.jpg' %}" class="rounded-circle shadow-lg mb-3"
+                         width="180" height="180" alt="Veena JV"
+                         style="border: 5px solid rgba(255,255,255,0.2);">
+                    <h3 class="fw-bold text-success">Veena JV</h3>
+                    <p class="text-light fs-5">Co-Founder & Growth Strategist</p>
+                    <p class="text-light small">
+                        A **business strategist & mentor**, leading the vision for **growth, innovation,  
+                        and industry collaboration** to empower future tech leaders.
+                    </p>
+                    <div class="mt-3">
+                        <a href="https://linkedin.com" class="text-light me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-globe fa-lg"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-5">
+            <a href="#contact" class="btn btn-lg fw-bold px-5 py-3 shadow-sm"
+               style="background: linear-gradient(135deg, #FFC107, #FF9800); color: #000; border-radius: 10px;">
+                🌟 Join Us in Building the Future
+            </a>
+        </div>
+    </div>
+</section>
+
+
+<!-- style="background: #0F172A; color: #fff;" -->
+<!-- Testimonials Section -->
+<section id="testimonials" class="py-5 position-relative">
+    <div class="container">
+        <!-- Section Title -->
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-uppercase"
+                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px;">
+                ⭐ What Our <span class="text-warning">Students Say</span>
+            </h2>
+            <p class="fs-5 text-light"
+               style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                Hear from our students who have transformed their careers  
+                through our expert-led training programs.
+            </p>
+        </div>
+
+        <!-- Testimonials Grid -->
+        <div class="row g-4 justify-content-center">
+            <!-- Testimonial 1 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 p-4"
+                     style="background: #1E293B; color: #fff; transition: 0.3s;">
+                    <div class="card-body text-center">
+                        <p class="fs-5 text-light">
+                            "This course **changed my career**! Highly recommended!"
+                        </p>
+                        <div class="d-flex justify-content-center align-items-center mt-3">
+                            <img src="{% static 'main/images/student.jpeg' %}"
+                                 class="rounded-circle me-3"
+                                 style="width: 60px; height: 60px; object-fit: cover;">
+                            <div class="text-start">
+                                <h5 class="fw-bold text-warning mb-0">Student A</h5>
+                                <small class="text-light">Full-Stack Developer</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 p-4"
+                     style="background: #1E293B; color: #fff; transition: 0.3s;">
+                    <div class="card-body text-center">
+                        <p class="fs-5 text-light">
+                            "The **best mentors** and hands-on learning experience!"
+                        </p>
+                        <div class="d-flex justify-content-center align-items-center mt-3">
+                            <img src="{% static 'main/images/student.jpeg' %}"
+                                 class="rounded-circle me-3"
+                                 style="width: 60px; height: 60px; object-fit: cover;">
+                            <div class="text-start">
+                                <h5 class="fw-bold text-success mb-0">Student B</h5>
+                                <small class="text-light">Software Engineer</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 p-4"
+                     style="background: #1E293B; color: #fff; transition: 0.3s;">
+                    <div class="card-body text-center">
+                        <p class="fs-5 text-light">
+                            "I **landed a job** thanks to this program!"
+                        </p>
+                        <div class="d-flex justify-content-center align-items-center mt-3">
+                            <img src="{% static 'main/images/student.jpeg' %}"
+                                 class="rounded-circle me-3"
+                                 style="width: 60px; height: 60px; object-fit: cover;">
+                            <div class="text-start">
+                                <h5 class="fw-bold text-primary mb-0">Student C</h5>
+                                <small class="text-light">Frontend Developer</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-5">
+            <a href="#courses" class="btn btn-lg fw-bold px-5 py-3 shadow-sm"
+               style="background: linear-gradient(135deg, #FFC107, #FF9800); color: #000; border-radius: 10px;">
+                🚀 Start Your Journey
+            </a>
+        </div>
+    </div>
+</section>
+
+
+
+    <!-- Contact Form -->
+<!-- Contact Us Section -->
+<section id="contact" class="py-5 position-relative"
+         style="background: #0F172A; color: #fff;">
+    <div class="container">
+        <!-- Section Title -->
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-uppercase"
+                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px;">
+                📩 Get in <span class="text-warning">Touch</span>
+            </h2>
+            <p class="fs-5 text-light   "
+               style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                Have questions? Let’s talk! Our team is here to help you on your journey.  
+                Send us a message, and we'll get back to you as soon as possible.  
+            </p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <!-- Contact Form -->
+                <div class="card shadow-lg border-0 rounded-4 p-4"
+                     style="background: #1E293B; color: #fff;">
+                     <form method="POST" action="{% url 'submit_contact_form' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <input type="text" name="name" class="form-control py-3 bg-dark text-light" placeholder="Your Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" name="email" class="form-control py-3 bg-dark text-light" placeholder="Your Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="phone" class="form-control py-3 bg-dark text-light" placeholder="Phone Number" required>
+                        </div>
+                        <div class="mb-3">
+                            <select name="education" class="form-select rounded-3 bg-dark text-light" required>
+                              <option value="" disabled selected>Highest Qualification</option>
+                              <option value="High School">High School</option>
+                              <option value="Diploma">Diploma</option>
+                              <option value="Bachelor's">Bachelor's</option>
+                              <option value="Master's">Master's</option>
+                              <option value="PhD">PhD</option>
+                            </select>
+                          </div>
+                        <div class="mb-3">
+                            <input type="text" name="experience" class="form-control py-3 bg-dark text-light" placeholder="Work Experience (optional)">
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="place" class="form-control py-3 bg-dark text-light" placeholder="Your City/Place" required>
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="reason" class="form-control py-3 bg-dark text-light" rows="3" placeholder="Why do you want to join us?" required></textarea>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="col-lg-5 d-flex flex-column justify-content-center text-center text-lg-start mt-5 mt-lg-0">
+                <h4 class="fw-bold text-warning">📍 Visit Us</h4>
+                <p class="fs-6 text-light   ">123 Tech Park, Innovation Street, City, Country</p>
+
+                <h4 class="fw-bold text-warning mt-3">📞 Call Us</h4>
+                <p class="fs-6 text-light   ">+123 456 7890</p>
+
+                <h4 class="fw-bold text-warning mt-3">✉️ Email Us</h4>
+                <p class="fs-6 text-light   ">contact@youracademy.com</p>
+
+                <h4 class="fw-bold text-warning mt-3">🔗 Follow Us</h4>
+                <div class="d-flex justify-content-center justify-content-lg-start mt-2">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <p>&copy; 2025   BThinkX. All Rights Reserved.</p>
+    </footer>
+<!-- Marketing Quotes Container -->
+<div id="marketing-quote" 
+     class="position-absolute p-3 text-light fw-bold fs-5 rounded-pill shadow-lg d-none d-md-block"
+     style="background: rgba(0, 0, 0, 0.75); font-family: 'Poppins', sans-serif; transition: all 1s ease-in-out;">
+</div>
+<!-- Bootstrap Modal -->
+<!-- Modal Form: Same Fields as Main Contact Form -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-light" style="background: linear-gradient(135deg, #222, #444); border-radius: 15px;">
+  
+        <!-- Modal Header -->
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold" id="userDetailsModalLabel" style="font-family: 'Poppins', sans-serif;">
+            📢 Let's Stay Connected!
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+  
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <p class="mb-4 text-center">Fill in your details and be a part of our amazing community.</p>
+  
+          <!-- Form POSTs to same Django view -->
+          <form method="POST" action="{% url 'submit_contact_form' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <input type="text" name="name" class="form-control rounded-3 bg-dark text-light" placeholder="Your Name" required>
+            </div>
+            <div class="mb-3">
+              <input type="email" name="email" class="form-control rounded-3 bg-dark text-light" placeholder="Your Email" required>
+            </div>
+            <div class="mb-3">
+              <input type="tel" name="phone" class="form-control rounded-3 bg-dark text-light" placeholder="Phone Number" required>
+            </div>
+            <div class="mb-3">
+              <input type="text" name="place" class="form-control rounded-3 bg-dark text-light" placeholder="Your Place" required>
+            </div>
+            <div class="mb-3">
+              <select name="education" class="form-select rounded-3 bg-dark text-light" required>
+                <option value="" disabled selected>Highest Qualification</option>
+                <option value="High School">High School</option>
+                <option value="Diploma">Diploma</option>
+                <option value="Bachelor's">Bachelor's</option>
+                <option value="Master's">Master's</option>
+                <option value="PhD">PhD</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <input type="text" name="experience" class="form-control rounded-3 bg-dark text-light" placeholder="Work Experience (optional)">
+            </div>
+            <div class="mb-3">
+              <textarea name="reason" class="form-control rounded-3 bg-dark text-light" rows="3" placeholder="Why do you want to join us?" required></textarea>
+            </div>
+            <div class="mb-3">
+              <textarea name="message" class="form-control rounded-3 bg-dark text-light" rows="3" placeholder="Any additional message?"></textarea>
+            </div>
+  
+            <button type="submit" class="btn w-100 fw-bold py-2"
+              style="background: linear-gradient(135deg, #00c853, #009624); color: #fff; border-radius: 10px;">
+              ✅ Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (!sessionStorage.getItem("modalShown")) {
+            setTimeout(function () {
+                let userModal = new bootstrap.Modal(document.getElementById("userDetailsModal"));
+                userModal.show();
+                sessionStorage.setItem("modalShown", "true"); 
+            }, 6000); // 1 Minute
+        }
+    });
+    // List of marketing quotes
+    const quotes = [
+        "✨ Your future starts here – Invest in yourself today!",
+        "🚀 The best way to predict the future is to create it!",
+        "Your dream job is one step away – Keep learning, keep growing!",
+        "💡 Knowledge is power, and power leads to success!",
+        "Small steps today lead to big achievements tomorrow!",
+        "💻 The IT world is waiting for you – Start your journey now!",
+        "Education is the passport to the future. Secure yours now!",
+        "🔑 Unlock your potential with hands-on learning and real projects!"
+    ];
+
+    // Possible positions
+    const positions = [
+        { top: "10%", left: "5%" },
+        { top: "10%", right: "5%" },
+        { bottom: "10%", left: "5%" },
+        { bottom: "10%", right: "5%" }
+    ];
+
+    const quoteElement = document.getElementById("marketing-quote");
+
+    function updateQuote() {
+        // Get a random quote
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        
+        // Get a random position
+        const randomPosition = positions[Math.floor(Math.random() * positions.length)];
+        
+        // Show quote with fade-in
+        quoteElement.textContent = randomQuote;
+        quoteElement.style.top = randomPosition.top || "auto";
+        quoteElement.style.bottom = randomPosition.bottom || "auto";
+        quoteElement.style.left = randomPosition.left || "auto";
+        quoteElement.style.right = randomPosition.right || "auto";
+        quoteElement.style.opacity = "1";
+
+        // Hide after 10 seconds
+        setTimeout(() => {
+            quoteElement.style.opacity = "0";
+        }, 10000);
+
+        // Wait 30 seconds before showing next quote
+        setTimeout(updateQuote, 40000);
+    }
+
+    // Start cycle
+    setTimeout(updateQuote, 1000);
+</script>
+</html>
