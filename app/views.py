@@ -5,7 +5,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 def home(request):
-    return render(request, 'main/index.html')
+    return render(request, 'main/home.html')
 
 
 @csrf_exempt
