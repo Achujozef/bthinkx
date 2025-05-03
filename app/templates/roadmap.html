@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Python Django + React Roadmap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to right, 
+        rgba(0, 0, 0, 1) 0%,  
+        rgba(0, 0, 0, 0.92) 12%, 
+        black 50%, 
+        rgba(0, 0, 0, 0.92) 88%, 
+        rgba(0, 0, 0, 1) 100%);
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 2rem 0;
+    }
+    .navbar {
+        background-color: black !important;
+        padding: 5px 0;
+    }
+
+    /* Text Styling - Like Stars */
+    h1, h2, h4, p, a {
+        color: white !important;
+
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .roadmap-container {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    /* Adjust the position of the roadmap line */
+    .roadmap-line {
+      position: absolute;
+      top: 680px; /* Adjusted for space below the navbar */
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      background: #ffc107;
+      transform: translateX(-50%);
+      z-index: 0;
+    }
+
+    /* Professional Description Card Styling */
+    .course-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+      margin: 1rem;
+      height: 100%;
+    }
+
+    .course-card h3 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .course-card p {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    /* Flexbox for row */
+    .row-cols-1 {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .roadmap-arrow {
+      display: none;
+      font-size: 3rem;
+      color: #ffc107;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      z-index: 2;
+    }
+
+    .roadmap-item {
+      position: relative;
+      margin: 1.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .roadmap-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+      width: 100%;
+      max-width: 450px;
+      z-index: 2;
+    }
+
+    .roadmap-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      background-color: #ffc107;
+      border-radius: 50%;
+      z-index: 3;
+    }
+
+    .left-box .roadmap-box {
+      margin-right: auto;
+    }
+
+    .right-box .roadmap-box {
+      margin-left: auto;
+    }
+    footer {
+        background-color: black;
+        padding: 20px 0;
+    }
+    h4 {
+        text-shadow: none !important;
+        opacity: 1 !important;
+        mix-blend-mode: normal !important;
+    }
+    ::placeholder {
+        color: #ffffff !important;
+        opacity: 1; /* Ensures it's not semi-transparent */
+      }
+    @media (max-width: 768px) {
+      .roadmap-line {
+        display: none;
+      }
+
+      .roadmap-arrow {
+        display: block;
+      }
+
+      .roadmap-dot {
+        display: none;
+      }
+
+      .roadmap-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin: 0;
+      }
+
+      .left-box .roadmap-box,
+      .right-box .roadmap-box {
+        margin: 0 0 1rem 0;
+        max-width: 100%;
+      }
+
+      .roadmap-dot {
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: none;
+        margin-bottom: 0.5rem;
+      }
+
+      .roadmap-arrow {
+        margin-top: 0.5rem;
+        margin-b
+        ottom: 0.5rem;
+      }
+      .roadmap-container {
+        margin-top: 40px; /* Adjust based on your navbar height */
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container d-flex justify-content-center">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link text-white fw-bold text-uppercase text-center px-2 px-md-4"
+             style="font-family: 'Poppins', sans-serif; 
+                    letter-spacing: 0.5px; 
+                    text-shadow: 1px 1px 5px rgba(255,255,255,0.2); 
+                    white-space: nowrap;">
+            Hire from Us
+          </a>
+        </li>
+        <li class="nav-item mx-2 mx-md-4">
+          <a class="nav-link text-white fw-bold text-uppercase text-center px-2 px-md-4"
+             style="font-family: 'Poppins', sans-serif; 
+                    letter-spacing: 0.5px; 
+                    text-shadow: 1px 1px 5px rgba(255,255,255,0.2); 
+                    white-space: nowrap;">
+            Change Your Career with Us
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  
+  <div class="container roadmap-container">
+    <h2>Python Django + React - 30 Week Roadmap</h2>
+
+    <!-- Course Description Section -->
+    <div class="row row-cols-1 row-cols-md-3">
+      <div class="col mb-4">
+        <div class="course-card">
+          <h3>Transform Your Career</h3>
+          <p>This course is a comprehensive journey designed for those who are ready to dive deep into the world of web development. Over the course of 30 weeks, you’ll not only master Python and Django but also become proficient in React, enabling you to build full-stack applications with ease.</p>
+        </div>
+      </div>
+
+      <div class="col mb-4">
+        <div class="course-card">
+          <h3>Course Structure</h3>
+          <p>Whether you're transitioning into web development or looking to upskill, this roadmap is your guide to mastering the most in-demand technologies in the industry. With professional mentorship, extensive resources, and real-world projects, we’ll help you unlock your potential.</p>
+        </div>
+      </div>
+
+      <div class="col mb-4">
+        <div class="course-card">
+          <h3>Dedication & Timeline</h3>
+          <p>Dedication is key. This 8-month roadmap is designed to test your commitment and push you to new heights. By the end of it, you will be ready to tackle any real-world project and confidently step into a career in web development. Whether you're looking to work as a freelancer or land a full-time job, this roadmap is your path to success.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="roadmap-line"></div>
+
+    <!-- Week 1 -->
+    <div class="roadmap-item left-box">
+      <div class="roadmap-box">
+        <strong>Week 1</strong>
+        <p>Introduction to Programming and Python Basics</p>
+      </div>
+      <div class="roadmap-dot"></div>
+    </div>
+    <div class="roadmap-arrow">&#8595;</div>
+
+    <!-- Week 2 -->
+    <div class="roadmap-item right-box">
+      <div class="roadmap-box">
+        <strong>Week 2</strong>
+        <p>Control Structures, Loops, and Functions</p>
+      </div>
+      <div class="roadmap-dot"></div>
+    </div>
+    <div class="roadmap-arrow">&#8595;</div>
+
+    <!-- Week 3 -->
+    <div class="roadmap-item left-box">
+      <div class="roadmap-box">
+        <strong>Week 3</strong>
+        <p>Object-Oriented Programming in Python</p>
+      </div>
+      <div class="roadmap-dot"></div>
+    </div>
+    <div class="roadmap-arrow">&#8595;</div>
+
+    <!-- Week 4 -->
+    <div class="roadmap-item right-box">
+      <div class="roadmap-box">
+        <strong>Week 4</strong>
+        <p>Django Basics and Project Setup</p>
+      </div>
+      <div class="roadmap-dot"></div>
+    </div>
+    <div class="roadmap-arrow">&#8595;</div>
+
+    <!-- Week 5 -->
+    <div class="roadmap-item left-box">
+      <div class="roadmap-box">
+        <strong>Week 5</strong>
+        <p>Models, Views, and Templates in Django</p>
+      </div>
+      <div class="roadmap-dot"></div>
+    </div>
+    <div class="roadmap-arrow">&#8595;</div>
+
+    <!-- Week 6 -->
+    <div class="roadmap-item right-box">
+      <div class="roadmap-box">
+        <strong>Week 6</strong>
+        <p>Frontend with HTML/CSS & Django Forms</p>
+      </div>
+      <div class="roadmap-dot"></div>
+    </div>
+    <div class="roadmap-arrow">&#8595;</div>
+
+    <!-- Continue Weeks 7–30 here -->
+    
+  </div>
+
+<!-- Contact Us Section -->
+<section id="contact" class="py-5 position-relative"
+         style="background: #0F172A; color: #fff;">
+    <div class="container">
+        <!-- Section Title -->
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-uppercase"
+                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px;">
+                📩 Get in <span class="text-warning">Touch</span>
+            </h2>
+            <p class="fs-5 text-light   "
+               style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                Have questions? Let’s talk! Our team is here to help you on your journey.  
+                Send us a message, and we'll get back to you as soon as possible.  
+            </p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <!-- Contact Form -->
+                <div class="card shadow-lg border-0 rounded-4 p-4"
+                     style="background: #1E293B; color: #fff;">
+                     <form method="POST" action="{% url 'submit_contact_form' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <input type="text" name="name" class="form-control py-3 bg-dark text-light" placeholder="Your Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" name="email" class="form-control py-3 bg-dark text-light" placeholder="Your Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="phone" class="form-control py-3 bg-dark text-light" placeholder="Phone Number" required>
+                        </div>
+                        <div class="mb-3">
+                            <select name="education" class="form-select rounded-3 bg-dark text-light" required>
+                              <option value="" disabled selected>Highest Qualification</option>
+                              <option value="High School">High School</option>
+                              <option value="Diploma">Diploma</option>
+                              <option value="Bachelor's">Bachelor's</option>
+                              <option value="Master's">Master's</option>
+                              <option value="PhD">PhD</option>
+                            </select>
+                          </div>
+                        <div class="mb-3">
+                            <input type="text" name="experience" class="form-control py-3 bg-dark text-light" placeholder="Work Experience (optional)">
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="place" class="form-control py-3 bg-dark text-light" placeholder="Your City/Place" required>
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="reason" class="form-control py-3 bg-dark text-light" rows="3" placeholder="Why do you want to join us?" required></textarea>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="col-lg-5 d-flex flex-column justify-content-center text-center text-lg-start mt-5 mt-lg-0">
+                <h4 class="fw-bold text-warning">📍 Visit Us</h4>
+                <p class="fs-6 text-light   ">123 Tech Park, Innovation Street, City, Country</p>
+
+                <h4 class="fw-bold text-warning mt-3">📞 Call Us</h4>
+                <p class="fs-6 text-light   ">+123 456 7890</p>
+
+                <h4 class="fw-bold text-warning mt-3">✉️ Email Us</h4>
+                <p class="fs-6 text-light   ">contact@youracademy.com</p>
+
+                <h4 class="fw-bold text-warning mt-3">🔗 Follow Us</h4>
+                <div class="d-flex justify-content-center justify-content-lg-start mt-2">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <p>&copy; 2025   BThinkX. All Rights Reserved.</p>
+    </footer>
+<!-- Marketing Quotes Container -->
+<div id="marketing-quote" 
+     class="position-absolute p-3 text-light fw-bold fs-5 rounded-pill shadow-lg d-none d-md-block"
+     style="background: rgba(0, 0, 0, 0.75); font-family: 'Poppins', sans-serif; transition: all 1s ease-in-out;">
+</div>
+<!-- Bootstrap Modal -->
+<!-- Modal Form: Same Fields as Main Contact Form -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-light" style="background: linear-gradient(135deg, #222, #444); border-radius: 15px;">
+  
+        <!-- Modal Header -->
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold" id="userDetailsModalLabel" style="font-family: 'Poppins', sans-serif;">
+            📢 Let's Stay Connected!
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+  
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <p class="mb-4 text-center">Fill in your details and be a part of our amazing community.</p>
+  
+          <!-- Form POSTs to same Django view -->
+          <form method="POST" action="{% url 'submit_contact_form' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <input type="text" name="name" class="form-control rounded-3 bg-dark text-light" placeholder="Your Name" required>
+            </div>
+            <div class="mb-3">
+              <input type="email" name="email" class="form-control rounded-3 bg-dark text-light" placeholder="Your Email" required>
+            </div>
+            <div class="mb-3">
+              <input type="tel" name="phone" class="form-control rounded-3 bg-dark text-light" placeholder="Phone Number" required>
+            </div>
+            <div class="mb-3">
+              <input type="text" name="place" class="form-control rounded-3 bg-dark text-light" placeholder="Your Place" required>
+            </div>
+            <div class="mb-3">
+              <select name="education" class="form-select rounded-3 bg-dark text-light" required>
+                <option value="" disabled selected>Highest Qualification</option>
+                <option value="High School">High School</option>
+                <option value="Diploma">Diploma</option>
+                <option value="Bachelor's">Bachelor's</option>
+                <option value="Master's">Master's</option>
+                <option value="PhD">PhD</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <input type="text" name="experience" class="form-control rounded-3 bg-dark text-light" placeholder="Work Experience (optional)">
+            </div>
+            <div class="mb-3">
+              <textarea name="reason" class="form-control rounded-3 bg-dark text-light" rows="3" placeholder="Why do you want to join us?" required></textarea>
+            </div>
+            {% comment %} <div class="mb-3">
+              <textarea name="message" class="form-control rounded-3 bg-dark text-light" rows="3" placeholder="Any additional message?"></textarea>
+            </div> {% endcomment %}
+  
+            <button type="submit" class="btn w-100 fw-bold py-2"
+              style="background: linear-gradient(135deg, #00c853, #009624); color: #fff; border-radius: 10px;">
+              ✅ Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

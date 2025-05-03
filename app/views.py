@@ -32,3 +32,6 @@ def submit_contact_form(request):
         worksheet.append_row(list(data.values()))
 
         return redirect('/')  # Or success page
+    
+def roadmap_view(request):
+    return render(request, 'roadmap.html')
