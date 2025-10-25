@@ -31,91 +31,56 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Night Sky Theme */
-        body {
-            background: linear-gradient(to right, 
-                        rgba(0, 0, 0, 1) 0%,  
-                        rgba(0, 0, 0, 0.92) 12%, 
-                        black 50%, 
-                        rgba(0, 0, 0, 0.92) 88%, 
-                        rgba(0, 0, 0, 1) 100%);
-            color: white;
-            min-height: 100vh;
-        }
-        
-        /* Navbar */
-        .navbar {
-            background-color: black !important;
-            padding: 5px 0;
-        }
+<style>
+    /* Black + White Premium Theme */
+    body {
+        background: linear-gradient(to right, #000, #111, #000);
+        color: #fff;
+        min-height: 100vh;
+    }
 
-        /* Text Styling - Like Stars */
-        h1, h2, h4, p, a {
-            color: white !important;
+    .navbar {
+        background-color: #000 !important;
+        padding: 5px 0;
+    }
 
-        }
+    h1, h2, h4, p, a {
+        color: #fff !important;
+    }
 
-        .card {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-        }
+    .card {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #fff;
+    }
 
-        /* Footer */
-        footer {
-            background-color: black;
-            padding: 20px 0;
-        }
-        h4 {
-            text-shadow: none !important;
-            opacity: 1 !important;
-            mix-blend-mode: normal !important;
-        }
-        .team-card {
-            background: #1E293B;
-            color: #fff;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-    
-        .team-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0px 10px 20px rgba(255, 255, 255, 0.2);
-        }
-    
-        .team-img {
-            height: 250px;
-            object-fit: cover;
-            border-radius: 10px 10px 0 0;
-        }
-    
-        .social-link {
-            color: #fff;
-            margin-right: 12px;
-            transition: color 0.3s ease-in-out;
-        }
-    
-        .social-link:hover {
-            color: #FFC107;
-        }
-    
-        .join-btn {
-            background: linear-gradient(135deg, #FFC107, #FF9800);
-            color: #000;
-            border-radius: 10px;
-            padding: 15px 30px;
-            transition: transform 0.3s ease-in-out;
-        }
-    
-        .join-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0px 5px 15px rgba(255, 193, 7, 0.4);
-        }
-        ::placeholder {
-            color: #ffffff !important;
-            opacity: 1; /* Ensures it's not semi-transparent */
-          }
-    </style>
+    footer {
+        background-color: #000;
+        padding: 20px 0;
+        color: #aaa;
+    }
+
+    .btn:hover {
+        background: transparent !important;
+        color: #fff !important;
+        border: 1px solid #fff !important;
+        transform: scale(1.05);
+    }
+      /* Black Button Styling */
+    .btn-dark-custom {
+        background: #000;
+        color: #fff;
+        border: 1px solid #fff;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-dark-custom:hover {
+        background: #fff;
+        color: #000;
+        transform: scale(1.05);
+    }
+</style>
 </head>
 <body>
 
@@ -142,57 +107,77 @@
                 </a>
             </li>
         </ul>
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a href="{% url 'login' %}" class="btn btn-outline-light fw-bold text-uppercase px-3 py-2 rounded"
+                   style="letter-spacing: 0.5px; text-shadow: 1px 1px 3px rgba(0,0,0,0.2);">
+                    Login
+                </a>
+            </li>
+        </ul>
     </div>
 </nav>
 
+<header class="text-center py-5 position-relative"
+    style="margin-top: 50px; font-family: 'Poppins', sans-serif;
+           background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+           border-radius: 0 0 60px 60px; overflow: hidden;">
+
+    <!-- Co-founder images on the sides -->
+
+    <!-- Achu Joseph -->
+    <img src="{% static 'main/images/achujo.png' %}" alt="Achu Joseph" 
+         class="position-absolute d-none d-lg-block" 
+         style="left: -60px; top: 50%; transform: translateY(-50%); width:430px; border-radius:50%; 
+                box-shadow: 0 0 200px 100px rgba(0,0,0,0.9);">
+
+<!-- Veena Jo -->
+<div class="position-absolute d-none d-lg-block" 
+     style="right: -80px; top: 50%; transform: translateY(-50%); z-index:1;">
+     
+    <!-- Larger radial glow for better blending -->
+    <div style="width:500px; height:500px; border-radius:50%; 
+                background: radial-gradient(circle, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.7) 60%, rgba(26,26,26,0) 100%); 
+                position:absolute; top:50%; left:40%; transform:translate(-50%, -50%);">
+    </div>
     
-    
-   <header class="text-center py-5 position-relative"
-    style="margin-top: 100px; font-family: 'Poppins', sans-serif;">
+    <!-- Veena image with stronger shadow -->
+    <img src="{% static 'main/images/veenajo.png' %}" alt="Veena Jo" 
+         style="width:400px; border-radius:50%; 
+                box-shadow: 0 0 300px 150px rgba(0,0,0,0.95); position:relative; z-index:2;">
+</div>
 
-    <div class="container-fluid px-3"> <!-- Changed to container-fluid & reduced padding -->
-        <div class="row align-items-center justify-content-center gap-5">
 
-            <!-- Left Section: Image -->
-            <div class="col-12 col-md-5 text-center text-md-start">
-                <img src="{% static 'main/images/abcd.png' %}" alt="Achu Joseph S L" class="img-fluid shadow-lg"
-                    style="max-width: 100%; height: auto; object-fit: cover; border-radius: 0 0 50px 50px;">
-            </div>
-
-            <!-- Right Section: Text & CTA -->
-            <div class="col-12 col-md-6 text-center text-md-start">
+    <div class="container px-4 position-relative" style="z-index: 2;">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-9">
 
                 <!-- Main Heading -->
-                <h1 class="fw-bold display-4 text-light"
-                    style="letter-spacing: 1px; text-shadow: 2px 2px 5px rgba(255,255,255,0.1);">
-                    Welcome to   BThinkX
+                <h1 class="fw-bold display-3 text-white mb-3"
+                    style="letter-spacing: 1.5px; text-shadow: 2px 2px 12px rgba(255,255,255,0.08);">
+                    Welcome to <span style="color:#fff;">BThinkX</span>
                 </h1>
 
-                <p class="fs-5 text-secondary">
-                    Your Gateway to a Successful IT Career  
+                <!-- Sub Heading -->
+                <p class="fs-4 text-light mb-4" style="color:#ccc !important;">
+                    Your Gateway to a <span class="fw-semibold text-white">Successful IT Career</span>
                 </p>
 
-                <!-- Powerful Messaging -->
-                <div class="mb-4">
-                    <p class="fw-bold text-light fs-5" style="line-height: 1.6;">
-                        If you're ready to invest your time and have the urge to learn,  
-                        <span class="text-warning fw-bold">we're ready to transform your life.</span>  
-                        This is not just a training center – it's a <span class="text-success">Transformation Hub</span>.  
-                        Gain <span class="text-warning">communication skills, presentation confidence, and industry-ready expertise.</span>
-                    </p>
-                </div>
+                <!-- Premium Messaging -->
+                <p class="fw-normal text-light fs-5 mb-5" style="line-height: 1.8; color:#bbb !important;">
+                    If you're ready to invest your time and have the urge to learn,  
+                    <span class="fw-semibold text-white">we're ready to transform your life.</span>  
+                    More than a training center – this is a <span class="fw-semibold text-white">Transformation Hub</span>.  
+                    Gain <span class="fw-semibold text-white">communication skills, presentation confidence, and industry-ready expertise.</span>
+                </p>
 
                 <!-- CTA Buttons -->
-                <div class="d-flex flex-column flex-md-row gap-3 justify-content-center justify-content-md-start">
-                    <a href="#courses" class="btn px-4 py-3 fw-bold fs-5 shadow-sm"
-                        style="background: linear-gradient(135deg, #222, #444); color: #fff; border-radius: 10px;
-                                transition: all 0.3s ease; font-family: 'Poppins', sans-serif;">
+                <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+                    <a href="#courses" class="btn px-4 py-3 fw-bold fs-5 shadow-lg btn-dark-custom">
                         🎓 Explore Courses
                     </a>
 
-                    <a href="https://wa.me/YOUR_NUMBER_HERE" target="_blank" class="btn px-4 py-3 fw-bold fs-5 shadow-sm"
-                        style="background: linear-gradient(135deg, #00c853, #009624); color: #fff; border-radius: 10px;
-                                transition: all 0.3s ease; font-family: 'Poppins', sans-serif;">
+                    <a href="https://wa.me/YOUR_NUMBER_HERE" target="_blank" class="btn px-4 py-3 fw-bold fs-5 shadow-lg btn-dark-custom">
                         📞 Get Free Career Guidance
                     </a>
                 </div>
@@ -203,17 +188,22 @@
 </header>
 
 
-<section id="about" class="py-5 position-relative">
+
+
+
+<section id="about" class="py-5 position-relative"
+    style="background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border-radius: 60px; margin-top: 50px;">
+
     <div class="container"> 
         
         <!-- Common Heading (Centered) -->
         <div class="row">
             <div class="col-12 text-center mb-5">
-                <h2 class="fw-bold text-uppercase"
+                <h2 class="fw-bold text-uppercase text-white"
                     style="font-family: 'Poppins', sans-serif; 
                            letter-spacing: 1.5px;
-                           text-shadow: 0 0 15px rgba(255,255,255,0.6);">
-                    🚀 About <span class="text-warning">  BThinkX</span>
+                           text-shadow: 0 0 15px rgba(255,255,255,0.25);">
+                    🚀 About <span class="text-white">BThinkX</span>
                 </h2>
             </div>
         </div>
@@ -221,40 +211,34 @@
         <!-- Video & Text Content -->
         <div class="row align-items-center">
             
-            <!-- Left Side: YouTube Video -->
+            <!-- Left Side: Placeholder Slot for Video -->
             <div class="col-lg-6 mb-4 mb-lg-0 text-center">
-                <div class="position-relative shadow-lg rounded-4 overflow-hidden w-100">
-                    <iframe width="100%" height="615" 
-                        src="https://www.youtube.com/embed/Xh8B6W7RUfA?si=m_AKfoBsoaIFRBih" 
-                        title="YouTube video player" frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
-                        class="rounded-4" 
-                        style="border: 5px solid rgba(255,255,255,0.1);">
-                    </iframe>
+                <div class="d-flex align-items-center justify-content-center shadow-lg rounded-4 overflow-hidden w-100"
+                     style="height: 350px; background: #111; border: 2px dashed rgba(255,255,255,0.2);">
+                    <span class="text-muted fs-5">🎬 Video Placeholder</span>
                 </div>
             </div>
 
             <!-- Right Side: Text Content -->
             <div class="col-lg-6 text-center text-lg-start">
                 <p class="fs-5 text-light" 
-                   style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                    **  BThinkX is not just a training center – it’s a transformation hub.**  
-                    We help passionate learners **bridge the gap between education and the IT industry**  
-                    through real-world projects, mentorship from industry experts, and hands-on learning.  
+                   style="line-height: 1.8; font-family: 'Poppins', sans-serif; color:#bbb !important;">
+                    <span class="fw-bold text-white">BThinkX is not just a training center – it’s a transformation hub.</span><br>
+                    We help passionate learners <span class="fw-semibold text-white">bridge the gap between education and the IT industry</span>  
+                    through real-world projects, mentorship from industry experts, and hands-on learning.
                 </p>
 
                 <ul class="list-unstyled fs-5 mt-3" 
-                    style="font-family: 'Poppins', sans-serif; line-height: 1.8;">
-                    <li>✅ Learn from <span class="text-warning fw-bold">real-world professionals</span></li>
-                    <li>✅ Gain <span class="text-success fw-bold">job-ready skills</span> through hands-on projects</li>
-                    <li>✅ Master <span class="text-primary fw-bold">communication & presentation</span> for career success</li>
+                    style="font-family: 'Poppins', sans-serif; line-height: 1.8; color:#bbb !important;">
+                    <li>✅ Learn from <span class="fw-bold text-white">real-world professionals</span></li>
+                    <li>✅ Gain <span class="fw-bold text-white">job-ready skills</span> through hands-on projects</li>
+                    <li>✅ Master <span class="fw-bold text-white">communication & presentation</span> for career success</li>
                 </ul>
 
                 <!-- Call to Action -->
                 <div class="mt-4">
                     <a href="#courses" class="btn fw-bold px-4 py-3 shadow-sm"
-                       style="background: linear-gradient(135deg, #FFC107, #FF9800); color: #000; border-radius: 10px;">
+                       style="background:#000; color:#fff; border-radius: 12px; border:1px solid #fff; transition: all 0.3s ease;">
                         🎓 Explore Our Programs
                     </a>
                 </div>
@@ -269,62 +253,45 @@
 
 
 
+<section id="courses" class="py-5 position-relative"
+    style="background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border-radius: 60px; margin-top: 50px;">
 
-
-<section id="courses" class="py-5 position-relative">
     <div class="container">
         <!-- Section Title -->
         <div class="text-center mb-5">
-            <h2 class="fw-bold text-uppercase"
-                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px; text-shadow: 0 0 15px rgba(255,255,255,0.6);">
-                🎓 Our <span class="text-warning">Courses</span>
+            <h2 class="fw-bold text-uppercase text-white"
+                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px; text-shadow: 0 0 15px rgba(255,255,255,0.25);">
+                🎓 Our Courses
             </h2>
-            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                Elevate your career with **industry-driven programs**.  
-                Learn from **expert professionals** and gain **real-world experience**.
+            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif; color:#bbb !important;">
+                Elevate your career with <span class="fw-semibold text-white">industry-driven programs</span>.  
+                Learn from <span class="fw-semibold text-white">expert professionals</span> and gain <span class="fw-semibold text-white">real-world experience</span>.
             </p>
         </div>
 
         <div class="row g-4">
+
             <!-- Course: MERN Stack -->
             <div class="col-lg-4 col-md-6">
                 <a href="{% url 'roadmap' %}" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                         style="background: #1E293B; color: #fff;">
+                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden position-relative"
+                         style="background: #111; color: #fff;">
+                                                 <!-- Offer Badge -->
+                        <div class="position-absolute top-0 end-0 bg-white text-dark fw-bold px-3 py-1"
+                             style="border-radius: 0 0 0 12px; font-size: 0.9rem;">
+                             ₹3000/month Offer
+                        </div>
                         <img src="{% static 'main/images/Online-Course-2.jpeg' %}" class="card-img-top" alt="MERN Stack Course">
                         <div class="card-body text-center">
                             <h4 class="fw-bold text-white text-uppercase"
                                 style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
                                 MERN Stack Development
                             </h4>
-                            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                                Master **MongoDB, Express.js, React.js, and Node.js**.  
-                                Build **powerful, scalable web applications**.
+                            <p class="fs-5 text-light" style="line-height: 1.8; color:#bbb !important;">
+                                Master MongoDB, Express.js, React.js, and Node.js.  
+                                Build powerful, scalable web applications.
                             </p>
-                            <a href="{% url 'roadmap' %}" class="btn btn-dark fw-bold px-4 py-2 rounded-pill">
-                                Learn More 🚀
-                            </a>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Course: MEAN Stack -->
-            <div class="col-lg-4 col-md-6">
-                <a href="{% url 'roadmap' %}" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                         style="background: #1E293B; color: #fff;">
-                        <img src="{% static 'main/images/Online-Course-2.jpeg' %}" class="card-img-top" alt="MEAN Stack Course">
-                        <div class="card-body text-center">
-                            <h4 class="fw-bold text-white text-uppercase"
-                                style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
-                                MEAN Stack Development
-                            </h4>
-                            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                                Learn **MongoDB, Express.js, Angular, and Node.js**.  
-                                Build **enterprise-grade applications**.
-                            </p>
-                            <a href="{% url 'roadmap' %}" class="btn btn-dark fw-bold px-4 py-2 rounded-pill">
+                            <a href="{% url 'roadmap' %}" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill">
                                 Learn More 🚀
                             </a>
                         </div>
@@ -335,19 +302,26 @@
             <!-- Course: Python Django + React -->
             <div class="col-lg-4 col-md-6">
                 <a href="{% url 'roadmap' %}" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                         style="background: #1E293B; color: #fff;">
+                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden position-relative"
+                         style="background: #111; color: #fff;">
+                        
+                        <!-- Offer Badge -->
+                        <div class="position-absolute top-0 end-0 bg-white text-dark fw-bold px-3 py-1"
+                             style="border-radius: 0 0 0 12px; font-size: 0.9rem;">
+                             ₹3000/month Offer
+                        </div>
+
                         <img src="{% static 'main/images/Online-Course-2.jpeg' %}" class="card-img-top" alt="Python Django + React Course">
                         <div class="card-body text-center">
                             <h4 class="fw-bold text-white text-uppercase"
                                 style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
                                 Python Django + React
                             </h4>
-                            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                                Build **full-stack web applications**  
-                                with **Django and React**.
+                            <p class="fs-5 text-light" style="line-height: 1.8; color:#bbb !important;">
+                                Build full-stack web applications with Django and React.  
+                                <br><span class="fw-semibold text-white">3 Months / 6 Months Advanced Programs</span>
                             </p>
-                            <a href="{% url 'roadmap' %}" class="btn btn-dark fw-bold px-4 py-2 rounded-pill">
+                            <a href="{% url 'roadmap' %}" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill">
                                 Learn More 🚀
                             </a>
                         </div>
@@ -355,76 +329,70 @@
                 </a>
             </div>
 
-            <!-- Course: Mobile App Development -->
+            <!-- Course: Personal Mentorship Program -->
             <div class="col-lg-4 col-md-6">
-                <a href="{% url 'roadmap' %}" class="text-decoration-none">
+                <a href="#register" class="text-decoration-none">
                     <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                         style="background: #1E293B; color: #fff;">
-                        <img src="{% static 'main/images/Online-Course-2.jpeg' %}" class="card-img-top" alt="Mobile App Development">
-                        <div class="card-body text-center">
-                            <h4 class="fw-bold text-white text-uppercase"
+                         style="background: #111; color: #fff;">
+                                                 <img src="{% static 'main/images/Online-Course-2.jpeg' %}" class="card-img-top" alt="Python Django + React Course">
+
+                        <div class="card-body text-center py-5">
+                            <h4 class="fw-bold text-white text-uppercase mb-3"
                                 style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
-                                Mobile App Development
+                                Personal Mentorship
                             </h4>
-                            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                                Develop **cross-platform apps**  
-                                using **React Native & Flutter**.
+                            <p class="fs-5 text-light" style="line-height: 1.8; color:#bbb !important;">
+                                Get one-on-one guidance, career mapping,  
+                                and exclusive mentorship from industry experts.
                             </p>
-                            <a href="{% url 'roadmap' %}" class="btn btn-dark fw-bold px-4 py-2 rounded-pill">
-                                Learn More 🚀
+                            <a href="#register" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill">
+                                Apply Now 🌟
                             </a>
                         </div>
                     </div>
                 </a>
             </div>
 
-            <!-- Course: Coming Soon: DevOps -->
+            <!-- Coming Soon Courses -->
             <div class="col-lg-4 col-md-6">
-                <a href="#" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                         style="background: #1E293B; color: #fff;">
-                        <div class="card-body text-center">
-                            <h4 class="fw-bold text-white text-uppercase"
-                                style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
-                                DevOps (Coming Soon)
-                            </h4>
-                            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                                Master the practices of **CI/CD** and **Infrastructure Automation**.
-                            </p>
-                            <a href="#" class="btn btn-dark fw-bold px-4 py-2 rounded-pill" disabled>
-                                Coming Soon 🚧
-                            </a>
-                        </div>
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
+                     style="background: #111; color: #fff; opacity: 0.5;">
+                    <div class="card-body text-center py-5">
+                        <h4 class="fw-bold text-white text-uppercase">Mobile App Development</h4>
+                        <p class="fs-5 text-light" style="color:#bbb !important;">React Native & Flutter</p>
+                        <button class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill" disabled>Coming Soon 🚧</button>
                     </div>
-                </a>
+                </div>
             </div>
 
-            <!-- Course: Coming Soon: AI & ML -->
             <div class="col-lg-4 col-md-6">
-                <a href="#" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                         style="background: #1E293B; color: #fff;">
-                        <div class="card-body text-center">
-                            <h4 class="fw-bold text-white text-uppercase"
-                                style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
-                                AI & Machine Learning (Coming Soon)
-                            </h4>
-                            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                                Explore **AI and Machine Learning** applications.
-                            </p>
-                            <a href="#" class="btn btn-dark fw-bold px-4 py-2 rounded-pill" disabled>
-                                Coming Soon 🚧
-                            </a>
-                        </div>
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
+                     style="background: #111; color: #fff; opacity: 0.5;">
+                    <div class="card-body text-center py-5">
+                        <h4 class="fw-bold text-white text-uppercase">DevOps</h4>
+                        <p class="fs-5 text-light" style="color:#bbb !important;">CI/CD & Automation</p>
+                        <button class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill" disabled>Coming Soon 🚧</button>
                     </div>
-                </a>
+                </div>
             </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
+                     style="background: #111; color: #fff; opacity: 0.5;">
+                    <div class="card-body text-center py-5">
+                        <h4 class="fw-bold text-white text-uppercase">AI & ML</h4>
+                        <p class="fs-5 text-light" style="color:#bbb !important;">Artificial Intelligence & ML</p>
+                        <button class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill" disabled>Coming Soon 🚧</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Call to Action -->
         <div class="text-center mt-5">
             <a href="#register" class="btn btn-lg fw-bold px-5 py-3 shadow-sm"
-               style="background: linear-gradient(135deg,rgb(26, 26, 26),rgb(26, 23, 23)); color: #000; border-radius: 10px;">
+               style="background:#000; color:#fff; border:1px solid #fff; border-radius: 12px; transition: all 0.3s ease;">
                 🔥 Enroll Now & Transform Your Career!
             </a>
         </div>
@@ -437,7 +405,7 @@
 
     
 
-
+{% comment %} 
 <section id="team" class="py-5 position-relative"
 >
     <div class="container">
@@ -597,12 +565,12 @@
             </a>
         </div>
     </div>
-</section>
+</section> {% endcomment %}
 
 
 <!-- style="background: #0F172A; color: #fff;" -->
 <!-- Testimonials Section -->
-<section id="testimonials" class="py-5 position-relative">
+{% comment %} <section id="testimonials" class="py-5 position-relative">
     <div class="container">
         <!-- Section Title -->
         <div class="text-center mb-5">
@@ -691,7 +659,7 @@
             </a>
         </div>
     </div>
-</section>
+</section> {% endcomment %}
 
 
 
@@ -756,13 +724,13 @@
             <!-- Contact Info -->
             <div class="col-lg-5 d-flex flex-column justify-content-center text-center text-lg-start mt-5 mt-lg-0">
                 <h4 class="fw-bold text-warning">📍 Visit Us</h4>
-                <p class="fs-6 text-light   ">123 Tech Park, Innovation Street, City, Country</p>
+                <p class="fs-6 text-light   ">Thiruhridalaya First FLoor Kattakada Road Malapanacode</p>
 
                 <h4 class="fw-bold text-warning mt-3">📞 Call Us</h4>
-                <p class="fs-6 text-light   ">+123 456 7890</p>
+                <p class="fs-6 text-light   ">+91 95441 96763</p>
 
                 <h4 class="fw-bold text-warning mt-3">✉️ Email Us</h4>
-                <p class="fs-6 text-light   ">contact@youracademy.com</p>
+                <p class="fs-6 text-light   ">bthinkxaccademy@gmail.com</p>
 
                 <h4 class="fw-bold text-warning mt-3">🔗 Follow Us</h4>
                 <div class="d-flex justify-content-center justify-content-lg-start mt-2">

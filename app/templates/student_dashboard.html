@@ -1,0 +1,52 @@
+{% extends "app/base.html" %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-white fw-bold mb-4">Student Dashboard</h2>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card bg-dark text-white shadow-sm p-3 rounded-4">
+                <h5>Total Courses</h5>
+                <p class="fs-3">{{ request.user.studentprofile.enrollments.count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white shadow-sm p-3 rounded-4">
+                <h5>Active Sessions</h5>
+                <p class="fs-3">
+                    {{ request.user.studentprofile.enrollments.all|length }} <!-- Example placeholder -->
+                </p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white shadow-sm p-3 rounded-4">
+                <h5>Completed Reviews</h5>
+                <p class="fs-3">{{ request.user.studentprofile.reviews.count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white shadow-sm p-3 rounded-4">
+                <h5>Next Review</h5>
+                <p class="fs-5">Coming Soon</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrolled Courses -->
+    <h4 class="text-white fw-bold mb-3">Your Courses</h4>
+    <div class="row g-4">
+        {% for enrollment in request.user.studentprofile.enrollments.all %}
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white shadow-lg rounded-4 p-3">
+                <h5 class="fw-bold">{{ enrollment.course.title }}</h5>
+                <p>{{ enrollment.course.description|truncatechars:100 }}</p>
+                <a href="#" class="btn btn-light btn-sm">View Details</a>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">You are not enrolled in any courses yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

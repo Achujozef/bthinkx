@@ -1,0 +1,56 @@
+{% extends "app/base.html" %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-white fw-bold mb-4">Operations Manager Dashboard</h2>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card bg-dark text-white shadow-sm p-3 rounded-4">
+                <h5>Total Students</h5>
+                <p class="fs-3">{{ students_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white shadow-sm p-3 rounded-4">
+                <h5>Total Coordinators</h5>
+                <p class="fs-3">{{ coordinators_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white shadow-sm p-3 rounded-4">
+                <h5>Total Courses</h5>
+                <p class="fs-3">{{ courses_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white shadow-sm p-3 rounded-4">
+                <h5>Pending Approvals</h5>
+                <p class="fs-5">Coming Soon</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Options -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white shadow-lg rounded-4 p-4 text-center">
+                <h5 class="fw-bold">Manage Students</h5>
+                <a href="#" class="btn btn-light mt-3">View Students</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white shadow-lg rounded-4 p-4 text-center">
+                <h5 class="fw-bold">Manage Coordinators</h5>
+                <a href="#" class="btn btn-light mt-3">View Coordinators</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white shadow-lg rounded-4 p-4 text-center">
+                <h5 class="fw-bold">Manage Courses</h5>
+                <a href="#" class="btn btn-light mt-3">View Courses</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
