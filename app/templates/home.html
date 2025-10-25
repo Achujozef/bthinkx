@@ -1,881 +1,2137 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>BThinkX | Best IT & Software Training Institute | Web Development & Programming Courses</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BThinkX | Elite IT Mentorship & Career Transformation</title>
     
-        <!-- SEO Meta Tags -->
-        <meta name="description" content="BThinkX is a leading IT and software training institute offering expert-led courses in web development, programming fundamentals, and career-oriented tech education. Join the best training institute to upgrade your skills.">
-        <meta name="keywords" content="BThinkX, IT training institute, software training, best IT institute, programming courses, web development, coding bootcamp, learn programming, developer training, tech education">
-        <meta name="author" content="BThinkX">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-        <!-- Open Graph Meta Tags (for social sharing) -->
-        <meta property="og:title" content="BThinkX - Best IT Training Institute for Web Development & Programming">
-        <meta property="og:description" content="Join BThinkX to master web development, software programming, and get industry-ready with expert-led IT training.">
-        <meta property="og:image" content="https://bthinkx.com/static/images/bthinkx-og-image.jpg">
-        <meta property="og:url" content="https://bthinkx.com">
-        <meta property="og:type" content="website">
-    
-        <!-- Twitter Card Meta Tags -->
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="BThinkX - Best Software Training Institute">
-        <meta name="twitter:description" content="BThinkX is your go-to IT training platform for web development, coding, and career-boosting tech courses.">
-        <meta name="twitter:image" content="https://bthinkx.com/static/images/bthinkx-twitter-card.jpg">
-    
-        <!-- Favicon -->
-        <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
-    
-        <!-- Styles and Fonts -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-    /* Black + White Premium Theme */
-    body {
-        background: linear-gradient(to right, #000, #111, #000);
-        color: #fff;
-        min-height: 100vh;
-    }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .navbar {
-        background-color: #000 !important;
-        padding: 5px 0;
-    }
+        :root {
+            --primary-bg: #000000;
+            --secondary-bg: #0a0a0a;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-blue: #3b82f6;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --card-bg: rgba(15, 15, 15, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+        }
 
-    h1, h2, h4, p, a {
-        color: #fff !important;
-    }
+        [data-theme="light"] {
+            --primary-bg: #ffffff;
+            --secondary-bg: #f8fafc;
+            --accent-purple: #7c3aed;
+            --accent-pink: #db2777;
+            --accent-blue: #2563eb;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(248, 250, 252, 0.8);
+            --card-border: rgba(15, 23, 42, 0.1);
+        }
 
-    .card {
-        background-color: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: #fff;
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
 
-    footer {
-        background-color: #000;
-        padding: 20px 0;
-        color: #aaa;
-    }
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
 
-    .btn:hover {
-        background: transparent !important;
-        color: #fff !important;
-        border: 1px solid #fff !important;
-        transform: scale(1.05);
-    }
-      /* Black Button Styling */
-    .btn-dark-custom {
-        background: #000;
-        color: #fff;
-        border: 1px solid #fff;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
 
-    .btn-dark-custom:hover {
-        background: #fff;
-        color: #000;
-        transform: scale(1.05);
-    }
-</style>
+        .theme-toggle-icon {
+            font-size: 28px;
+            transition: transform 0.4s ease;
+        }
+
+        .theme-toggle:active .theme-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Light mode adjustments */
+        [data-theme="light"] .mesh-bg {
+            opacity: 0.3;
+            background: 
+                radial-gradient(at 20% 30%, rgba(124, 58, 237, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 70%, rgba(219, 39, 119, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(37, 99, 235, 0.1) 0px, transparent 50%);
+        }
+
+        [data-theme="light"] .particle {
+            background: rgba(124, 58, 237, 0.4);
+        }
+
+        [data-theme="light"] nav {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        [data-theme="light"] nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="light"] .floating-orb {
+            filter: blur(60px);
+        }
+
+        [data-theme="light"] .orb-1 {
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.2), transparent);
+        }
+
+        [data-theme="light"] .orb-2 {
+            background: radial-gradient(circle, rgba(219, 39, 119, 0.2), transparent);
+        }
+
+        [data-theme="light"] .orb-3 {
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.15), transparent);
+        }
+
+        [data-theme="light"] .hero-card {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.1);
+        }
+
+        [data-theme="light"] .feature-card,
+        [data-theme="light"] .course-card,
+        [data-theme="light"] .testimonial-card {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+        }
+
+        [data-theme="light"] .feature-card:hover,
+        [data-theme="light"] .course-card:hover,
+        [data-theme="light"] .testimonial-card:hover {
+            box-shadow: 0 20px 60px rgba(124, 58, 237, 0.15);
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        [data-theme="light"] .stat-item {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 15px rgba(15, 23, 42, 0.05);
+        }
+
+        [data-theme="light"] .stat-item:hover {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.15);
+        }
+
+        [data-theme="light"] .cta-section {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), rgba(219, 39, 119, 0.05));
+            border: 2px solid rgba(124, 58, 237, 0.2);
+        }
+
+        [data-theme="light"] .btn-secondary {
+            background: rgba(15, 23, 42, 0.05);
+            border-color: rgba(15, 23, 42, 0.15);
+        }
+
+        [data-theme="light"] .btn-secondary:hover {
+            background: rgba(15, 23, 42, 0.08);
+            border-color: rgba(15, 23, 42, 0.3);
+        }
+
+        [data-theme="light"] .course-features li {
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        [data-theme="light"] input,
+        [data-theme="light"] select,
+        [data-theme="light"] textarea {
+            background: rgba(248, 250, 252, 0.8) !important;
+            border: 1px solid rgba(15, 23, 42, 0.15) !important;
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="light"] select {
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%230f172a%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e') !important;
+        }
+
+        [data-theme="light"] input:focus,
+        [data-theme="light"] select:focus,
+        [data-theme="light"] textarea:focus {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-color: rgba(124, 58, 237, 0.4) !important;
+        }
+
+        [data-theme="light"] select option {
+            background: #ffffff !important;
+            color: #0f172a !important;
+        }
+
+        /* Dark mode select styling */
+        select {
+            cursor: pointer;
+        }
+
+        select option {
+            padding: 12px;
+        }
+
+        select option:hover,
+        select option:focus,
+        select option:checked {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899) !important;
+            color: white !important;
+        }
+
+        select::-ms-expand {
+            display: none;
+        }
+
+        /* Light mode select options */
+        [data-theme="light"] select option:hover,
+        [data-theme="light"] select option:focus,
+        [data-theme="light"] select option:checked {
+            background: linear-gradient(135deg, #7c3aed, #db2777) !important;
+            color: white !important;
+        }
+
+        [data-theme="light"] footer {
+            border-top: 1px solid rgba(15, 23, 42, 0.1);
+        }
+
+        [data-theme="light"] .social-link {
+            background: rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(15, 23, 42, 0.1);
+        }
+
+        [data-theme="light"] .social-link:hover {
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            color: white;
+        }
+
+        /* Mobile theme toggle positioning */
+        @media (max-width: 768px) {
+            .theme-toggle {
+                bottom: 24px;
+                right: 24px;
+                width: 56px;
+                height: 56px;
+            }
+
+            .theme-toggle-icon {
+                font-size: 24px;
+            }
+        }
+
+        /* Animated Mesh Background */
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.6;
+            background: 
+                radial-gradient(at 20% 30%, rgba(139, 92, 246, 0.3) 0px, transparent 50%),
+                radial-gradient(at 80% 70%, rgba(236, 72, 153, 0.3) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(59, 130, 246, 0.2) 0px, transparent 50%);
+            animation: meshMove 15s ease-in-out infinite;
+        }
+
+        @keyframes meshMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(139, 92, 246, 0.6);
+            border-radius: 50%;
+            animation: particleFloat 20s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 24px 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(0);
+        }
+
+        nav.scrolled {
+            padding: 16px 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        .btn-nav {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-nav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(139, 92, 246, 0.5);
+        }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .mobile-toggle span {
+            width: 26px;
+            height: 2px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 140px 48px 80px;
+            z-index: 2;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #a78bfa;
+            margin-bottom: 32px;
+            animation: fadeSlideIn 0.8s ease;
+        }
+
+        .hero-tag::before {
+            content: '⚡';
+            font-size: 16px;
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 7vw, 84px);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 28px;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -2.5px;
+            animation: fadeSlideIn 1s ease 0.2s backwards;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 5s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero p {
+            font-size: 20px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            max-width: 620px;
+            animation: fadeSlideIn 1s ease 0.4s backwards;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            animation: fadeSlideIn 1s ease 0.6s backwards;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-primary {
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(139, 92, 246, 0.6);
+        }
+
+        .btn-secondary {
+            padding: 18px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 80px;
+            animation: fadeSlideIn 1s ease 0.8s backwards;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 900;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            height: 600px;
+            animation: fadeSlideIn 1s ease 0.4s backwards;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.4), transparent);
+            top: 0;
+            right: 0;
+            filter: blur(40px);
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.4), transparent);
+            bottom: 50px;
+            left: 50px;
+            filter: blur(40px);
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(40px);
+            animation-delay: 4s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(20px, -20px); }
+            50% { transform: translate(-20px, 20px); }
+            75% { transform: translate(20px, 20px); }
+        }
+
+        .hero-card {
+            position: absolute;
+            background: rgba(15, 15, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: cardFloat 6s ease-in-out infinite;
+        }
+
+        .hero-card-1 {
+            top: 40px;
+            right: 40px;
+            animation-delay: 0s;
+        }
+
+        .hero-card-2 {
+            bottom: 100px;
+            left: 0;
+            animation-delay: 2s;
+        }
+
+        .hero-card-3 {
+            top: 50%;
+            right: 80px;
+            animation-delay: 4s;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .card-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            margin-bottom: 16px;
+        }
+
+        .card-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .card-role {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Section Styles */
+        section {
+            position: relative;
+            padding: 120px 48px;
+            max-width: 1400px;
+            margin: 0 auto;
+            z-index: 2;
+        }
+
+        /* Contact form specific z-index fix */
+        #contact .feature-card {
+            position: relative;
+            z-index: 10;
+        }
+
+        #contact input,
+        #contact select,
+        #contact textarea,
+        #contact button {
+            position: relative;
+            z-index: 11;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: 10px 24px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #a78bfa;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .section-title {
+            font-size: clamp(40px, 5vw, 64px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -1.5px;
+        }
+
+        .section-description {
+            font-size: 19px;
+            color: var(--text-secondary);
+            max-width: 750px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 32px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 44px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.2);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 28px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            font-family: 'Space Grotesk', sans-serif;
+            position: relative;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 16px;
+            position: relative;
+        }
+
+        /* Courses Grid */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 36px;
+            margin-top: 60px;
+        }
+
+        .course-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .course-card:hover {
+            transform: translateY(-12px);
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 25px 70px rgba(139, 92, 246, 0.25);
+        }
+
+        .course-badge {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .course-header {
+            height: 240px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .course-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+        }
+
+        .course-icon {
+            font-size: 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .course-content {
+            padding: 36px;
+        }
+
+        .course-title {
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 16px;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.5px;
+        }
+
+        .course-description {
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+            line-height: 1.75;
+            font-size: 15px;
+        }
+
+        .course-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .course-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .course-features li:last-child {
+            border-bottom: none;
+        }
+
+        .course-features li::before {
+            content: '✓';
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 40px;
+            padding: 100px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Testimonials */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .testimonial-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px;
+            transition: all 0.4s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2);
+        }
+
+        .testimonial-text {
+            font-size: 17px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .author-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        }
+
+        .author-info {
+            flex: 1;
+        }
+
+        .author-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .author-role {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 80px 48px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .footer-brand {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-link {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+
+        .social-link:hover {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border-color: transparent;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .footer-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 14px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+            padding-left: 8px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 60px;
+            }
+
+            .hero-visual {
+                display: none;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+
+            .courses-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 24px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+
+            section {
+                padding: 80px 24px;
+            }
+
+            .hero {
+                padding: 120px 24px 60px;
+            }
+
+            .hero h1 {
+                font-size: 44px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .features-grid,
+            .courses-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .feature-card,
+            .course-content {
+                padding: 32px;
+            }
+
+            .cta-section {
+                padding: 60px 32px;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .course-title {
+                font-size: 24px;
+            }
+
+            .stat-number {
+                font-size: 36px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Mesh Background -->
+    <div class="mesh-bg"></div>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-    <div class="container d-flex justify-content-center">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link text-white fw-bold text-uppercase text-center px-2 px-md-4"
-                   style="font-family: 'Poppins', sans-serif; 
-                          letter-spacing: 0.5px; 
-                          text-shadow: 1px 1px 5px rgba(255,255,255,0.2); 
-                          white-space: nowrap;">
-                    Hire from Us
-                </a>
-            </li>
-            <li class="nav-item mx-2 mx-md-4">
-                <a class="nav-link text-white fw-bold text-uppercase text-center px-2 px-md-4"
-                   style="font-family: 'Poppins', sans-serif; 
-                          letter-spacing: 0.5px; 
-                          text-shadow: 1px 1px 5px rgba(255,255,255,0.2); 
-                          white-space: nowrap;">
-                    Change Your Career with Us
-                </a>
-            </li>
-        </ul>
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a href="{% url 'login' %}" class="btn btn-outline-light fw-bold text-uppercase px-3 py-2 rounded"
-                   style="letter-spacing: 0.5px; text-shadow: 1px 1px 3px rgba(0,0,0,0.2);">
-                    Login
-                </a>
-            </li>
-        </ul>
-    </div>
-</nav>
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
 
-<header class="text-center py-5 position-relative"
-    style="margin-top: 50px; font-family: 'Poppins', sans-serif;
-           background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-           border-radius: 0 0 60px 60px; overflow: hidden;">
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span class="theme-toggle-icon">🌙</span>
+    </button>
 
-    <!-- Co-founder images on the sides -->
-
-    <!-- Achu Joseph -->
-    <img src="{% static 'main/images/achujo.png' %}" alt="Achu Joseph" 
-         class="position-absolute d-none d-lg-block" 
-         style="left: -60px; top: 50%; transform: translateY(-50%); width:430px; border-radius:50%; 
-                box-shadow: 0 0 200px 100px rgba(0,0,0,0.9);">
-
-<!-- Veena Jo -->
-<div class="position-absolute d-none d-lg-block" 
-     style="right: -80px; top: 50%; transform: translateY(-50%); z-index:1;">
-     
-    <!-- Larger radial glow for better blending -->
-    <div style="width:500px; height:500px; border-radius:50%; 
-                background: radial-gradient(circle, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.7) 60%, rgba(26,26,26,0) 100%); 
-                position:absolute; top:50%; left:40%; transform:translate(-50%, -50%);">
-    </div>
-    
-    <!-- Veena image with stronger shadow -->
-    <img src="{% static 'main/images/veenajo.png' %}" alt="Veena Jo" 
-         style="width:400px; border-radius:50%; 
-                box-shadow: 0 0 300px 150px rgba(0,0,0,0.95); position:relative; z-index:2;">
-</div>
-
-
-    <div class="container px-4 position-relative" style="z-index: 2;">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-9">
-
-                <!-- Main Heading -->
-                <h1 class="fw-bold display-3 text-white mb-3"
-                    style="letter-spacing: 1.5px; text-shadow: 2px 2px 12px rgba(255,255,255,0.08);">
-                    Welcome to <span style="color:#fff;">BThinkX</span>
-                </h1>
-
-                <!-- Sub Heading -->
-                <p class="fs-4 text-light mb-4" style="color:#ccc !important;">
-                    Your Gateway to a <span class="fw-semibold text-white">Successful IT Career</span>
-                </p>
-
-                <!-- Premium Messaging -->
-                <p class="fw-normal text-light fs-5 mb-5" style="line-height: 1.8; color:#bbb !important;">
-                    If you're ready to invest your time and have the urge to learn,  
-                    <span class="fw-semibold text-white">we're ready to transform your life.</span>  
-                    More than a training center – this is a <span class="fw-semibold text-white">Transformation Hub</span>.  
-                    Gain <span class="fw-semibold text-white">communication skills, presentation confidence, and industry-ready expertise.</span>
-                </p>
-
-                <!-- CTA Buttons -->
-                <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
-                    <a href="#courses" class="btn px-4 py-3 fw-bold fs-5 shadow-lg btn-dark-custom">
-                        🎓 Explore Courses
-                    </a>
-
-                    <a href="https://wa.me/YOUR_NUMBER_HERE" target="_blank" class="btn px-4 py-3 fw-bold fs-5 shadow-lg btn-dark-custom">
-                        📞 Get Free Career Guidance
-                    </a>
-                </div>
-
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo">BThinkX</div>
+            <div class="nav-links">
+                <a href="#mentorship">Mentorship</a>
+                <a href="#courses">Courses</a>
+                <a href="#community">Community</a>
+                <a href="#testimonials">Success Stories</a>
+                <a href="#contact" class="btn-nav">Get Started</a>
+            </div>
+            <div class="mobile-toggle" id="mobileToggle">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
         </div>
-    </div>
-</header>
+    </nav>
 
-
-
-
-
-<section id="about" class="py-5 position-relative"
-    style="background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border-radius: 60px; margin-top: 50px;">
-
-    <div class="container"> 
-        
-        <!-- Common Heading (Centered) -->
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="fw-bold text-uppercase text-white"
-                    style="font-family: 'Poppins', sans-serif; 
-                           letter-spacing: 1.5px;
-                           text-shadow: 0 0 15px rgba(255,255,255,0.25);">
-                    🚀 About <span class="text-white">BThinkX</span>
-                </h2>
-            </div>
-        </div>
-
-        <!-- Video & Text Content -->
-        <div class="row align-items-center">
-            
-            <!-- Left Side: Placeholder Slot for Video -->
-            <div class="col-lg-6 mb-4 mb-lg-0 text-center">
-                <div class="d-flex align-items-center justify-content-center shadow-lg rounded-4 overflow-hidden w-100"
-                     style="height: 350px; background: #111; border: 2px dashed rgba(255,255,255,0.2);">
-                    <span class="text-muted fs-5">🎬 Video Placeholder</span>
-                </div>
-            </div>
-
-            <!-- Right Side: Text Content -->
-            <div class="col-lg-6 text-center text-lg-start">
-                <p class="fs-5 text-light" 
-                   style="line-height: 1.8; font-family: 'Poppins', sans-serif; color:#bbb !important;">
-                    <span class="fw-bold text-white">BThinkX is not just a training center – it’s a transformation hub.</span><br>
-                    We help passionate learners <span class="fw-semibold text-white">bridge the gap between education and the IT industry</span>  
-                    through real-world projects, mentorship from industry experts, and hands-on learning.
-                </p>
-
-                <ul class="list-unstyled fs-5 mt-3" 
-                    style="font-family: 'Poppins', sans-serif; line-height: 1.8; color:#bbb !important;">
-                    <li>✅ Learn from <span class="fw-bold text-white">real-world professionals</span></li>
-                    <li>✅ Gain <span class="fw-bold text-white">job-ready skills</span> through hands-on projects</li>
-                    <li>✅ Master <span class="fw-bold text-white">communication & presentation</span> for career success</li>
-                </ul>
-
-                <!-- Call to Action -->
-                <div class="mt-4">
-                    <a href="#courses" class="btn fw-bold px-4 py-3 shadow-sm"
-                       style="background:#000; color:#fff; border-radius: 12px; border:1px solid #fff; transition: all 0.3s ease;">
-                        🎓 Explore Our Programs
-                    </a>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-
-
-
-
-
-<section id="courses" class="py-5 position-relative"
-    style="background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border-radius: 60px; margin-top: 50px;">
-
-    <div class="container">
-        <!-- Section Title -->
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-uppercase text-white"
-                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px; text-shadow: 0 0 15px rgba(255,255,255,0.25);">
-                🎓 Our Courses
-            </h2>
-            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif; color:#bbb !important;">
-                Elevate your career with <span class="fw-semibold text-white">industry-driven programs</span>.  
-                Learn from <span class="fw-semibold text-white">expert professionals</span> and gain <span class="fw-semibold text-white">real-world experience</span>.
-            </p>
-        </div>
-
-        <div class="row g-4">
-
-            <!-- Course: MERN Stack -->
-            <div class="col-lg-4 col-md-6">
-                <a href="{% url 'roadmap' %}" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden position-relative"
-                         style="background: #111; color: #fff;">
-                                                 <!-- Offer Badge -->
-                        <div class="position-absolute top-0 end-0 bg-white text-dark fw-bold px-3 py-1"
-                             style="border-radius: 0 0 0 12px; font-size: 0.9rem;">
-                             ₹3000/month Offer
-                        </div>
-                        <img src="{% static 'main/images/Online-Course-2.jpeg' %}" class="card-img-top" alt="MERN Stack Course">
-                        <div class="card-body text-center">
-                            <h4 class="fw-bold text-white text-uppercase"
-                                style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
-                                MERN Stack Development
-                            </h4>
-                            <p class="fs-5 text-light" style="line-height: 1.8; color:#bbb !important;">
-                                Master MongoDB, Express.js, React.js, and Node.js.  
-                                Build powerful, scalable web applications.
-                            </p>
-                            <a href="{% url 'roadmap' %}" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill">
-                                Learn More 🚀
-                            </a>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Course: Python Django + React -->
-            <div class="col-lg-4 col-md-6">
-                <a href="{% url 'roadmap' %}" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden position-relative"
-                         style="background: #111; color: #fff;">
-                        
-                        <!-- Offer Badge -->
-                        <div class="position-absolute top-0 end-0 bg-white text-dark fw-bold px-3 py-1"
-                             style="border-radius: 0 0 0 12px; font-size: 0.9rem;">
-                             ₹3000/month Offer
-                        </div>
-
-                        <img src="{% static 'main/images/Online-Course-2.jpeg' %}" class="card-img-top" alt="Python Django + React Course">
-                        <div class="card-body text-center">
-                            <h4 class="fw-bold text-white text-uppercase"
-                                style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
-                                Python Django + React
-                            </h4>
-                            <p class="fs-5 text-light" style="line-height: 1.8; color:#bbb !important;">
-                                Build full-stack web applications with Django and React.  
-                                <br><span class="fw-semibold text-white">3 Months / 6 Months Advanced Programs</span>
-                            </p>
-                            <a href="{% url 'roadmap' %}" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill">
-                                Learn More 🚀
-                            </a>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Course: Personal Mentorship Program -->
-            <div class="col-lg-4 col-md-6">
-                <a href="#register" class="text-decoration-none">
-                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                         style="background: #111; color: #fff;">
-                                                 <img src="{% static 'main/images/Online-Course-2.jpeg' %}" class="card-img-top" alt="Python Django + React Course">
-
-                        <div class="card-body text-center py-5">
-                            <h4 class="fw-bold text-white text-uppercase mb-3"
-                                style="font-family: 'Poppins', sans-serif; letter-spacing: 1px;">
-                                Personal Mentorship
-                            </h4>
-                            <p class="fs-5 text-light" style="line-height: 1.8; color:#bbb !important;">
-                                Get one-on-one guidance, career mapping,  
-                                and exclusive mentorship from industry experts.
-                            </p>
-                            <a href="#register" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill">
-                                Apply Now 🌟
-                            </a>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Coming Soon Courses -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                     style="background: #111; color: #fff; opacity: 0.5;">
-                    <div class="card-body text-center py-5">
-                        <h4 class="fw-bold text-white text-uppercase">Mobile App Development</h4>
-                        <p class="fs-5 text-light" style="color:#bbb !important;">React Native & Flutter</p>
-                        <button class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill" disabled>Coming Soon 🚧</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                     style="background: #111; color: #fff; opacity: 0.5;">
-                    <div class="card-body text-center py-5">
-                        <h4 class="fw-bold text-white text-uppercase">DevOps</h4>
-                        <p class="fs-5 text-light" style="color:#bbb !important;">CI/CD & Automation</p>
-                        <button class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill" disabled>Coming Soon 🚧</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="card shadow-lg border-0 rounded-4 overflow-hidden"
-                     style="background: #111; color: #fff; opacity: 0.5;">
-                    <div class="card-body text-center py-5">
-                        <h4 class="fw-bold text-white text-uppercase">AI & ML</h4>
-                        <p class="fs-5 text-light" style="color:#bbb !important;">Artificial Intelligence & ML</p>
-                        <button class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill" disabled>Coming Soon 🚧</button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Call to Action -->
-        <div class="text-center mt-5">
-            <a href="#register" class="btn btn-lg fw-bold px-5 py-3 shadow-sm"
-               style="background:#000; color:#fff; border:1px solid #fff; border-radius: 12px; transition: all 0.3s ease;">
-                🔥 Enroll Now & Transform Your Career!
-            </a>
-        </div>
-    </div>
-</section>
-
-
-
-
-
-    
-
-{% comment %} 
-<section id="team" class="py-5 position-relative"
->
-    <div class="container">
-        <!-- Section Title -->
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-uppercase"
-                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px;">
-                💼 Meet <span class="text-warning">Our Team</span>
-            </h2>
-            <p class="fs-5 text-light" style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                A **team of elite professionals** with over **3+ years of expertise**,  
-                exceptional communication skills, and a passion for **mentoring future talent**.
-            </p>
-        </div>
-
-        <div class="row g-4 justify-content-center">
-            <!-- Team Member 1 -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card border-0 rounded-4 text-center team-card">
-                    <img src="{% static 'main/images/men.jpg' %}" class="card-img-top rounded-top team-img" alt="Achu Joseph S L">
-                    <div class="card-body">
-                        <h4 class="fw-bold text-warning">Achu Joseph S L</h4>
-                        <p class="text-light">Founder & Lead Instructor</p>
-                        <div class="d-flex justify-content-center mt-3">
-                            <a href="#" class="social-link"><i class="fab fa-linkedin fa-lg"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-github fa-lg"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-twitter fa-lg"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Team Member 2 -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card border-0 rounded-4 text-center team-card">
-                    <img src="{% static 'main/images/woman.jpg' %}" class="card-img-top rounded-top team-img" alt="Razia">
-                    <div class="card-body">
-                        <h4 class="fw-bold text-success">Razia</h4>
-                        <p class="text-light">Operations Manager</p>
-                        <div class="d-flex justify-content-center mt-3">
-                            <a href="#" class="social-link"><i class="fab fa-linkedin fa-lg"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-github fa-lg"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-twitter fa-lg"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Team Member 3 -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card border-0 rounded-4 text-center team-card">
-                    <img src="{% static 'main/images/men.jpg' %}" class="card-img-top rounded-top team-img" alt="Vishnu">
-                    <div class="card-body">
-                        <h4 class="fw-bold text-primary">Vishnu</h4>
-                        <p class="text-light">Senior Software Engineer</p>
-                        <div class="d-flex justify-content-center mt-3">
-                            <a href="#" class="social-link"><i class="fab fa-linkedin fa-lg"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-github fa-lg"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-twitter fa-lg"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Team Member 4 -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card border-0 rounded-4 text-center team-card">
-                    <img src="{% static 'main/images/woman.Jpg' %}" class="card-img-top rounded-top team-img" alt="John Doe">
-                    <div class="card-body">
-                        <h4 class="fw-bold text-danger">John Doe</h4>
-                        <p class="text-light">Marketing & Growth</p>
-                        <div class="d-flex justify-content-center mt-3">
-                            <a href="#" class="social-link"><i class="fab fa-linkedin fa-lg"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-github fa-lg"></i></a>
-                            <a href="#" class="social-link"><i class="fab fa-twitter fa-lg"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Call to Action -->
-        <div class="text-center mt-5">
-            <a href="#contact" class="btn btn-lg fw-bold px-5 py-3 shadow-sm join-btn">
-                🚀 Join Our Team
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- Founder & CEO Section -->
-<section id="founder" class="py-5 text-center position-relative">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <h2 class="fw-bold text-uppercase"
-                    style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px;">
-                    🚀 Meet Our <span class="text-warning">Founders</span>
-                </h2>
-                <p class="fs-5 text-light mt-3"
-                   style="max-width: 700px; margin: auto; line-height: 1.8;">
-                    **Visionaries, Engineers & Mentors**—shaping the future of **technology education**  
-                    through hands-on learning, **career-focused training**, and real-world mentorship.
-                </p>
-            </div>
-        </div>
-
-        <div class="row justify-content-center mt-5">
-            <!-- Founder 1: Achu Joseph S L -->
-            <div class="col-md-5 mb-4">
-                <div class="card shadow-lg border-0 rounded-4 text-center"
-                     style="background: #1E293B; color: #fff; padding: 30px;">
-                    <img src="{% static 'main/images/ceo.jpg' %}" class="rounded-circle shadow-lg mb-3"
-                         width="180" height="180" alt="Achu Joseph S L"
-                         style="border: 5px solid rgba(255,255,255,0.2);">
-                    <h3 class="fw-bold text-warning">Achu Joseph S L</h3>
-                    <p class="text-light fs-5">Co-Founder & Lead Instructor</p>
-                    <p class="text-light small">
-                        A **Software Engineer & Entrepreneur**, passionate about bridging the gap between  
-                        **education & industry** by mentoring the next generation of developers.
-                    </p>
-                    <div class="mt-3">
-                        <a href="https://linkedin.com" class="text-light me-3"><i class="fab fa-linkedin fa-lg"></i></a>
-                        <a href="https://github.com" class="text-light me-3"><i class="fab fa-github fa-lg"></i></a>
-                        <a href="#" class="text-light"><i class="fab fa-twitter fa-lg"></i></a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Founder 2: Veena JV -->
-            <div class="col-md-5 mb-4">
-                <div class="card shadow-lg border-0 rounded-4 text-center"
-                     style="background: #1E293B; color: #fff; padding: 30px;">
-                    <img src="{% static 'main/images/ceo.jpg' %}" class="rounded-circle shadow-lg mb-3"
-                         width="180" height="180" alt="Veena JV"
-                         style="border: 5px solid rgba(255,255,255,0.2);">
-                    <h3 class="fw-bold text-success">Veena JV</h3>
-                    <p class="text-light fs-5">Co-Founder & Growth Strategist</p>
-                    <p class="text-light small">
-                        A **business strategist & mentor**, leading the vision for **growth, innovation,  
-                        and industry collaboration** to empower future tech leaders.
-                    </p>
-                    <div class="mt-3">
-                        <a href="https://linkedin.com" class="text-light me-3"><i class="fab fa-linkedin fa-lg"></i></a>
-                        <a href="#" class="text-light me-3"><i class="fab fa-globe fa-lg"></i></a>
-                        <a href="#" class="text-light"><i class="fab fa-twitter fa-lg"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Call to Action -->
-        <div class="text-center mt-5">
-            <a href="#contact" class="btn btn-lg fw-bold px-5 py-3 shadow-sm"
-               style="background: linear-gradient(135deg, #FFC107, #FF9800); color: #000; border-radius: 10px;">
-                🌟 Join Us in Building the Future
-            </a>
-        </div>
-    </div>
-</section> {% endcomment %}
-
-
-<!-- style="background: #0F172A; color: #fff;" -->
-<!-- Testimonials Section -->
-{% comment %} <section id="testimonials" class="py-5 position-relative">
-    <div class="container">
-        <!-- Section Title -->
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-uppercase"
-                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px;">
-                ⭐ What Our <span class="text-warning">Students Say</span>
-            </h2>
-            <p class="fs-5 text-light"
-               style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                Hear from our students who have transformed their careers  
-                through our expert-led training programs.
-            </p>
-        </div>
-
-        <!-- Testimonials Grid -->
-        <div class="row g-4 justify-content-center">
-            <!-- Testimonial 1 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card shadow-lg border-0 rounded-4 p-4"
-                     style="background: #1E293B; color: #fff; transition: 0.3s;">
-                    <div class="card-body text-center">
-                        <p class="fs-5 text-light">
-                            "This course **changed my career**! Highly recommended!"
-                        </p>
-                        <div class="d-flex justify-content-center align-items-center mt-3">
-                            <img src="{% static 'main/images/student.jpeg' %}"
-                                 class="rounded-circle me-3"
-                                 style="width: 60px; height: 60px; object-fit: cover;">
-                            <div class="text-start">
-                                <h5 class="fw-bold text-warning mb-0">Student A</h5>
-                                <small class="text-light">Full-Stack Developer</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Testimonial 2 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card shadow-lg border-0 rounded-4 p-4"
-                     style="background: #1E293B; color: #fff; transition: 0.3s;">
-                    <div class="card-body text-center">
-                        <p class="fs-5 text-light">
-                            "The **best mentors** and hands-on learning experience!"
-                        </p>
-                        <div class="d-flex justify-content-center align-items-center mt-3">
-                            <img src="{% static 'main/images/student.jpeg' %}"
-                                 class="rounded-circle me-3"
-                                 style="width: 60px; height: 60px; object-fit: cover;">
-                            <div class="text-start">
-                                <h5 class="fw-bold text-success mb-0">Student B</h5>
-                                <small class="text-light">Software Engineer</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Testimonial 3 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card shadow-lg border-0 rounded-4 p-4"
-                     style="background: #1E293B; color: #fff; transition: 0.3s;">
-                    <div class="card-body text-center">
-                        <p class="fs-5 text-light">
-                            "I **landed a job** thanks to this program!"
-                        </p>
-                        <div class="d-flex justify-content-center align-items-center mt-3">
-                            <img src="{% static 'main/images/student.jpeg' %}"
-                                 class="rounded-circle me-3"
-                                 style="width: 60px; height: 60px; object-fit: cover;">
-                            <div class="text-start">
-                                <h5 class="fw-bold text-primary mb-0">Student C</h5>
-                                <small class="text-light">Frontend Developer</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Call to Action -->
-        <div class="text-center mt-5">
-            <a href="#courses" class="btn btn-lg fw-bold px-5 py-3 shadow-sm"
-               style="background: linear-gradient(135deg, #FFC107, #FF9800); color: #000; border-radius: 10px;">
-                🚀 Start Your Journey
-            </a>
-        </div>
-    </div>
-</section> {% endcomment %}
-
-
-
-    <!-- Contact Form -->
-<!-- Contact Us Section -->
-<section id="contact" class="py-5 position-relative"
-         style="background: #0F172A; color: #fff;">
-    <div class="container">
-        <!-- Section Title -->
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-uppercase"
-                style="font-family: 'Poppins', sans-serif; letter-spacing: 1.5px;">
-                📩 Get in <span class="text-warning">Touch</span>
-            </h2>
-            <p class="fs-5 text-light   "
-               style="line-height: 1.8; font-family: 'Poppins', sans-serif;">
-                Have questions? Let’s talk! Our team is here to help you on your journey.  
-                Send us a message, and we'll get back to you as soon as possible.  
-            </p>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <!-- Contact Form -->
-                <div class="card shadow-lg border-0 rounded-4 p-4"
-                     style="background: #1E293B; color: #fff;">
-                     <form method="POST" action="{% url 'submit_contact_form' %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <input type="text" name="name" class="form-control py-3 bg-dark text-light" placeholder="Your Name" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="email" name="email" class="form-control py-3 bg-dark text-light" placeholder="Your Email" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="text" name="phone" class="form-control py-3 bg-dark text-light" placeholder="Phone Number" required>
-                        </div>
-                        <div class="mb-3">
-                            <select name="education" class="form-select rounded-3 bg-dark text-light" required>
-                              <option value="" disabled selected>Highest Qualification</option>
-                              <option value="High School">High School</option>
-                              <option value="Diploma">Diploma</option>
-                              <option value="Bachelor's">Bachelor's</option>
-                              <option value="Master's">Master's</option>
-                              <option value="PhD">PhD</option>
-                            </select>
-                          </div>
-                        <div class="mb-3">
-                            <input type="text" name="experience" class="form-control py-3 bg-dark text-light" placeholder="Work Experience (optional)">
-                        </div>
-                        <div class="mb-3">
-                            <input type="text" name="place" class="form-control py-3 bg-dark text-light" placeholder="Your City/Place" required>
-                        </div>
-                        <div class="mb-3">
-                            <textarea name="reason" class="form-control py-3 bg-dark text-light" rows="3" placeholder="Why do you want to join us?" required></textarea>
-                        </div>
-                    </form>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-grid">
+                <div class="hero-text">
+                    <div class="hero-tag">Transform Your Tech Career</div>
+                    <h1>Elite <span class="gradient-text">Mentorship</span> For Get An IT Job</h1>
+                    <p>Connect with 3+ years experienced developers and HR professionals from leading startups and MNCs. Get personalized guidance, real-world projects, and direct job referrals to accelerate your tech career.</p>
                     
+                    <div class="hero-buttons">
+                        <a href="#courses" class="btn-primary">Explore Programs</a>
+                        <a href="#contact" class="btn-secondary">Book Free Consultation</a>
+                    </div>
+
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">3+</div>
+                            <div class="stat-label">Years Experience</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">150+</div>
+                            <div class="stat-label">Careers Launched</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">50+</div>
+                            <div class="stat-label">Industry Experts</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Contact Info -->
-            <div class="col-lg-5 d-flex flex-column justify-content-center text-center text-lg-start mt-5 mt-lg-0">
-                <h4 class="fw-bold text-warning">📍 Visit Us</h4>
-                <p class="fs-6 text-light   ">Thiruhridalaya First FLoor Kattakada Road Malapanacode</p>
-
-                <h4 class="fw-bold text-warning mt-3">📞 Call Us</h4>
-                <p class="fs-6 text-light   ">+91 95441 96763</p>
-
-                <h4 class="fw-bold text-warning mt-3">✉️ Email Us</h4>
-                <p class="fs-6 text-light   ">bthinkxaccademy@gmail.com</p>
-
-                <h4 class="fw-bold text-warning mt-3">🔗 Follow Us</h4>
-                <div class="d-flex justify-content-center justify-content-lg-start mt-2">
-                    <a href="#" class="text-light me-3"><i class="fab fa-facebook fa-lg"></i></a>
-                    <a href="#" class="text-light me-3"><i class="fab fa-linkedin fa-lg"></i></a>
-                    <a href="#" class="text-light me-3"><i class="fab fa-twitter fa-lg"></i></a>
-                    <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a>
+                <div class="hero-visual">
+                    <div class="floating-orb orb-1"></div>
+                    <div class="floating-orb orb-2"></div>
+                    <div class="floating-orb orb-3"></div>
+                    
+                    <div class="hero-card hero-card-1">
+                        <div class="card-avatar"></div>
+                        <div class="card-name">Senior Developer</div>
+                        <div class="card-role">MNC Experience</div>
+                    </div>
+                    <div class="hero-card hero-card-2">
+                        <div class="card-avatar" style="background: linear-gradient(135deg, #ec4899, #3b82f6);"></div>
+                        <div class="card-name">Tech Lead</div>
+                        <div class="card-role">Startup Expertise</div>
+                    </div>
+                    <div class="hero-card hero-card-3">
+                        <div class="card-avatar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);"></div>
+                        <div class="card-name">HR Professional</div>
+                        <div class="card-role">Hiring Insights</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
+    <!-- Why Choose Us -->
+    <section id="mentorship" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Why BThinkX</div>
+            <h2 class="section-title">Premium Mentorship <span class="gradient-text">Experience</span></h2>
+            <p class="section-description">Access an elite community of professionals committed to transforming your tech career through personalized guidance and real-world experience.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💼</div>
+                <h3 class="feature-title">Industry Veterans</h3>
+                <p class="feature-description">Learn from professionals with 3+ years of hands-on experience in both dynamic startups and established MNCs. Get insights from those who've been there.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Personalized Guidance</h3>
+                <p class="feature-description">One-on-one mentorship tailored to your unique career goals, technical skills, and learning pace. Your success is our priority.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3 class="feature-title">Career Acceleration</h3>
+                <p class="feature-description">Fast-track your job search with professional resume reviews, mock interviews, strategic career planning, and direct company referrals.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3 class="feature-title">Active Community</h3>
+                <p class="feature-description">Join a thriving network of developers, HR professionals, and tech enthusiasts who actively support each other's growth and success.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3 class="feature-title">Real-World Projects</h3>
+                <p class="feature-description">Build production-grade projects that showcase your skills to potential employers. Create a portfolio that stands out.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3 class="feature-title">Continuous Learning</h3>
+                <p class="feature-description">Access cutting-edge resources, exclusive workshops, industry insights, and continuously updated best practices from the field.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section id="courses" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Our Courses</div>
+            <h2 class="section-title">Master In-Demand <span class="gradient-text">Tech Skills</span></h2>
+            <p class="section-description">Comprehensive programs designed to take you from beginner to job-ready professional. Learn cutting-edge technologies with hands-on projects and expert mentorship.</p>
+        </div>
+
+        <div class="courses-grid">
+            <!-- MERN Stack -->
+            <div class="course-card">
+                <div class="course-badge">₹3000/month</div>
+                <div class="course-header">
+                    <div class="course-icon">⚛️</div>
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">MERN Stack Development</h3>
+                    <p class="course-description">Master the complete JavaScript ecosystem. Build powerful full-stack applications using MongoDB, Express.js, React, and Node.js.</p>
+                    
+                    <ul class="course-features">
+                        <li>MongoDB database design & optimization</li>
+                        <li>RESTful API development with Express</li>
+                        <li>Advanced React & state management</li>
+                        <li>Node.js backend architecture</li>
+                        <li>Real-time applications & WebSockets</li>
+                        <li>Deployment & production best practices</li>
+                    </ul>
+
+                    <a href="#contact" class="btn-primary" style="width: 100%; text-align: center;">Enroll Now</a>
+                </div>
+            </div>
+
+            <!-- Python Django + React -->
+            <div class="course-card">
+                <div class="course-badge">₹3000/month</div>
+                <div class="course-header" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">
+                    <div class="course-icon">🐍</div>
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">Python Django + React</h3>
+                    <p class="course-description">Combine Python's power with modern frontend. Build scalable web applications with Django backend and React frontend integration.</p>
+                    
+                    <ul class="course-features">
+                        <li>Python fundamentals & advanced concepts</li>
+                        <li>Django framework & ORM mastery</li>
+                        <li>REST API with Django REST Framework</li>
+                        <li>React frontend integration</li>
+                        <li>Authentication & authorization</li>
+                        <li>3 & 6 month program options</li>
+                    </ul>
+
+                    <a href="#contact" class="btn-primary" style="width: 100%; text-align: center;">Enroll Now</a>
+                </div>
+            </div>
+
+            <!-- Career Mentorship -->
+            <div class="course-card">
+                <div class="course-badge">Most Popular</div>
+                <div class="course-header" style="background: linear-gradient(135deg, #ec4899, #f59e0b);">
+                    <div class="course-icon">🎯</div>
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">Career Mentorship Program</h3>
+                    <p class="course-description">Personalized one-on-one mentorship for job seekers. Get expert guidance to land your dream tech role with industry professionals.</p>
+                    
+                    <ul class="course-features">
+                        <li>Weekly one-on-one sessions</li>
+                        <li>Resume & portfolio optimization</li>
+                        <li>Mock interviews & feedback</li>
+                        <li>Job referrals & networking support</li>
+                        <li>Career roadmap & strategy planning</li>
+                        <li>Salary negotiation guidance</li>
+                    </ul>
+
+                    <a href="#contact" class="btn-primary" style="width: 100%; text-align: center;">Apply Now</a>
+                </div>
+            </div>
+
+            <!-- Mobile App Development -->
+            <div class="course-card">
+                <div class="course-badge">Coming Soon</div>
+                <div class="course-header" style="background: linear-gradient(135deg, #10b981, #3b82f6);">
+                    <div class="course-icon">📱</div>
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">Mobile App Development</h3>
+                    <p class="course-description">Build native and cross-platform mobile applications using React Native and Flutter. Create apps for iOS and Android.</p>
+                    
+                    <ul class="course-features">
+                        <li>React Native fundamentals</li>
+                        <li>Flutter & Dart programming</li>
+                        <li>Native module integration</li>
+                        <li>State management & navigation</li>
+                        <li>App deployment & distribution</li>
+                        <li>Performance optimization</li>
+                    </ul>
+
+                    <a href="#contact" class="btn-secondary" style="width: 100%; text-align: center; opacity: 0.7; cursor: not-allowed;">Notify Me</a>
+                </div>
+            </div>
+
+            <!-- DevOps -->
+            <div class="course-card">
+                <div class="course-badge">Coming Soon</div>
+                <div class="course-header" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+                    <div class="course-icon">⚙️</div>
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">DevOps Engineering</h3>
+                    <p class="course-description">Master CI/CD pipelines, cloud infrastructure, and automation. Learn Docker, Kubernetes, and cloud platforms.</p>
+                    
+                    <ul class="course-features">
+                        <li>CI/CD pipeline automation</li>
+                        <li>Docker containerization</li>
+                        <li>Kubernetes orchestration</li>
+                        <li>Cloud platforms (AWS, Azure, GCP)</li>
+                        <li>Infrastructure as Code</li>
+                        <li>Monitoring & logging systems</li>
+                    </ul>
+
+                    <a href="#contact" class="btn-secondary" style="width: 100%; text-align: center; opacity: 0.7; cursor: not-allowed;">Notify Me</a>
+                </div>
+            </div>
+
+            <!-- AI & ML -->
+            <div class="course-card">
+                <div class="course-badge">Coming Soon</div>
+                <div class="course-header" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">
+                    <div class="course-icon">🤖</div>
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">AI & Machine Learning</h3>
+                    <p class="course-description">Dive into artificial intelligence and machine learning. Build intelligent systems with Python, TensorFlow, and more.</p>
+                    
+                    <ul class="course-features">
+                        <li>Python for AI/ML</li>
+                        <li>Machine learning algorithms</li>
+                        <li>Deep learning & neural networks</li>
+                        <li>TensorFlow & PyTorch</li>
+                        <li>Natural language processing</li>
+                        <li>Computer vision applications</li>
+                    </ul>
+
+                    <a href="#contact" class="btn-secondary" style="width: 100%; text-align: center; opacity: 0.7; cursor: not-allowed;">Notify Me</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Section -->
+    <section id="community" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Community</div>
+            <h2 class="section-title">Join Our <span class="gradient-text">Growing Network</span></h2>
+            <p class="section-description">Connect with professionals who have transformed their careers through our programs. Be part of a supportive ecosystem that celebrates growth and success.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="stat-number" style="margin-bottom: 16px;">Active Developers</div>
+                <p class="feature-description">Vibrant community of developers sharing knowledge, collaborating on projects, solving problems together, and growing their skills daily.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="stat-number" style="margin-bottom: 16px;">HR Professionals</div>
+                <p class="feature-description">Direct access to hiring managers and recruiters who understand what companies seek. Get insider tips on landing your dream job.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="stat-number" style="margin-bottom: 16px;">Tech Leaders</div>
+                <p class="feature-description">Learn from engineering leaders and CTOs who have built and scaled successful products at top companies and startups.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="stat-number" style="margin-bottom: 16px;">Success Stories</div>
+                <p class="feature-description">Join professionals who have successfully transitioned careers and landed roles at leading startups, MNCs, and tech giants.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Success Stories</div>
+            <h2 class="section-title">What Our Students <span class="gradient-text">Say</span></h2>
+            <p class="section-description">Real stories from real people who transformed their careers with BThinkX mentorship and courses.</p>
+        </div>
+
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-text">"BThinkX completely transformed my career trajectory. The personalized mentorship and hands-on projects gave me the confidence to land a role at a leading startup. Best investment I've made in myself."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"></div>
+                    <div class="author-info">
+                        <div class="author-name">Rahul Kumar</div>
+                        <div class="author-role">Software Engineer at Tech Startup</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <p class="testimonial-text">"The mentors at BThinkX are exceptional. They don't just teach you code, they prepare you for the industry. The mock interviews and career guidance were invaluable in my job search."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: linear-gradient(135deg, #ec4899, #3b82f6);"></div>
+                    <div class="author-info">
+                        <div class="author-name">Priya Sharma</div>
+                        <div class="author-role">Full Stack Developer at MNC</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <p class="testimonial-text">"I went from complete beginner to getting multiple job offers in just 6 months. The structured curriculum combined with real-world projects made all the difference. Highly recommend!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: linear-gradient(135deg, #3b82f6, #10b981);"></div>
+                    <div class="author-info">
+                        <div class="author-name">Arjun Menon</div>
+                        <div class="author-role">Frontend Developer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="reveal">
+        <div class="cta-section">
+            <div class="cta-content">
+                <h2 class="section-title" style="margin-bottom: 24px;">Ready to <span class="gradient-text">Transform</span> Your Career?</h2>
+                <p class="section-description" style="margin-bottom: 48px;">Join our community of professionals and get personalized mentorship from industry experts. Limited spots available for this batch.</p>
+                <div class="hero-buttons" style="justify-content: center;">
+                    <a href="#contact" class="btn-primary">Schedule Free Consultation</a>
+                    <a href="#courses" class="btn-secondary">Explore All Programs</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Get Started</div>
+            <h2 class="section-title">Begin Your <span class="gradient-text">Journey Today</span></h2>
+            <p class="section-description">Fill out the form and we'll connect with you within 24 hours to discuss your career goals and how we can help you achieve them.</p>
+        </div>
+
+        <div style="max-width: 900px; margin: 0 auto;">
+            <div class="feature-card" style="padding: 56px;">
+                <form id="contactForm" style="display: grid; gap: 28px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <input type="text" name="name" placeholder="Full Name" required
+                            style="padding: 18px 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); 
+                            border-radius: 14px; color: white; font-size: 16px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+                        <input type="email" name="email" placeholder="Email Address" required
+                            style="padding: 18px 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); 
+                            border-radius: 14px; color: white; font-size: 16px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <input type="tel" name="phone" placeholder="Phone Number" required
+                            style="padding: 18px 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); 
+                            border-radius: 14px; color: white; font-size: 16px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+                        <input type="text" name="place" placeholder="City" required
+                            style="padding: 18px 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); 
+                            border-radius: 14px; color: white; font-size: 16px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+                    </div>
+
+                    <select name="education" required
+                        style="padding: 18px 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); 
+                        border-radius: 14px; color: white; font-size: 16px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;
+                        cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none;
+                        background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e');
+                        background-repeat: no-repeat;
+                        background-position: right 20px center;
+                        background-size: 20px;
+                        padding-right: 50px;">
+                        <option value="" disabled selected style="background: #0a0a0a; color: #94a3b8;">Select Qualification</option>
+                        <option value="High School" style="background: #0a0a0a; color: white;">High School</option>
+                        <option value="Diploma" style="background: #0a0a0a; color: white;">Diploma</option>
+                        <option value="Bachelor's" style="background: #0a0a0a; color: white;">Bachelor's Degree</option>
+                        <option value="Master's" style="background: #0a0a0a; color: white;">Master's Degree</option>
+                        <option value="PhD" style="background: #0a0a0a; color: white;">PhD</option>
+                    </select>
+
+                    <input type="text" name="experience" placeholder="Work Experience (Optional)"
+                        style="padding: 18px 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); 
+                        border-radius: 14px; color: white; font-size: 16px; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+
+                    <textarea name="reason" placeholder="What are your career goals?" rows="5" required
+                        style="padding: 18px 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); 
+                        border-radius: 14px; color: white; font-size: 16px; font-family: 'Inter', sans-serif; resize: vertical; transition: all 0.3s ease;"></textarea>
+
+                    <button type="submit" class="btn-primary" style="width: 100%; text-align: center; padding: 20px; font-size: 17px; cursor: pointer; font-weight: 800;">
+                        Submit Application
+                    </button>
+                </form>
+            </div>
+
+            <div style="margin-top: 72px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 36px;">
+                <div class="feature-card" style="text-align: center; padding: 36px;">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #8b5cf6, #ec4899); border-radius: 50%; 
+                         display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px;">📍</div>
+                    <h4 style="font-weight: 700; margin-bottom: 12px; font-size: 18px;">Location</h4>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">Thiruhridalaya First Floor<br>Kattakada Road, Malapanacode</p>
+                </div>
+                <div class="feature-card" style="text-align: center; padding: 36px;">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #ec4899, #3b82f6); border-radius: 50%; 
+                         display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px;">📞</div>
+                    <h4 style="font-weight: 700; margin-bottom: 12px; font-size: 18px;">Phone</h4>
+                    <p style="color: var(--text-secondary);">+91 95441 96763</p>
+                </div>
+                <div class="feature-card" style="text-align: center; padding: 36px;">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #10b981); border-radius: 50%; 
+                         display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px;">✉️</div>
+                    <h4 style="font-weight: 700; margin-bottom: 12px; font-size: 18px;">Email</h4>
+                    <p style="color: var(--text-secondary);">bthinkxaccademy@gmail.com</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
-    <footer class="text-center">
-        <p>&copy; 2025   BThinkX. All Rights Reserved.</p>
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand">BThinkX</div>
+                <p class="footer-description">Empowering professionals to achieve career excellence through premium mentorship, cutting-edge courses, and community-driven learning.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">f</a>
+                    <a href="#" class="social-link">in</a>
+                    <a href="#" class="social-link">tw</a>
+                    <a href="#" class="social-link">ig</a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="footer-title">Courses</h4>
+                <ul class="footer-links">
+                    <li><a href="#courses">MERN Stack</a></li>
+                    <li><a href="#courses">Python Django</a></li>
+                    <li><a href="#courses">Career Mentorship</a></li>
+                    <li><a href="#courses">View All</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-title">Company</h4>
+                <ul class="footer-links">
+                    <li><a href="#mentorship">About Us</a></li>
+                    <li><a href="#community">Community</a></li>
+                    <li><a href="#testimonials">Success Stories</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-title">Resources</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Career Guide</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 BThinkX. All rights reserved. Transforming careers through elite mentorship and education.</p>
+        </div>
     </footer>
-<!-- Marketing Quotes Container -->
-<div id="marketing-quote" 
-     class="position-absolute p-3 text-light fw-bold fs-5 rounded-pill shadow-lg d-none d-md-block"
-     style="background: rgba(0, 0, 0, 0.75); font-family: 'Poppins', sans-serif; transition: all 1s ease-in-out;">
-</div>
-<!-- Bootstrap Modal -->
-<!-- Modal Form: Same Fields as Main Contact Form -->
-<div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content text-light" style="background: linear-gradient(135deg, #222, #444); border-radius: 15px;">
-  
-        <!-- Modal Header -->
-        <div class="modal-header border-0">
-          <h5 class="modal-title fw-bold" id="userDetailsModalLabel" style="font-family: 'Poppins', sans-serif;">
-            📢 Let's Stay Connected!
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-  
-        <!-- Modal Body -->
-        <div class="modal-body">
-          <p class="mb-4 text-center">Fill in your details and be a part of our amazing community.</p>
-  
-          <!-- Form POSTs to same Django view -->
-          <form method="POST" action="{% url 'submit_contact_form' %}">
-            {% csrf_token %}
-            <div class="mb-3">
-              <input type="text" name="name" class="form-control rounded-3 bg-dark text-light" placeholder="Your Name" required>
-            </div>
-            <div class="mb-3">
-              <input type="email" name="email" class="form-control rounded-3 bg-dark text-light" placeholder="Your Email" required>
-            </div>
-            <div class="mb-3">
-              <input type="tel" name="phone" class="form-control rounded-3 bg-dark text-light" placeholder="Phone Number" required>
-            </div>
-            <div class="mb-3">
-              <input type="text" name="place" class="form-control rounded-3 bg-dark text-light" placeholder="Your Place" required>
-            </div>
-            <div class="mb-3">
-              <select name="education" class="form-select rounded-3 bg-dark text-light" required>
-                <option value="" disabled selected>Highest Qualification</option>
-                <option value="High School">High School</option>
-                <option value="Diploma">Diploma</option>
-                <option value="Bachelor's">Bachelor's</option>
-                <option value="Master's">Master's</option>
-                <option value="PhD">PhD</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <input type="text" name="experience" class="form-control rounded-3 bg-dark text-light" placeholder="Work Experience (optional)">
-            </div>
-            <div class="mb-3">
-              <textarea name="reason" class="form-control rounded-3 bg-dark text-light" rows="3" placeholder="Why do you want to join us?" required></textarea>
-            </div>
-            {% comment %} <div class="mb-3">
-              <textarea name="message" class="form-control rounded-3 bg-dark text-light" rows="3" placeholder="Any additional message?"></textarea>
-            </div> {% endcomment %}
-  
-            <button type="submit" class="btn w-100 fw-bold py-2"
-              style="background: linear-gradient(135deg, #00c853, #009624); color: #fff; border-radius: 10px;">
-              ✅ Submit
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-</body>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        if (!sessionStorage.getItem("modalShown")) {
-            setTimeout(function () {
-                let userModal = new bootstrap.Modal(document.getElementById("userDetailsModal"));
-                userModal.show();
-                sessionStorage.setItem("modalShown", "true"); 
-            }, 6000); // 1 Minute
+    <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('.theme-toggle-icon');
+        const html = document.documentElement;
+
+        // Check for saved theme preference or default to 'dark'
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', currentTheme);
+        themeIcon.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+            
+            // Add rotation animation
+            themeToggle.style.transform = 'rotate(360deg) scale(1.1)';
+            setTimeout(() => {
+                themeToggle.style.transform = 'rotate(0deg) scale(1)';
+            }, 400);
+        });
+
+        // Generate particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
         }
-    });
-    // List of marketing quotes
-    const quotes = [
-        "✨ Your future starts here – Invest in yourself today!",
-        "🚀 The best way to predict the future is to create it!",
-        "Your dream job is one step away – Keep learning, keep growing!",
-        "💡 Knowledge is power, and power leads to success!",
-        "Small steps today lead to big achievements tomorrow!",
-        "💻 The IT world is waiting for you – Start your journey now!",
-        "Education is the passport to the future. Secure yours now!",
-        "🔑 Unlock your potential with hands-on learning and real projects!"
-    ];
 
-    // Possible positions
-    const positions = [
-        { top: "10%", left: "5%" },
-        { top: "10%", right: "5%" },
-        { bottom: "10%", left: "5%" },
-        { bottom: "10%", right: "5%" }
-    ];
+        // Navbar scroll effect
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            lastScroll = currentScroll;
+        });
 
-    const quoteElement = document.getElementById("marketing-quote");
+        // Scroll reveal
+        function reveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                const elementVisible = 120;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    el.classList.add('active');
+                }
+            });
+        }
 
-    function updateQuote() {
-        // Get a random quote
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        window.addEventListener('scroll', reveal);
+        reveal();
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Form handling
+        const form = document.getElementById('contactForm');
+        const inputs = form.querySelectorAll('input, select, textarea');
         
-        // Get a random position
-        const randomPosition = positions[Math.floor(Math.random() * positions.length)];
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = 'rgba(139, 92, 246, 0.6)';
+                this.style.background = 'rgba(255, 255, 255, 0.06)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                this.style.background = 'rgba(255, 255, 255, 0.04)';
+            });
+        });
+
+        // Fix select dropdown for light mode
+        const selectElement = form.querySelector('select[name="education"]');
+        if (selectElement) {
+            selectElement.addEventListener('change', function() {
+                if (this.value) {
+                    this.style.color = html.getAttribute('data-theme') === 'light' ? '#0f172a' : 'white';
+                }
+            });
+
+            // Update select color on theme change
+            const originalThemeToggle = themeToggle.onclick;
+            themeToggle.addEventListener('click', () => {
+                setTimeout(() => {
+                    const theme = html.getAttribute('data-theme');
+                    if (selectElement.value) {
+                        selectElement.style.color = theme === 'light' ? '#0f172a' : 'white';
+                    }
+                }, 100);
+            });
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show success message
+            const button = form.querySelector('button[type="submit"]');
+            const originalText = button.textContent;
+            button.textContent = '✓ Application Submitted!';
+            button.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
+                form.reset();
+            }, 3000);
+        });
+
+        // Mobile menu
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navLinks = document.querySelector('.nav-links');
         
-        // Show quote with fade-in
-        quoteElement.textContent = randomQuote;
-        quoteElement.style.top = randomPosition.top || "auto";
-        quoteElement.style.bottom = randomPosition.bottom || "auto";
-        quoteElement.style.left = randomPosition.left || "auto";
-        quoteElement.style.right = randomPosition.right || "auto";
-        quoteElement.style.opacity = "1";
+        mobileToggle.addEventListener('click', function() {
+            const isOpen = navLinks.style.display === 'flex';
+            
+            if (!isOpen) {
+                navLinks.style.display = 'flex';
+                navLinks.style.position = 'fixed';
+                navLinks.style.top = '80px';
+                navLinks.style.left = '0';
+                navLinks.style.right = '0';
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.background = 'rgba(0, 0, 0, 0.98)';
+                navLinks.style.padding = '32px';
+                navLinks.style.gap = '24px';
+                navLinks.style.borderTop = '1px solid rgba(255, 255, 255, 0.1)';
+                navLinks.style.maxHeight = 'calc(100vh - 80px)';
+                navLinks.style.overflowY = 'auto';
+                navLinks.style.backdropFilter = 'blur(20px)';
+                
+                // Animate hamburger
+                const spans = mobileToggle.querySelectorAll('span');
+                spans[0].style.transform = 'rotate(45deg) translateY(8px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translateY(-8px)';
+            } else {
+                navLinks.style.display = 'none';
+                
+                // Reset hamburger
+                const spans = mobileToggle.querySelectorAll('span');
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        });
 
-        // Hide after 10 seconds
-        setTimeout(() => {
-            quoteElement.style.opacity = "0";
-        }, 10000);
+        // Close mobile menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    navLinks.style.display = 'none';
+                    const spans = mobileToggle.querySelectorAll('span');
+                    spans[0].style.transform = 'none';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'none';
+                }
+            });
+        });
 
-        // Wait 30 seconds before showing next quote
-        setTimeout(updateQuote, 40000);
-    }
+        // Parallax effect
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const heroVisual = document.querySelector('.hero-visual');
+            
+            if (heroVisual && window.innerWidth > 1024) {
+                heroVisual.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        });
 
-    // Start cycle
-    setTimeout(updateQuote, 1000);
-</script>
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .course-card, .testimonial-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Responsive form handling
+        function handleResponsiveForm() {
+            const formGroups = document.querySelectorAll('#contactForm > div');
+            
+            if (window.innerWidth <= 768) {
+                formGroups.forEach(group => {
+                    if (group.style.gridTemplateColumns) {
+                        group.style.gridTemplateColumns = '1fr';
+                    }
+                });
+            } else {
+                formGroups.forEach(group => {
+                    if (group.style.gridTemplateColumns && group.querySelector('input, select')) {
+                        group.style.gridTemplateColumns = '1fr 1fr';
+                    }
+                });
+            }
+        }
+
+        window.addEventListener('resize', handleResponsiveForm);
+        handleResponsiveForm();
+
+        // Add gradient animation to hero
+        const gradientText = document.querySelector('.gradient-text');
+        if (gradientText) {
+            let hue = 0;
+            setInterval(() => {
+                hue = (hue + 1) % 360;
+                gradientText.style.filter = `hue-rotate(${hue}deg)`;
+            }, 50);
+        }
+
+        // Floating cards animation enhancement
+        const heroCards = document.querySelectorAll('.hero-card');
+        heroCards.forEach((card, index) => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-20px) scale(1.05)';
+                card.style.boxShadow = '0 30px 80px rgba(139, 92, 246, 0.4)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+                card.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.5)';
+            });
+        });
+
+        // Course card hover effect enhancement
+        document.querySelectorAll('.course-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.zIndex = '10';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.zIndex = '1';
+            });
+        });
+
+        // Stats counter animation
+        function animateCounter(element, target, duration) {
+            let start = 0;
+            const increment = target / (duration / 16);
+            
+            const timer = setInterval(() => {
+                start += increment;
+                if (start >= target) {
+                    element.textContent = target + '+';
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(start) + '+';
+                }
+            }, 16);
+        }
+
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.dataset.animated) {
+                    const number = entry.target.querySelector('.stat-number');
+                    const text = number.textContent;
+                    const value = parseInt(text);
+                    
+                    if (!isNaN(value)) {
+                        number.textContent = '0+';
+                        animateCounter(number, value, 2000);
+                        entry.target.dataset.animated = 'true';
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.stat-item').forEach(stat => {
+            statsObserver.observe(stat);
+        });
+
+        // Add loading animation
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // Enhanced scroll performance
+        let ticking = false;
+        let lastKnownScrollPosition = 0;
+
+        function handleScroll() {
+            lastKnownScrollPosition = window.scrollY;
+
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    reveal();
+                    ticking = false;
+                });
+
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        // Add touch interactions for mobile
+        if ('ontouchstart' in window) {
+            document.querySelectorAll('.feature-card, .course-card').forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        }
+
+        // Preload critical assets
+        const preloadLinks = [
+            'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap'
+        ];
+
+        preloadLinks.forEach(href => {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'style';
+            link.href = href;
+            document.head.appendChild(link);
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+                const spans = mobileToggle.querySelectorAll('span');
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        });
+
+        // Performance optimization - reduce animations on low-end devices
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        
+        if (prefersReducedMotion.matches) {
+            document.querySelectorAll('*').forEach(el => {
+                el.style.animation = 'none';
+                el.style.transition = 'none';
+            });
+        }
+    </script>
+</body>
 </html>
