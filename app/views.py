@@ -13,8 +13,15 @@ from .models import User, Course
 
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'index.html')
 
+
+def edtech(request):
+    return render(request, 'bthinkxedtech.html')
+
+
+def dev(request):
+    return render(request, 'bthinkxdev.html')
 
 @csrf_exempt
 def submit_contact_form(request):

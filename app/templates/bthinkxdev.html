@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BThinkX Dev - Digital Transformation & Ecommerce Strategy</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-bg: #000000;
+      --secondary-bg: #0a0a0a;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --accent-blue: #3b82f6;
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --card-bg: rgba(15, 15, 15, 0.6);
+      --card-border: rgba(255, 255, 255, 0.08);
+    }
+
+    [data-theme="light"] {
+      --primary-bg: #ffffff;
+      --secondary-bg: #f8fafc;
+      --accent-purple: #7c3aed;
+      --accent-pink: #db2777;
+      --accent-blue: #2563eb;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --card-bg: rgba(248, 250, 252, 0.8);
+      --card-border: rgba(15, 23, 42, 0.1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--primary-bg);
+      color: var(--text-primary);
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.6;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* Background Blur Gradient Layer */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(139, 92, 246, 0.3) 0%, transparent 70%),
+        radial-gradient(ellipse at 80% 70%, rgba(236, 72, 153, 0.3) 0%, transparent 80%),
+        radial-gradient(circle at center, rgba(59, 130, 246, 0.2), transparent 80%),
+        radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.15), transparent 70%),
+        radial-gradient(circle at top right, rgba(236, 72, 153, 0.15), transparent 80%);
+      filter: blur(40px);
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    [data-theme="light"] body::before {
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(124, 58, 237, 0.15) 0%, transparent 70%),
+        radial-gradient(ellipse at 80% 70%, rgba(219, 39, 119, 0.15) 0%, transparent 80%),
+        radial-gradient(circle at center, rgba(37, 99, 235, 0.1), transparent 80%),
+        radial-gradient(circle at bottom left, rgba(124, 58, 237, 0.1), transparent 70%),
+        radial-gradient(circle at top right, rgba(219, 39, 119, 0.1), transparent 80%);
+      opacity: 0.3;
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 1000;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1) rotate(15deg);
+      box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .theme-toggle-icon {
+      font-size: 28px;
+      transition: transform 0.4s ease;
+    }
+
+    /* Navbar */
+    .navbar-brand {
+      font-weight: 800;
+      font-size: 1.8rem;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    nav {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .nav-link {
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: color 0.3s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link:focus {
+      color: var(--accent-purple);
+    }
+
+    /* Hero Section */
+    #hero {
+      display: flex;
+      flex-wrap: nowrap;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    #globeViz {
+      flex: 1 1 50vw;
+      max-width: 50vw;
+      height: 100vh;
+      position: relative;
+      z-index: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .globe-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(139, 92, 246, 0.7);
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: white;
+      object-fit: contain;
+    }
+
+    .globe-icon:hover {
+      transform: scale(1.3);
+      box-shadow: 0 0 15px rgba(139, 92, 246, 1);
+      z-index: 10;
+    }
+
+    .hero-content {
+      flex: 1 1 50vw;
+      max-width: 50vw;
+      height: 100vh;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 3rem;
+      text-align: center;
+    }
+
+    .hero-content p.lead {
+      font-size: 1.4rem;
+      margin-bottom: 2rem;
+      color: var(--text-secondary);
+    }
+
+    .hero-content .btn-primary {
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      border: none;
+      padding: 0.85rem 2.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-radius: 50px;
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.45);
+      transition: all 0.3s ease;
+      align-self: center;
+      width: max-content;
+      color: white;
+    }
+
+    .hero-content .btn-primary:hover,
+    .hero-content .btn-primary:focus {
+      background: linear-gradient(135deg, #7c3aed, #db2777);
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.7);
+      transform: translateY(-3px);
+    }
+
+    /* Fancy Name Animation */
+    .fancy-name {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: clamp(3rem, 8vw, 8rem);
+      display: inline-block;
+      letter-spacing: 0.15em;
+      user-select: none;
+      text-shadow:
+        0 0 8px rgba(139, 92, 246, 0.5),
+        0 0 12px rgba(236, 72, 153, 0.3);
+      margin: 1.8rem;
+    }
+
+    .fancy-name span {
+      display: inline-block;
+      cursor: default;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      perspective: 600px;
+      animation: jumpFlipColorFlicker 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    .fancy-name span:nth-child(1) { animation-delay: 0s; }
+    .fancy-name span:nth-child(2) { animation-delay: 0.5s; }
+    .fancy-name span:nth-child(3) { animation-delay: 1s; }
+    .fancy-name span:nth-child(4) { animation-delay: 1.5s; }
+    .fancy-name span:nth-child(5) { animation-delay: 2s; }
+    .fancy-name span:nth-child(6) { animation-delay: 2.5s; }
+    .fancy-name span:nth-child(7) { animation-delay: 3s; }
+    .fancy-name span:nth-child(8) { animation-delay: 3.5s; }
+    .fancy-name span:nth-child(9) { animation-delay: 4s; }
+
+    @keyframes jumpFlipColorFlicker {
+      0%, 100% {
+        transform: translateY(0) rotateY(0);
+        opacity: 1;
+      }
+      15%, 40% {
+        transform: translateY(-30px) rotateY(15deg);
+        opacity: 1;
+      }
+      60% {
+        transform: translateY(0) rotateY(180deg);
+        opacity: 0.9;
+      }
+      80% {
+        transform: translateY(-15px) rotateY(210deg);
+        opacity: 1;
+      }
+      90% {
+        opacity: 0.5;
+        transform: translateY(-6px) rotateY(230deg) skewX(6deg);
+      }
+    }
+
+    /* Section Styles */
+    section {
+      padding: 5rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    section h2.section-title {
+      font-weight: 800;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 2rem;
+      text-align: center;
+      letter-spacing: -1px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    section h2.section-title::after {
+      content: "";
+      display: block;
+      width: 90px;
+      height: 3px;
+      background: linear-gradient(90deg, #8b5cf6, #ec4899);
+      margin: 0.7rem auto 0 auto;
+      border-radius: 2px;
+    }
+
+    /* About Us */
+    #about p {
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: 1rem;
+      padding: 2rem 1.5rem;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.12);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.25);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .card h5 {
+      font-weight: 700;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.75rem;
+    }
+
+    .card p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+    }
+
+    /* Services */
+    .service-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(139, 92, 246, 0.08);
+      padding: 1.75rem 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .service-card:hover {
+      box-shadow: 0 15px 30px rgba(139, 92, 246, 0.22);
+      transform: translateY(-8px);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .service-icon {
+      font-size: 2.8rem;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1.2rem;
+    }
+
+    .service-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .service-desc {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    /* Industries */
+    .industry-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      box-shadow: 0 6px 15px rgba(139, 92, 246, 0.1);
+      padding: 1.8rem 1rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .industry-card:hover {
+      background: rgba(139, 92, 246, 0.1);
+      transform: translateY(-5px);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .industry-icon {
+      font-size: 3rem;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .industry-name {
+      font-weight: 600;
+      font-size: 1.15rem;
+      color: var(--text-primary);
+    }
+
+    /* Portfolio */
+    .portfolio-item {
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.12);
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .portfolio-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .portfolio-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .portfolio-content {
+      padding: 1rem 1.25rem;
+    }
+
+    .portfolio-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .portfolio-summary {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Testimonials */
+    .testimonial-track {
+      display: flex;
+      gap: 2rem;
+      animation: scrollTrain 30s linear infinite;
+      width: max-content;
+    }
+
+    .testimonial-item {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+      min-width: 350px;
+      flex-shrink: 0;
+    }
+
+    .client-info {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .client-info img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    @keyframes scrollTrain {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* Process */
+    .step {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 1.5rem;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.12);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .step:hover {
+      transform: translateY(-6px);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .step-number {
+      font-weight: 800;
+      font-size: 2.4rem;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      width: 70px;
+      height: 70px;
+      line-height: 70px;
+      border-radius: 50%;
+      margin: 0 auto 1.25rem auto;
+      border: 2px solid rgba(139, 92, 246, 0.3);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 0.6rem;
+      color: var(--text-primary);
+    }
+
+    .step-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+/* CTA */
+#cta {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(236, 72, 153, 0.25));
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  color: var(--text-primary);
+  padding: 4rem 1.5rem;
+  text-align: center;
+  border-radius: 2rem;
+  box-shadow: 0 10px 40px rgba(139, 92, 246, 0.25);
+  margin-bottom: 1.4rem;
+  backdrop-filter: blur(20px);
+}
+
+#cta h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--text-primary);
+}
+
+/* Better input styling */
+#cta input {
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.85rem 1.5rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* Visible placeholder */
+#cta input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Highlighted on focus */
+#cta input:focus {
+  border-color: rgba(139, 92, 246, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* CTA Button */
+#cta button {
+  border-radius: 50px;
+  padding: 0.85rem 2rem;
+  border: none;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+#cta button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.5);
+}
+
+    /* Footer */
+    footer {
+      background: var(--secondary-bg);
+      color: var(--text-secondary);
+      padding: 3rem 1.5rem 2rem 1.5rem;
+      font-size: 0.9rem;
+      border-top: 1px solid var(--card-border);
+    }
+
+    footer a {
+      color: var(--accent-purple);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer a:hover {
+      color: var(--accent-pink);
+    }
+
+    .footer-logo {
+      font-weight: 800;
+      font-size: 1.8rem;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      #hero {
+        flex-wrap: wrap;
+      }
+      #globeViz,
+      .hero-content {
+        max-width: 100vw;
+        flex: 1 1 100vw;
+        height: 50vh;
+      }
+      .hero-content {
+        padding: 2rem;
+      }
+      .fancy-name {
+        font-size: 2.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      section {
+        padding: 4rem 1.5rem;
+      }
+      section h2.section-title {
+        font-size: 2rem;
+      }
+      .testimonial-item {
+        min-width: 90vw;
+      }
+      .theme-toggle {
+        bottom: 24px;
+        right: 24px;
+        width: 56px;
+        height: 56px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Theme Toggle -->
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <span class="theme-toggle-icon">🌙</span>
+  </button>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#hero">BThinkX Dev</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+        <ul class="navbar-nav align-items-center gap-3">
+          <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="#why-choose-us">Why Choose Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="#services">Our Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="#industries">Industries</a></li>
+          <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
+          <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
+          <li class="nav-item"><a class="nav-link" href="#process">Our Process</a></li>
+          <li class="nav-item"><a class="nav-link btn btn-sm btn-primary px-3 ms-3" href="#cta">Get a Quote</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero">
+    <div id="globeViz"></div>
+    <div class="hero-content">
+      <h1 class="fancy-name">
+        <span>B</span><span>T</span><span>h</span><span>i</span><span>n</span><span>k</span><span>X</span><span> </span><span>D</span><span>e</span><span>v</span>
+      </h1>
+      <p class="lead">Empowering Modern Businesses with Digital Excellence & Ecommerce Mastery</p>
+      <a href="#cta" class="btn btn-primary shadow-lg">Get Your Free Consultation</a>
+    </div>
+  </section>
+
+  <!-- About Us -->
+  <section id="about">
+    <h2 class="section-title">About Us</h2>
+    <p class="text-center mx-auto">
+      At BThinkX Dev, we are digital transformation experts dedicated to crafting innovative, scalable, and user-centric solutions for businesses looking to thrive in the digital era. With deep expertise in ecommerce, AI, and marketing strategy, we partner with you to unlock your full digital potential.
+    </p>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section id="why-choose-us" class="container">
+    <h2 class="section-title">Why Choose Us</h2>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4 col-sm-6">
+        <div class="card h-100">
+          <h5>Unmatched Quality</h5>
+          <p>We deliver robust, scalable solutions with pixel-perfect design and rigorous testing for flawless performance.</p>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="card h-100">
+          <h5>Cutting-Edge Innovation</h5>
+          <p>Our team stays ahead with the latest tech trends including AI & chatbots to give your business a competitive edge.</p>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="card h-100">
+          <h5>End-to-End Solutions</h5>
+          <p>From strategy to execution, we handle every step of your digital journey — making complex simple and seamless.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Services -->
+  <section id="services" class="container">
+    <h2 class="section-title">Our Services</h2>
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card">
+          <div class="service-icon"><i class="bi bi-code-slash"></i></div>
+          <h3 class="service-title">Web Development</h3>
+          <p class="service-desc">Crafting responsive, performant websites that engage users and grow your brand online.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card">
+          <div class="service-icon"><i class="bi bi-phone"></i></div>
+          <h3 class="service-title">Mobile App Development</h3>
+          <p class="service-desc">Building sleek, intuitive mobile apps for iOS and Android tailored to your business needs.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card">
+          <div class="service-icon"><i class="bi bi-bag"></i></div>
+          <h3 class="service-title">Ecommerce Development</h3>
+          <p class="service-desc">End-to-end ecommerce platforms designed for maximum sales conversion and seamless management.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card">
+          <div class="service-icon"><i class="bi bi-bar-chart-line"></i></div>
+          <h3 class="service-title">Digital Marketing</h3>
+          <p class="service-desc">Data-driven marketing strategies that amplify your brand presence and accelerate growth.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card">
+          <div class="service-icon"><i class="bi bi-brain"></i></div>
+          <h3 class="service-title">AI Development</h3>
+          <p class="service-desc">Integrating smart AI-powered solutions to automate, predict, and optimize your business workflows.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card">
+          <div class="service-icon"><i class="bi bi-chat-dots"></i></div>
+          <h3 class="service-title">Chat Bot Development</h3>
+          <p class="service-desc">Custom chatbots that enhance customer interaction, boost engagement, and streamline support.</p>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12">
+        <div class="service-card">
+          <div class="service-icon"><i class="bi bi-cart4"></i></div>
+          <h3 class="service-title">Complete Sales Strategy & Marketing for Ecommerces</h3>
+          <p class="service-desc">Comprehensive strategies combining sales tactics and marketing to skyrocket your ecommerce success.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Industries We Serve -->
+  <section id="industries" class="container">
+    <h2 class="section-title">Industries We Serve</h2>
+    <div class="row g-4 justify-content-center">
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="industry-card p-4">
+          <div class="industry-icon"><i class="bi bi-bag-heart"></i></div>
+          <div class="industry-name">Retail</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="industry-card p-4">
+          <div class="industry-icon"><i class="bi bi-cloud"></i></div>
+          <div class="industry-name">SaaS</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="industry-card p-4">
+          <div class="industry-icon"><i class="bi bi-cash-stack"></i></div>
+          <div class="industry-name">Finance</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="industry-card p-4">
+          <div class="industry-icon"><i class="bi bi-heart-pulse"></i></div>
+          <div class="industry-name">Healthcare</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="industry-card p-4">
+          <div class="industry-icon"><i class="bi bi-people-fill"></i></div>
+          <div class="industry-name">Education</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="industry-card p-4">
+          <div class="industry-icon"><i class="bi bi-building"></i></div>
+          <div class="industry-name">Enterprise</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Portfolio -->
+  <section id="portfolio" class="container">
+    <h2 class="section-title">Portfolio / Case Studies</h2>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=180&fit=crop" alt="Brand Project" class="portfolio-image" />
+          <div class="portfolio-content">
+            <h3 class="portfolio-title">Hofmaan Brand Revamp</h3>
+            <p class="portfolio-summary">Led a digital branding overhaul for Hofmaan, enhancing user engagement and driving a 25% increase in client acquisition.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=180&fit=crop" alt="Ecommerce Platform" class="portfolio-image" />
+          <div class="portfolio-content">
+            <h3 class="portfolio-title">Get Orgi Ecommerce Launch</h3>
+            <p class="portfolio-summary">Built a clean, user-friendly organic products marketplace tailored to support local producers and increase direct sales.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=180&fit=crop" alt="Portal Development" class="portfolio-image" />
+          <div class="portfolio-content">
+            <h3 class="portfolio-title">Kerala Viswakarma Sabha Portal</h3>
+            <p class="portfolio-summary">Developed a secure member management system with event calendars and communications tools for the community.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=400&h=180&fit=crop" alt="EdTech Platform" class="portfolio-image" />
+          <div class="portfolio-content">
+            <h3 class="portfolio-title">BThinkX EdTech Platform</h3>
+            <p class="portfolio-summary">Created a comprehensive learning management system for coding courses with integrated live mentorship and interview prep.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1487014679447-9f8336841d58?w=400&h=180&fit=crop" alt="Personal Website" class="portfolio-image" />
+          <div class="portfolio-content">
+            <h3 class="portfolio-title">Seethal James Personal Branding</h3>
+            <p class="portfolio-summary">Designed and developed a personal portfolio site with rich media integration and seamless user experience.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=180&fit=crop" alt="Ecommerce Website" class="portfolio-image" />
+          <div class="portfolio-content">
+            <h3 class="portfolio-title">Little Shub Ecommerce Website</h3>
+            <p class="portfolio-summary">Revamped the online storefront to enhance UI/UX leading to a significant boost in customer retention and sales.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=400&h=180&fit=crop" alt="Organic Brand" class="portfolio-image" />
+          <div class="portfolio-content">
+            <h3 class="portfolio-title">Alepa Organics Brand Website</h3>
+            <p class="portfolio-summary">Developed a clean, eco-friendly web presence emphasizing Alepa's commitment to organic and sustainable products.</p>
+          </div>
+        </div>
+      </div>
+       <!-- Vishwakarma Matrimony Portal -->
+    <div class="col-md-6 col-lg-4">
+      <div class="portfolio-item">
+        <img src="https://images.unsplash.com/photo-1603574670812-d24560880210?w=400&h=180&fit=crop" alt="Matrimony Portal" class="portfolio-image" />
+        <div class="portfolio-content">
+          <h3 class="portfolio-title">Vishwakarma Matrimony Portal</h3>
+          <p class="portfolio-summary">Engineered a secure, user-friendly matchmaking portal with profile verification, community filters, and subscription management features for the Vishwakarma community.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Temple Billing & Subscription App -->
+    <div class="col-md-6 col-lg-4">
+      <div class="portfolio-item">
+        <img src="https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=400&h=180&fit=crop" alt="Temple Billing App" class="portfolio-image" />
+        <div class="portfolio-content">
+          <h3 class="portfolio-title">Temple Billing & Subscription App</h3>
+          <p class="portfolio-summary">Developed a desktop billing and subscription management system using CustomTkinter, streamlining pooja billing, customer tracking, and automated report generation for temples.</p>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials" class="container">
+    <h2 class="section-title">Client Testimonials</h2>
+    <div class="testimonial-track">
+      <div class="testimonial-item">
+        <p>"BThinkX Dev transformed our online presence with an amazing ecommerce platform that boosted sales by 40% in 3 months."</p>
+        <div class="client-info">
+          <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Jessica L." />
+          <span>Jessica L. - Amazon</span>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <p>"Their AI chatbot integration improved our support efficiency and customer satisfaction dramatically. Highly recommend!"</p>
+        <div class="client-info">
+          <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Rajesh K." />
+          <span>Rajesh K. - Microsoft</span>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <p>"Professional, timely and innovative solutions that helped us scale our SaaS product launch globally."</p>
+        <div class="client-info">
+          <img src="https://randomuser.me/api/portraits/women/50.jpg" alt="Anna M." />
+          <span>Anna M. - Google</span>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <p>"BThinkX Dev transformed our online presence with an amazing ecommerce platform that boosted sales by 40% in 3 months."</p>
+        <div class="client-info">
+          <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Jessica L." />
+          <span>Jessica L. - Amazon</span>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <p>"Their AI chatbot integration improved our support efficiency and customer satisfaction dramatically. Highly recommend!"</p>
+        <div class="client-info">
+          <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Rajesh K." />
+          <span>Rajesh K. - Microsoft</span>
+        </div>
+      </div>
+      <div class="testimonial-item">
+        <p>"Professional, timely and innovative solutions that helped us scale our SaaS product launch globally."</p>
+        <div class="client-info">
+          <img src="https://randomuser.me/api/portraits/women/50.jpg" alt="Anna M." />
+          <span>Anna M. - Google</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Process -->
+  <section id="process" class="container">
+    <h2 class="section-title">Our Process</h2>
+    <div class="row g-5 justify-content-center">
+      <div class="col-md-4">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Consultation & Discovery</h3>
+          <p class="step-desc">Understanding your goals, challenges, and vision to tailor the perfect digital strategy.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3 class="step-title">Design & Planning</h3>
+          <p class="step-desc">Creating intuitive designs and detailed project plans ensuring alignment with your business needs.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Development & Integration</h3>
+          <p class="step-desc">Building robust, scalable solutions integrating the latest technology and best practices.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step">
+          <div class="step-number">4</div>
+          <h3 class="step-title">Testing & Quality Assurance</h3>
+          <p class="step-desc">Comprehensive testing to guarantee performance, security, and seamless user experience.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step">
+          <div class="step-number">5</div>
+          <h3 class="step-title">Launch & Support</h3>
+          <p class="step-desc">Deploying your solution and providing ongoing support to ensure continuous success.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta" class="container text-center">
+    <h2 class="mb-4 fw-bold">Ready to Transform Your Business?</h2>
+    <form id="quoteForm" style="max-width: 600px; margin: 0 auto;">
+      <div class="mb-3">
+        <label for="fullName" class="visually-hidden">Full name</label>
+        <input id="fullName" name="fullName" type="text" class="form-control form-control-lg rounded-pill" placeholder="Full name (e.g. Jane Doe)" required />
+      </div>
+
+
+      <div class="mb-3">
+        <label for="email" class="visually-hidden">Email</label>
+        <input id="email" name="email" type="email" class="form-control form-control-lg rounded-pill" placeholder="Email address (e.g. jane@example.com)" required />
+      </div>
+
+      <div class="mb-3">
+        <label for="company" class="visually-hidden">Company</label>
+        <input id="company" name="company" type="text" class="form-control form-control-lg rounded-pill" placeholder="Company name (optional)" />
+      </div>
+
+      <div class="mb-3">
+        <label for="website" class="visually-hidden">Website</label>
+        <input id="website" name="website" type="url" class="form-control form-control-lg rounded-pill" placeholder="Website (optional) — https://example.com" />
+      </div>
+
+      <div class="mb-3">
+        <label for="message" class="visually-hidden">Project brief</label>
+        <textarea id="message" name="message" class="form-control rounded-3" rows="4" placeholder="Briefly describe your project or requirements" required></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-lg w-100 rounded-pill fw-bold">Request a Call</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container d-md-flex justify-content-between align-items-center">
+      <div class="mb-3 mb-md-0">
+        <div class="footer-logo">BThinkX Dev</div>
+        <p>
+          2nd Floor, Suffis Arcade<br />
+          Pattom, Trivandrum<br />
+          Phone: +91 6282954359<br />
+          Email: <a href="mailto:hr@bthinkx.com">hr@bthinkx.com</a>
+        </p>
+      </div>
+      <div class="mb-3 mb-md-0">
+        <h6 class="mb-3" style="color: var(--text-primary);">Quick Links</h6>
+        <ul class="list-unstyled">
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#services">Our Services</a></li>
+          <li><a href="#portfolio">Portfolio</a></li>
+          <li><a href="#cta">Get a Quote</a></li>
+        </ul>
+      </div>
+      <div>
+        <h6 class="mb-3" style="color: var(--text-primary);">Follow Us</h6>
+        <div class="d-flex gap-3 fs-4">
+          <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+          <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-4" style="opacity: 0.6; font-size: 0.8rem;">&copy; 2025 BThinkX Dev. All rights reserved.</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/globe.gl"></script>
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('.theme-toggle-icon');
+    const html = document.documentElement;
+
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    html.setAttribute('data-theme', currentTheme);
+    themeIcon.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+      
+      themeToggle.style.transform = 'rotate(360deg) scale(1.1)';
+      setTimeout(() => {
+        themeToggle.style.transform = 'rotate(0deg) scale(1)';
+      }, 400);
+    });
+
+    // Particle effects
+    const colors = [
+      'rgba(139, 92, 246, 0.8)',
+      'rgba(236, 72, 153, 0.8)',
+      'rgba(59, 130, 246, 0.8)',
+      'rgba(167, 139, 250, 0.8)',
+      'rgba(244, 114, 182, 0.8)',
+      'rgba(96, 165, 250, 0.8)'
+    ];
+
+    function createParticle(x, y) {
+      const particle = document.createElement('div');
+      particle.style.position = 'fixed';
+      particle.style.pointerEvents = 'none';
+      particle.style.left = x + 'px';
+      particle.style.top = y + 'px';
+      particle.style.width = '6px';
+      particle.style.height = '6px';
+      particle.style.borderRadius = '50%';
+      particle.style.zIndex = 9999;
+      
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      particle.style.background = color;
+
+      document.body.appendChild(particle);
+      const size = Math.random() * 6 + 4;
+      particle.style.width = size + 'px';
+      particle.style.height = size + 'px';
+      let opacity = 1;
+      let dy = Math.random() * -3;
+      let dx = (Math.random() - 0.5) * 6;
+      const decay = 0.03;
+      
+      function animateParticle() {
+        x += dx;
+        y += dy;
+        dy += 0.1;
+        opacity -= decay;
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.opacity = opacity;
+        if (opacity <= 0) {
+          particle.remove();
+        } else {
+          requestAnimationFrame(animateParticle);
+        }
+      }
+      animateParticle();
+    }
+
+    document.addEventListener('mousemove', function(e) {
+      createParticle(e.clientX, e.clientY);
+    });
+
+    // Globe
+    const userIcons = [
+      { lat: 40.7128, lng: -74.0060, label: "User NYC" },
+      { lat: 51.5074, lng: -0.1278, label: "User London" },
+      { lat: 35.6895, lng: 139.6917, label: "User Tokyo" },
+      { lat: -33.8688, lng: 151.2093, label: "User Sydney" },
+      { lat: 48.8566, lng: 2.3522, label: "User Paris" },
+    ];
+
+    const globe = Globe()
+      .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+      .backgroundColor('rgba(0,0,0,0)')
+      .showAtmosphere(true)
+      .atmosphereColor('#8b5cf6')
+      .atmosphereAltitude(0.4)
+      .htmlElementsData(userIcons)
+      .htmlLat(d => d.lat)
+      .htmlLng(d => d.lng)
+      .htmlAltitude(0.08)
+      .htmlElement(d => {
+        const img = document.createElement('img');
+        img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNiIgZmlsbD0id2hpdGUiLz48cGF0aCBkPSJNMTYgOEMxMi42ODYzIDggMTAgMTAuNjg2MyAxMCAxNEMxMCAxNy4zMTM3IDEyLjY4NjMgMjAgMTYgMjBDMTkuMzEzNyAyMCAyMiAxNy4zMTM3IDIyIDE0QzIyIDEwLjY4NjMgMTkuMzEzNyA4IDE2IDhaIiBmaWxsPSIjOGI1Y2Y2Ii8+PC9zdmc+';
+        img.className = 'globe-icon';
+        img.title = d.label;
+        img.style.filter = 'drop-shadow(0 0 6px #8b5cf6)';
+        return img;
+      });
+
+    globe(document.getElementById('globeViz'));
+
+    const controls = globe.controls();
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 3;
+
+    // Form handling
+    document.getElementById('quoteForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const button = this.querySelector('button');
+      const originalText = button.textContent;
+      button.textContent = '✓ Request Submitted!';
+      button.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+      
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
+        this.reset();
+      }, 3000);
+    });
+
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BThinkX | Innovation, Development & Education Ecosystem</title>
+    <meta name="description" content="BThinkX - Empowering Ideas through Innovation, Technology, and Education. Uniting Software Development, Research, and Education under one vision.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #000000;
+            --secondary-bg: #0a0a0a;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-blue: #3b82f6;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --card-bg: rgba(15, 15, 15, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+        }
+
+        [data-theme="light"] {
+            --primary-bg: #ffffff;
+            --secondary-bg: #f8fafc;
+            --accent-purple: #7c3aed;
+            --accent-pink: #db2777;
+            --accent-blue: #2563eb;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --card-bg: rgba(248, 250, 252, 0.8);
+            --card-border: rgba(15, 23, 42, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.6;
+            background: 
+                radial-gradient(at 20% 30%, rgba(139, 92, 246, 0.3) 0px, transparent 50%),
+                radial-gradient(at 80% 70%, rgba(236, 72, 153, 0.3) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(59, 130, 246, 0.2) 0px, transparent 50%);
+            animation: meshMove 15s ease-in-out infinite;
+        }
+
+        @keyframes meshMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        [data-theme="light"] .mesh-bg {
+            opacity: 0.3;
+            background: 
+                radial-gradient(at 20% 30%, rgba(124, 58, 237, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 70%, rgba(219, 39, 119, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(37, 99, 235, 0.1) 0px, transparent 50%);
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(139, 92, 246, 0.6);
+            border-radius: 50%;
+            animation: particleFloat 20s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px) scale(1); opacity: 0; }
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 24px 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        nav.scrolled {
+            padding: 16px 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        /* General Styles */
+        section {
+            position: relative;
+            padding: 120px 48px;
+            max-width: 1400px;
+            margin: 0 auto;
+            z-index: 2;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: 10px 24px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #a78bfa;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .section-title {
+            font-size: clamp(40px, 5vw, 64px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -1.5px;
+        }
+
+        .section-description {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 750px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 140px 48px 80px;
+            text-align: center;
+        }
+
+        .hero-content {
+            width: 100%;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #a78bfa;
+            margin-bottom: 32px;
+            animation: fadeSlideIn 0.8s ease;
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 8vw, 84px);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 28px;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -2.5px;
+            animation: fadeSlideIn 1s ease 0.2s backwards;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeSlideIn 1s ease 0.4s backwards;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeSlideIn 1s ease 0.6s backwards;
+        }
+
+        .btn-primary {
+            padding: 18px 48px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(139, 92, 246, 0.6);
+        }
+
+        .btn-secondary {
+            padding: 18px 48px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+        }
+
+        /* About BThinkX Ecosystem */
+        .ecosystem-visual {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px;
+            margin-top: 80px;
+        }
+
+        .ecosystem-node {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 48px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .ecosystem-node:hover {
+            transform: translateY(-10px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2);
+        }
+
+        .ecosystem-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .ecosystem-node:nth-child(2) .ecosystem-icon {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        }
+
+        .ecosystem-node:nth-child(3) .ecosystem-icon {
+            background: linear-gradient(135deg, #ec4899, #3b82f6);
+        }
+
+        .ecosystem-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .ecosystem-desc {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        /* Dev Services Section */
+        .expertise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .expertise-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px;
+            transition: all 0.4s ease;
+        }
+
+        .expertise-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2);
+        }
+
+        .expertise-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .expertise-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .expertise-desc {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* Products Section */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px;
+            transition: all 0.4s ease;
+            text-align: center;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2);
+        }
+
+        .product-name {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .product-desc {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .product-tag {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #a78bfa;
+        }
+
+        /* Impact Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            transform: translateY(-8px);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 900;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Community Section */
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .community-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px;
+            transition: all 0.4s ease;
+            text-align: center;
+        }
+
+        .community-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2);
+        }
+
+        .community-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .community-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .community-desc {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* Research Section */
+        .research-areas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .research-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px;
+            transition: all 0.4s ease;
+        }
+
+        .research-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2);
+        }
+
+        .research-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .research-desc {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .research-status {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #a78bfa;
+        }
+
+        /* Vision Mission Section */
+        .vision-mission-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 48px;
+            margin-top: 60px;
+        }
+
+        .vision-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 48px;
+            transition: all 0.4s ease;
+        }
+
+        .vision-card:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2);
+        }
+
+        .vision-icon {
+            font-size: 48px;
+            margin-bottom: 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .vision-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .vision-text {
+            color: var(--text-secondary);
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        /* CTA Section */
+        .cta-large {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 32px;
+            padding: 80px 48px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .cta-large h2 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 24px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .cta-large p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 80px 48px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            z-index: 2;
+            position: relative;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .footer-brand {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-link {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+
+        .social-link:hover {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border-color: transparent;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .footer-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 14px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+            padding-left: 8px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .contact-info {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Animations */
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .ecosystem-visual,
+            .vision-mission-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            section {
+                padding: 80px 24px;
+            }
+
+            .nav-container {
+                padding: 0 24px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 120px 24px 60px;
+            }
+
+            .hero h1 {
+                font-size: 44px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                text-align: center;
+            }
+
+            .cta-large {
+                padding: 60px 32px;
+            }
+
+            .cta-large h2 {
+                font-size: 36px;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            section {
+                padding: 60px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mesh Background -->
+    <div class="mesh-bg"></div>
+
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span>🌙</span>
+    </button>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo">BThinkX</div>
+            <div class="nav-links">
+                <a href="#about">About Ecosystem</a>
+                <a href="#services">Our Services</a>
+                <a href="#research">Research</a>
+                <a href="#community">Community</a>
+                <a href="#cta">Join Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-tag">Innovation meets Impact</div>
+            <h1>Empowering Ideas through <span class="gradient-text">Innovation, Technology, and Education</span></h1>
+            <p class="hero-subtitle">BThinkX is a growing tech ecosystem uniting software development, research, and education under one vision — building the future with intelligence and impact.</p>
+            
+            <div class="hero-buttons">
+                <a href="/edtech" class="btn-primary">Explore BThinkX EdTech</a>
+                <a href="/dev" class="btn-secondary">Explore BThinkX Dev</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About BThinkX Ecosystem -->
+    <section id="about" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">The Ecosystem</div>
+            <h2 class="section-title">BThinkX <span class="gradient-text">Tech Ecosystem</span></h2>
+            <p class="section-description">We bridge learning and creation — from classroom to corporate, from idea to impact. One unified vision, three powerful divisions.</p>
+        </div>
+
+        <div class="ecosystem-visual">
+            <div class="ecosystem-node">
+                <div class="ecosystem-icon">
+                    <i class="fas fa-flask-vial"></i>
+                </div>
+                <h3 class="ecosystem-title">Innovation & Research</h3>
+                <p class="ecosystem-desc">Exploring cutting-edge technologies and developing next-generation solutions through continuous research and experimentation.</p>
+            </div>
+
+            <div class="ecosystem-node">
+                <div class="ecosystem-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3 class="ecosystem-title">BThinkX Dev</h3>
+                <p class="ecosystem-desc">Software development, AI solutions, and digital transformation services for businesses looking to innovate and scale.</p>
+            </div>
+
+            <div class="ecosystem-node">
+                <div class="ecosystem-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3 class="ecosystem-title">BThinkX EdTech</h3>
+                <p class="ecosystem-desc">Comprehensive learning programs, mentorship, and placement support for aspiring tech professionals and career changers.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BThinkX Dev Services -->
+    <section id="dev" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Development Services</div>
+            <h2 class="section-title">BThinkX Dev <span class="gradient-text">Expertise</span></h2>
+            <p class="section-description">Comprehensive software development and digital transformation services built on innovation and excellence.</p>
+        </div>
+
+        <div style="margin-top: 80px;">
+            <h3 style="font-size: 28px; font-weight: 800; margin-bottom: 40px; font-family: 'Space Grotesk';">Our Expertise</h3>
+            <div class="expertise-grid">
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h4 class="expertise-title">Web & App Development</h4>
+                    <p class="expertise-desc">MERN Stack, Django, Flutter - building scalable and responsive applications for web and mobile platforms.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h4 class="expertise-title">AI & ML Solutions</h4>
+                    <p class="expertise-desc">Artificial intelligence and machine learning implementations for intelligent business solutions.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h4 class="expertise-title">IoT & Automation</h4>
+                    <p class="expertise-desc">Internet of Things solutions and automation systems for smart operations and enhanced efficiency.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4 class="expertise-title">Robotics & Embedded Systems</h4>
+                    <p class="expertise-desc">Advanced robotics and embedded systems development for industrial and consumer applications.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h4 class="expertise-title">Cloud & Web3 Integration</h4>
+                    <p class="expertise-desc">Cloud infrastructure, blockchain integration, and Web3 solutions for next-generation applications.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h4 class="expertise-title">Ecommerce Solutions</h4>
+                    <p class="expertise-desc">Complete ecommerce platform development with integrated payment systems and inventory management.</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 80px;">
+            <h3 style="font-size: 28px; font-weight: 800; margin-bottom: 40px; font-family: 'Space Grotesk';">Our Products</h3>
+            <div class="products-grid">
+                <div class="product-card">
+                    <p class="product-name">Temple Billing App</p>
+                    <p class="product-desc">Comprehensive billing and subscription management system for religious organizations.</p>
+                    <span class="product-tag">SaaS Solution</span>
+                </div>
+
+                <div class="product-card">
+                    <p class="product-name">Matrimony Portal</p>
+                    <p class="product-desc">Advanced matrimonial matchmaking platform with secure profiles and communication features.</p>
+                    <span class="product-tag">Web Platform</span>
+                </div>
+
+                <div class="product-card">
+                    <p class="product-name">Organic eCommerce</p>
+                    <p class="product-desc">Specialized ecommerce solution for organic and sustainable product businesses.</p>
+                    <span class="product-tag">E-commerce</span>
+                </div>
+
+                <div class="product-card">
+                    <p class="product-name">Business CRM Suite</p>
+                    <p class="product-desc">Integrated customer relationship management system for enterprise operations.</p>
+                    <span class="product-tag">Enterprise Tool</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-large">
+            <h2>Ready to Transform Your Business?</h2>
+            <p>Hire our expert development team or build custom solutions tailored to your unique needs.</p>
+            <div class="cta-buttons">
+                <a href="/dev" class="btn-primary">Explore BThinkX Dev</a>
+                <a href="#" class="btn-secondary">Schedule Consultation</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- BThinkX EdTech Section -->
+    <section id="edtech" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Learning Programs</div>
+            <h2 class="section-title">BThinkX <span class="gradient-text">EdTech</span></h2>
+            <p class="section-description">Transform your career with professional-grade courses, expert mentorship, and comprehensive placement support.</p>
+        </div>
+
+        <div style="margin-top: 80px;">
+            <h3 style="font-size: 28px; font-weight: 800; margin-bottom: 40px; font-family: 'Space Grotesk';">Key Highlights</h3>
+            <div class="expertise-grid">
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h4 class="expertise-title">Professional Courses</h4>
+                    <p class="expertise-desc">MERN Stack, Django + React, Flutter, AI/ML - comprehensive programs from beginner to advanced.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h4 class="expertise-title">Practical Training</h4>
+                    <p class="expertise-desc">100+ coding problems, real-world projects, mock interviews, and hands-on experience.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h4 class="expertise-title">Expert Mentorship</h4>
+                    <p class="expertise-desc">1-on-1 personalized guidance from industry professionals with 3+ years experience.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h4 class="expertise-title">Placement Support</h4>
+                    <p class="expertise-desc">100% job assistance, resume reviews, interview prep, and direct company referrals.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 class="expertise-title">Active Community</h4>
+                    <p class="expertise-desc">Network with peers, share knowledge, collaborate on projects, and grow together.</p>
+                </div>
+
+                <div class="expertise-card">
+                    <div class="expertise-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h4 class="expertise-title">Success Stories</h4>
+                    <p class="expertise-desc">150+ successful career launches with placements at leading startups and MNCs.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-large">
+            <h2>Start Your Career Transformation</h2>
+            <p>Join our learning community and take the first step towards your dream tech career.</p>
+            <div class="cta-buttons">
+                <a href="/edtech" class="btn-primary">Explore EdTech Courses</a>
+                <a href="#" class="btn-secondary">Book Free Consultation</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact & Stats -->
+    <section class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Our Impact</div>
+            <h2 class="section-title">BThinkX by <span class="gradient-text">The Numbers</span></h2>
+            <p class="section-description">Measurable impact across innovation, development, and education.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">Students Trained</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number">20+</div>
+                <div class="stat-label">Projects Delivered</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">Research Experiments</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number">15+</div>
+                <div class="stat-label">Team Members & Mentors</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Section -->
+    <section id="community" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Join Our Community</div>
+            <h2 class="section-title">BThinkX Tech <span class="gradient-text">Circle</span></h2>
+            <p class="section-description">Learn, Build, Share, and Innovate together with our vibrant developer and learner community.</p>
+        </div>
+
+        <div class="community-grid">
+            <div class="community-card">
+                <div class="community-icon">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+                <h3 class="community-title">Open Source Projects</h3>
+                <p class="community-desc">Contribute to community-driven open-source projects and build real-world solutions.</p>
+            </div>
+
+            <div class="community-card">
+                <div class="community-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="community-title">AI Research</h3>
+                <p class="community-desc">Participate in cutting-edge AI and machine learning research initiatives.</p>
+            </div>
+
+            <div class="community-card">
+                <div class="community-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="community-title">Robotics Projects</h3>
+                <p class="community-desc">Build and collaborate on robotics and automation projects with hands-on experience.</p>
+            </div>
+
+            <div class="community-card">
+                <div class="community-icon">
+                    <i class="fas fa-cubes"></i>
+                </div>
+                <h3 class="community-title">Web3 Experiments</h3>
+                <p class="community-desc">Explore blockchain, smart contracts, and decentralized applications together.</p>
+            </div>
+
+            <div class="community-card">
+                <div class="community-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3 class="community-title">Innovation Challenges</h3>
+                <p class="community-desc">Participate in hackathons and innovation challenges with prizes and recognition.</p>
+            </div>
+
+            <div class="community-card">
+                <div class="community-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3 class="community-title">Knowledge Sharing</h3>
+                <p class="community-desc">Share insights, best practices, and learn from experienced professionals in our community.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research & Innovation -->
+    <section id="research" class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Innovation Lab</div>
+            <h2 class="section-title">BThinkX <span class="gradient-text">Labs</span></h2>
+            <p class="section-description">We're continuously exploring the next wave of technology and staying ahead of industry trends.</p>
+        </div>
+
+        <div class="research-areas">
+            <div class="research-card">
+                <h3 class="research-title">Artificial Intelligence</h3>
+                <p class="research-desc">Advanced machine learning models, neural networks, and AI-powered applications solving real-world problems.</p>
+                <span class="research-status">Ongoing</span>
+            </div>
+
+            <div class="research-card">
+                <h3 class="research-title">Robotics & Automation</h3>
+                <p class="research-desc">Autonomous systems, robotic process automation, and intelligent automation solutions.</p>
+                <span class="research-status">Ongoing</span>
+            </div>
+
+            <div class="research-card">
+                <h3 class="research-title">Internet of Things</h3>
+                <p class="research-desc">IoT platforms, sensor networks, and connected device ecosystems for smart solutions.</p>
+                <span class="research-status">Ongoing</span>
+            </div>
+
+            <div class="research-card">
+                <h3 class="research-title">Blockchain & Web3</h3>
+                <p class="research-desc">Distributed systems, smart contracts, decentralized applications, and cryptocurrency integration.</p>
+                <span class="research-status">Ongoing</span>
+            </div>
+
+            <div class="research-card">
+                <h3 class="research-title">AR/VR Experiences</h3>
+                <p class="research-desc">Immersive technologies, virtual reality applications, and augmented reality solutions.</p>
+                <span class="research-status">Active</span>
+            </div>
+
+            <div class="research-card">
+                <h3 class="research-title">Cloud Architecture</h3>
+                <p class="research-desc">Scalable cloud infrastructure, microservices, and distributed computing research.</p>
+                <span class="research-status">Ongoing</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vision & Mission -->
+    <section class="reveal">
+        <div class="section-header">
+            <div class="section-tag">Our Purpose</div>
+            <h2 class="section-title">Vision & <span class="gradient-text">Mission</span></h2>
+        </div>
+
+        <div class="vision-mission-grid">
+            <div class="vision-card">
+                <div class="vision-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3 class="vision-title">Our Vision</h3>
+                <p class="vision-text">To inspire a generation of creators and engineers who build technology that transforms lives and shapes the future through innovation, collaboration, and continuous learning.</p>
+            </div>
+
+            <div class="vision-card">
+                <div class="vision-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h3 class="vision-title">Our Mission</h3>
+                <p class="vision-text">We innovate, educate, and build — creating meaningful impact through technology, research, and human potential. Empowering individuals and businesses to achieve excellence.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section id="cta" class="reveal">
+        <div class="cta-large">
+            <h2>Join the BThinkX Ecosystem</h2>
+            <p>Build, Learn, Innovate. Whether you're a learner seeking career growth or a business seeking innovation, there's a place for you in the BThinkX ecosystem.</p>
+            <div class="cta-buttons">
+                <a href="/edtech" class="btn-primary">Start Learning Now</a>
+                <a href="/dev" class="btn-secondary">Collaborate With Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand">BThinkX</div>
+                <p class="footer-description">Empowering professionals and businesses through transformative education, innovation research, and strategic digital solutions. Your partner in growth and success.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="footer-title">BThinkX EdTech</h4>
+                <ul class="footer-links">
+                    <li><a href="/edtech">Courses</a></li>
+                    <li><a href="/edtech#mentorship">Mentorship</a></li>
+                    <li><a href="/edtech#testimonials">Success Stories</a></li>
+                    <li><a href="/edtech#contact">Apply Now</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-title">BThinkX Dev</h4>
+                <ul class="footer-links">
+                    <li><a href="/dev">Services</a></li>
+                    <li><a href="/dev#portfolio">Portfolio</a></li>
+                    <li><a href="/dev#services">Technologies</a></li>
+                    <li><a href="/dev#cta">Get in Touch</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-title">Contact</h4>
+                <div class="contact-info">
+                    <i class="fas fa-phone"></i>
+                    <span>+91 95441 96763</span>
+                </div>
+                <div class="contact-info">
+                    <i class="fas fa-envelope"></i>
+                    <span>contact@bthinkx.com</span>
+                </div>
+                <div class="contact-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Thiruvananthapuram, Kerala</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 BThinkX. All rights reserved. Transforming careers and businesses through innovation and excellence.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', currentTheme);
+        updateThemeIcon(currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+            themeToggle.style.transform = 'rotate(360deg) scale(1.1)';
+            setTimeout(() => {
+                themeToggle.style.transform = 'rotate(0deg) scale(1)';
+            }, 400);
+        });
+
+        function updateThemeIcon(theme) {
+            themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+        }
+
+        // Generate Particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.pageYOffset > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Reveal Animation
+        function reveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                if (elementTop < windowHeight - 100) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', reveal);
+        reveal();
+
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Parallax Effect
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const meshBg = document.querySelector('.mesh-bg');
+            if (meshBg) {
+                meshBg.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        });
+    </script>
+</body>
+</html>
