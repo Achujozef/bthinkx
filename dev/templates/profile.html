@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - BThinkX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dev/css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">My Profile</h1>
+                <p class="page-subtitle">Manage your personal information and preferences</p>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert-banner {% if message.tags %}{{ message.tags }}{% endif %}" style="margin-bottom: 24px; animation: slideDown 0.3s ease;">
+                <div class="alert-icon">
+                    {% if 'error' in message.tags or 'danger' in message.tags %}
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    {% elif 'warning' in message.tags %}
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    {% else %}
+                        <i class="bi bi-check-circle-fill"></i>
+                    {% endif %}
+                </div>
+                <div class="alert-content">
+                    <h4>{{ message.tags|title }}</h4>
+                    <p>{{ message }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Profile Header Card -->
+        <div class="profile-header">
+            <div class="profile-avatar-container">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="Profile Avatar" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar">{{ user.first_name.0|upper }}{{ user.last_name.0|upper }}</div>
+                {% endif %}
+                <div class="profile-avatar-badge" onclick="document.getElementById('avatarUpload').click()">
+                    <i class="bi bi-camera-fill"></i>
+                </div>
+                <input type="file" id="avatarUpload" style="display: none;" accept="image/*" onchange="uploadAvatar(this)">
+            </div>
+
+            <div class="profile-info">
+                <h2 class="profile-name">{{ user.get_full_name }}</h2>
+                <p class="profile-designation">{{ employee.designation.title }}</p>
+                <div class="profile-meta">
+                    <div class="profile-meta-item">
+                        <i class="bi bi-building"></i>
+                        <span>{{ employee.department.name }}</span>
+                    </div>
+                    <div class="profile-meta-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>{{ employee.address|default:"Not specified" }}</span>
+                    </div>
+                    <div class="profile-meta-item">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>Joined {{ employee.joining_date|date:"F d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="profile-action-btn primary" onclick="openEditModal()">
+                    <i class="bi bi-pencil-square"></i>
+                    Edit Profile
+                </button>
+                <button class="profile-action-btn">
+                    <i class="bi bi-key-fill"></i>
+                    Change Password
+                </button>
+                <button class="profile-action-btn">
+                    <i class="bi bi-gear-fill"></i>
+                    Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ performance_stats.total_tasks_completed }}</div>
+                <div class="stat-label">Tasks Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ performance_stats.projects_involved }}</div>
+                <div class="stat-label">Projects Involved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ performance_stats.attendance_rate|floatformat:0 }}%</div>
+                <div class="stat-label">Attendance Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ performance_stats.avg_task_completion_time|floatformat:1 }}</div>
+                <div class="stat-label">Avg Task Time (days)</div>
+            </div>
+        </div>
+
+        <!-- Profile Tabs -->
+        <div class="profile-tabs">
+            <button class="profile-tab active" onclick="switchTab(this, 'about')">
+                <i class="bi bi-person-circle"></i> About
+            </button>
+            <button class="profile-tab" onclick="switchTab(this, 'skills')">
+                <i class="bi bi-star-fill"></i> Skills
+            </button>
+            <button class="profile-tab" onclick="switchTab(this, 'experience')">
+                <i class="bi bi-briefcase-fill"></i> Experience
+            </button>
+            <button class="profile-tab" onclick="switchTab(this, 'documents')">
+                <i class="bi bi-file-pdf-fill"></i> Documents
+            </button>
+            <button class="profile-tab" onclick="switchTab(this, 'activity')">
+                <i class="bi bi-clock-history"></i> Activity
+            </button>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about" class="tab-content active">
+            <!-- Personal Information -->
+            <div class="profile-section">
+                <h3 class="section-title">
+                    <i class="bi bi-person"></i> Personal Information
+                </h3>
+                <div class="about-grid">
+                    <div class="about-item">
+                        <div class="about-label">Full Name</div>
+                        <div class="about-value">{{ user.get_full_name }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Email Address</div>
+                        <div class="about-value">{{ user.email }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Phone Number</div>
+                        <div class="about-value">{{ user.phone|default:"Not specified" }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Date of Birth</div>
+                        <div class="about-value">{{ employee.date_of_birth|date:"F d, Y"|default:"Not specified" }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Gender</div>
+                        <div class="about-value">{{ employee.gender|default:"Not specified" }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Nationality</div>
+                        <div class="about-value">{{ employee.nationality|default:"Not specified" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Information -->
+            <div class="profile-section">
+                <h3 class="section-title">
+                    <i class="bi bi-briefcase"></i> Professional Information
+                </h3>
+                <div class="about-grid">
+                    <div class="about-item">
+                        <div class="about-label">Designation</div>
+                        <div class="about-value">{{ employee.designation.title }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Department</div>
+                        <div class="about-value">{{ employee.department.name }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Manager</div>
+                        <div class="about-value">
+                            {% if employee.manager %}
+                                {{ employee.manager.get_full_name }}
+                            {% else %}
+                                Not assigned
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Employee ID</div>
+                        <div class="about-value">{{ employee.employee_id|default:"Not specified" }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Joining Date</div>
+                        <div class="about-value">{{ employee.joining_date|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Employment Type</div>
+                        <div class="about-value">{{ employee.employment_type|default:"Full-Time" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="profile-section">
+                <h3 class="section-title">
+                    <i class="bi bi-telephone-fill"></i> Contact Information
+                </h3>
+                <div class="about-grid">
+                    <div class="about-item">
+                        <div class="about-label">Address</div>
+                        <div class="about-value">{{ employee.address|default:"Not specified" }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Phone Number</div>
+                        <div class="about-value">{{ user.phone|default:"Not specified" }}</div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-label">Emergency Contact</div>
+                        <div class="about-value">{{ employee.emergency_contact|default:"Not specified" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Tab -->
+        <div id="skills" class="tab-content">
+            <div class="profile-section">
+                <h3 class="section-title">
+                    <i class="bi bi-star-fill"></i> Skills & Expertise
+                </h3>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>Python</span>
+                            <span class="skill-level">Expert</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 95%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>JavaScript</span>
+                            <span class="skill-level">Advanced</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>Django</span>
+                            <span class="skill-level">Expert</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 90%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>React</span>
+                            <span class="skill-level">Intermediate</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 75%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>SQL</span>
+                            <span class="skill-level">Advanced</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 88%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>AWS</span>
+                            <span class="skill-level">Intermediate</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 70%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>Docker</span>
+                            <span class="skill-level">Intermediate</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 72%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>Git</span>
+                            <span class="skill-level">Expert</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 92%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Experience Tab -->
+        <div id="experience" class="tab-content">
+            <div class="profile-section">
+                <h3 class="section-title">
+                    <i class="bi bi-briefcase"></i> Recent Tasks & Projects
+                </h3>
+
+                {% if recent_tasks %}
+                    {% for task in recent_tasks %}
+                    <div class="experience-item">
+                        <div class="experience-header">
+                            <div>
+                                <div class="experience-title">{{ task.title }}</div>
+                                <div class="experience-company">{{ task.project.name }}</div>
+                            </div>
+                            <div class="experience-date">
+                                {% if task.due_date %}
+                                    {{ task.due_date|date:"M d, Y" }}
+                                {% else %}
+                                    No due date
+                                {% endif %}
+                            </div>
+                        </div>
+                        <p class="experience-description">{{ task.description|truncatewords:30 }}</p>
+                        <div style="display: flex; gap: 12px; margin-top: 12px;">
+                            <span class="status-badge status-{{ task.status }}">{{ task.status|title }}</span>
+                            <span class="task-priority priority-{{ task.priority }}">{{ task.priority }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        <p>No recent tasks found</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Documents Tab -->
+        <div id="documents" class="tab-content">
+            <div class="profile-section">
+                <h3 class="section-title">
+                    <i class="bi bi-file-pdf-fill"></i> Documents & Certificates
+                </h3>
+                <div class="documents-grid">
+                    <div class="document-item">
+                        <div class="document-icon"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+                        <div class="document-name">Resume</div>
+                        <div class="document-date">Updated Nov 2024</div>
+                    </div>
+                    <div class="document-item">
+                        <div class="document-icon"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+                        <div class="document-name">Certificate</div>
+                        <div class="document-date">Issued Sep 2023</div>
+                    </div>
+                    <div class="document-item">
+                        <div class="document-icon"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+                        <div class="document-name">License</div>
+                        <div class="document-date">Valid till Dec 2025</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Tab -->
+        <div id="activity" class="tab-content">
+            <div class="profile-section">
+                <h3 class="section-title">
+                    <i class="bi bi-clock-history"></i> Recent Activity
+                </h3>
+
+                {% if recent_tasks or recent_leaves %}
+                    {% for task in recent_tasks %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            {% if task.status == 'done' %}
+                                <i class="bi bi-check-circle-fill"></i>
+                            {% elif task.status == 'in_progress' %}
+                                <i class="bi bi-arrow-repeat"></i>
+                            {% else %}
+                                <i class="bi bi-circle"></i>
+                            {% endif %}
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">{{ task.title }}</div>
+                            <div class="activity-time">{{ task.updated_at|timesince }} ago</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% for leave in recent_leaves %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="bi bi-calendar-check-fill"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Leave Request - {{ leave.status|title }}</div>
+                            <div class="activity-time">{{ leave.start_date|date:"M d" }} - {{ leave.end_date|date:"M d, Y" }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        <p>No recent activity</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'dev/js/main.js' %}"></script>
+<script src="{% static 'dev/js/profile.js' %}"></script>
+{% endblock %}

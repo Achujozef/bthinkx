@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - BThinkX Employee Portal{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dev/css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Welcome back, <span class="gradient-text">{{ user.first_name }}</span></h1>
+            <p class="page-subtitle">Here's what's happening with your work today</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-secondary">
+                <i class="bi bi-calendar"></i>
+                {{ today|date:"F d, Y" }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon attendance">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ attendance_stats.present_days }}/{{ attendance_stats.total_working_days }}</h3>
+                <p class="stat-label">Attendance This Month</p>
+                {% if attendance_stats.logged_in_today %}
+                <span class="stat-badge success">Logged In</span>
+                {% else %}
+                <span class="stat-badge danger">Not Logged In</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon tasks">
+                <i class="bi bi-check2-square"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ task_stats.in_progress }}</h3>
+                <p class="stat-label">Tasks In Progress</p>
+                <span class="stat-meta">{{ task_stats.completed_this_week }} completed this week</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon leaves">
+                <i class="bi bi-calendar-x"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ leave_stats.pending }}</h3>
+                <p class="stat-label">Pending Leave Requests</p>
+                <span class="stat-meta">{{ leave_stats.total_available }} days available</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon projects">
+                <i class="bi bi-folder"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ active_projects.count }}</h3>
+                <p class="stat-label">Active Projects</p>
+                {% if task_stats.overdue > 0 %}
+                <span class="stat-badge warning">{{ task_stats.overdue }} overdue tasks</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Report Alert -->
+    {% if not daily_report_submitted %}
+    <div class="alert-banner warning">
+        <div class="alert-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <div class="alert-content">
+            <h4>Daily Report Pending</h4>
+            <p>You haven't submitted your daily report for today. Please submit it before end of day.</p>
+        </div>
+        <a href="{% url 'submit_daily_report' %}" class="btn-primary">Submit Now</a>
+    </div>
+    {% endif %}
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Left Column -->
+        <div class="dashboard-col-left">
+            <!-- Recent Tasks -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-check2-square"></i>
+                        My Tasks
+                    </h2>
+                    <a href="{% url 'my_tasks' %}" class="btn-text">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_tasks %}
+                    <div class="tasks-list">
+                        {% for task in recent_tasks %}
+                        <div class="task-item">
+                            <div class="task-checkbox">
+                                <input type="checkbox" {% if task.status == 'done' %}checked{% endif %}>
+                            </div>
+                            <div class="task-content">
+                                <h4 class="task-title">{{ task.title }}</h4>
+                                <div class="task-meta">
+                                    <span class="task-project">{{ task.project.name }}</span>
+                                    <span class="task-priority priority-{{ task.priority }}">{{ task.get_priority_display }}</span>
+                                    {% if task.due_date %}
+                                    <span class="task-due">
+                                        <i class="bi bi-calendar"></i>
+                                        {{ task.due_date|date:"M d" }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="task-status">
+                                <span class="status-badge status-{{ task.status }}">{{ task.get_status_display }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-check-circle"></i>
+                        <p>No tasks assigned yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Active Projects -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-folder"></i>
+                        Active Projects
+                    </h2>
+                    <a href="{% url 'my_projects' %}" class="btn-text">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if active_projects %}
+                    <div class="projects-list">
+                        {% for project in active_projects %}
+                        <div class="project-item">
+                            <div class="project-header">
+                                <h4 class="project-name">{{ project.name }}</h4>
+                                <span class="project-code">{{ project.code }}</span>
+                            </div>
+                            <div class="project-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ project.progress_percent }}%"></div>
+                                </div>
+                                <span class="progress-text">{{ project.progress_percent }}%</span>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-status status-{{ project.status }}">{{ project.get_status_display }}</span>
+                                {% if project.end_date %}
+                                <span class="project-due">Due: {{ project.end_date|date:"M d, Y" }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-folder"></i>
+                        <p>No active projects</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="dashboard-col-right">
+            <!-- Today's Attendance -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-clock"></i>
+                        Today's Attendance
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="attendance-summary">
+                        {% if attendance_stats.today_login_time %}
+                        <div class="attendance-time">
+                            <div class="time-icon success">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                            </div>
+                            <div class="time-details">
+                                <span class="time-label">Login Time</span>
+                                <span class="time-value">{{ attendance_stats.today_login_time|time:"h:i A" }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if attendance_stats.today_logout_time %}
+                        <div class="attendance-time">
+                            <div class="time-icon danger">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </div>
+                            <div class="time-details">
+                                <span class="time-label">Logout Time</span>
+                                <span class="time-value">{{ attendance_stats.today_logout_time|time:"h:i A" }}</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="attendance-action">
+                            <button class="btn-primary full-width" onclick="logoutAttendance()">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="attendance-action">
+                            <button class="btn-primary full-width" onclick="loginAttendance()">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                Login
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-calendar-event"></i>
+                        Upcoming Events
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_events %}
+                    <div class="events-list">
+                        {% for event in upcoming_events %}
+                        <div class="event-item">
+                            <div class="event-date">
+                                <span class="event-day">{{ event.start|date:"d" }}</span>
+                                <span class="event-month">{{ event.start|date:"M" }}</span>
+                            </div>
+                            <div class="event-details">
+                                <h4 class="event-title">{{ event.title }}</h4>
+                                <p class="event-time">
+                                    <i class="bi bi-clock"></i>
+                                    {{ event.start|time:"h:i A" }} - {{ event.end|time:"h:i A" }}
+                                </p>
+                                {% if event.location %}
+                                <p class="event-location">
+                                    <i class="bi bi-geo-alt"></i>
+                                    {{ event.location }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-calendar-x"></i>
+                        <p>No upcoming events</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Announcements -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-megaphone"></i>
+                        Announcements
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {% if recent_announcements %}
+                    <div class="announcements-list">
+                        {% for announcement in recent_announcements %}
+                        <div class="announcement-item">
+                            <h4 class="announcement-title">{{ announcement.title }}</h4>
+                            <p class="announcement-body">{{ announcement.body|truncatewords:20 }}</p>
+                            <span class="announcement-date">{{ announcement.created_at|timesince }} ago</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-megaphone"></i>
+                        <p>No announcements</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function loginAttendance() {
+        if (confirm('Are you sure you want to log in?')) {
+            fetch('{% url "attendance_login" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to log in');
+                }
+            });
+        }
+    }
+
+    function logoutAttendance() {
+        if (confirm('Are you sure you want to log out?')) {
+            fetch('{% url "attendance_logout" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to log out');
+                }
+            });
+        }
+    }
+
+    // Task checkbox toggle
+    document.querySelectorAll('.task-checkbox input').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const taskItem = this.closest('.task-item');
+            taskItem.classList.toggle('completed');
+        });
+    });
+</script>
+{% endblock %}

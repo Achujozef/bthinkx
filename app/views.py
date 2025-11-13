@@ -9,7 +9,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from .models import User, Course
 
 
 def home(request):
@@ -22,7 +21,11 @@ def edtech(request):
 
 def dev(request):
     return render(request, 'bthinkxdev.html')
+def career(request):
+    return render(request, 'career.html')
 
+def dev_team_login(request):
+    return render(request, 'dev_team_login.html')
 @csrf_exempt
 def submit_contact_form(request):
     if request.method == 'POST':
@@ -51,73 +54,3 @@ def submit_contact_form(request):
 def roadmap_view(request):
     return render(request, 'roadmap.html')
 
-
-
-def user_login(request):
-    if request.user.is_authenticated:
-        return redirect('student_dashboard')  # Redirect if already logged in
-
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            # Redirect based on role
-            if user.role == 'student':
-                return redirect('student_dashboard')
-            elif user.role == 'coordinator':
-                return redirect('coordinator_dashboard')
-            elif user.role == 'manager':
-                return redirect('manager_dashboard')
-            else:
-                messages.error(request, 'User role not assigned.')
-                logout(request)
-                return redirect('login')
-        else:
-            messages.error(request, 'Invalid username or password.')
-
-    return render(request, 'login.html')
-
-
-@login_required
-def student_dashboard(request):
-    # Get courses and reviews dynamically
-    enrollments = request.user.studentprofile.enrollments.select_related('course').all()
-    reviews = request.user.studentprofile.reviews.all()
-    
-    context = {
-        'enrollments': enrollments,
-        'reviews': reviews
-    }
-    return render(request, 'student_dashboard.html', context)
-
-@login_required
-def coordinator_dashboard(request):
-    # Courses assigned
-    courses = Course.objects.filter(coordinators=request.user)
-    
-    context = {
-        'courses': courses,
-    }
-    return render(request, 'coordinator_dashboard.html', context)
-
-@login_required
-def manager_dashboard(request):
-    students_count = User.objects.filter(role='student').count()
-    coordinators_count = User.objects.filter(role='coordinator').count()
-    courses_count = Course.objects.count()
-    
-    context = {
-        'students_count': students_count,
-        'coordinators_count': coordinators_count,
-        'courses_count': courses_count
-    }
-    return render(request, 'manager_dashboard.html', context)
-
-
-
-def user_logout(request):
-    logout(request)
-    return redirect('login')

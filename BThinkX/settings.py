@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+    'dev',
     'django.contrib.sitemaps',
+    
 ]
 
 MIDDLEWARE = [
@@ -118,10 +120,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-# STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+STATIC_URL = '/static/'
+
+# Where Django collects static files when you run `collectstatic`
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Directories where Django looks for static files during development
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'dev', 'static'),
+    os.path.join(BASE_DIR, 'app', 'static'),
+]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # Media files (uploads)
 MEDIA_URL = '/media/'
@@ -131,4 +143,4 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'app.User'
+# AUTH_USER_MODEL = 'app.User'

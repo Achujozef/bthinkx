@@ -1,0 +1,857 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Daily Report - BThinkX{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 32px 20px;
+    }
+
+    .report-header {
+        margin-bottom: 40px;
+    }
+
+    .report-title {
+        font-size: 32px;
+        font-weight: 800;
+        font-family: 'Space Grotesk', sans-serif;
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+    }
+
+    .report-subtitle {
+        color: var(--text-secondary);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .report-subtitle-date {
+        color: var(--accent-green);
+        font-weight: 600;
+    }
+
+    /* Status Card */
+    .status-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: var(--transition);
+    }
+
+    .status-card:hover {
+        border-color: var(--accent-green);
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .status-icon {
+        font-size: 32px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(16, 185, 129, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .status-content h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .status-content p {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    /* Form Card */
+    .form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 32px;
+        transition: var(--transition);
+    }
+
+    .form-card:hover {
+        border-color: var(--accent-purple);
+        background: rgba(139, 92, 246, 0.02);
+    }
+
+    .form-section {
+        margin-bottom: 32px;
+    }
+
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--card-border);
+    }
+
+    .form-section-icon {
+        font-size: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .form-label-required {
+        color: var(--accent-red);
+    }
+
+    .form-label-hint {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--text-secondary);
+        margin-left: 6px;
+    }
+
+    /* Input Fields */
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: 12px 16px;
+        background: var(--primary-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        transition: var(--transition);
+        line-height: 1.5;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: var(--text-muted);
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--accent-purple);
+        background: rgba(139, 92, 246, 0.05);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Mood Selector */
+    .mood-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 12px;
+    }
+
+    .mood-option {
+        position: relative;
+    }
+
+    .mood-radio {
+        display: none;
+    }
+
+    .mood-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 16px;
+        background: var(--primary-bg);
+        border: 2px solid var(--card-border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .mood-radio:checked + .mood-label {
+        background: rgba(139, 92, 246, 0.1);
+        border-color: var(--accent-purple);
+        color: var(--accent-purple);
+        transform: scale(1.05);
+    }
+
+    .mood-emoji {
+        font-size: 32px;
+    }
+
+    /* Time Input */
+    .time-input-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+    }
+
+    .time-input-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .time-input-item label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .time-input-item input {
+        padding: 12px;
+        background: var(--primary-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        transition: var(--transition);
+    }
+
+    .time-input-item input:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Character Counter */
+    .char-counter {
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-align: right;
+        margin-top: 4px;
+    }
+
+    .char-counter.warning {
+        color: var(--accent-yellow);
+    }
+
+    .char-counter.danger {
+        color: var(--accent-red);
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 40px;
+        padding-top: 24px;
+        border-top: 1px solid var(--card-border);
+    }
+
+    .form-actions-left {
+        display: flex;
+        gap: 8px;
+    }
+
+    .form-actions-right {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn-secondary {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--accent-purple);
+        background: rgba(139, 92, 246, 0.1);
+    }
+
+    .btn-text {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        padding: 8px 12px;
+    }
+
+    .btn-text:hover {
+        color: var(--text-primary);
+    }
+
+    /* Loading State */
+    .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Alert Messages */
+    .alert {
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: var(--accent-green);
+    }
+
+    .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--accent-red);
+    }
+
+    .alert-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    /* Tips */
+    .tips-box {
+        background: rgba(139, 92, 246, 0.05);
+        border-left: 4px solid var(--accent-purple);
+        border-radius: 6px;
+        padding: 16px;
+        margin-top: 24px;
+    }
+
+    .tips-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent-purple);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .tips-list {
+        font-size: 12px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
+    .tips-list li {
+        margin-bottom: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .report-container {
+            padding: 24px 16px;
+        }
+
+        .form-card {
+            padding: 24px;
+        }
+
+        .time-input-group {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .report-container {
+            padding: 20px 16px;
+        }
+
+        .report-title {
+            font-size: 24px;
+        }
+
+        .form-card {
+            padding: 16px;
+        }
+
+        .form-section-title {
+            font-size: 14px;
+        }
+
+        .mood-selector {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+            gap: 12px;
+        }
+
+        .form-actions-left,
+        .form-actions-right {
+            width: 100%;
+            justify-content: stretch;
+        }
+
+        .form-actions-left button,
+        .form-actions-right button {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .time-input-group {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <!-- Page Header -->
+    <div class="report-header">
+        <h1 class="report-title">Daily Report</h1>
+        <div class="report-subtitle">
+            <i class="bi bi-calendar-event"></i>
+            <span class="report-subtitle-date" id="reportDate"></span>
+        </div>
+    </div>
+
+    <!-- Status Card -->
+    <div class="status-card">
+        <div class="status-icon">📋</div>
+        <div class="status-content">
+            <h3>Submit Your Daily Report</h3>
+            <p>Share what you accomplished today, any blockers, and your mood to help your team stay informed.</p>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div id="alertContainer"></div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+        <form id="dailyReportForm" method="POST">
+            {% csrf_token %}
+
+            <!-- Tasks Completed Section -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span class="form-section-icon">✅</span>
+                    <span>Tasks Completed</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        What tasks did you complete today?
+                        <span class="form-label-required">*</span>
+                    </label>
+                    <textarea 
+                        class="form-textarea" 
+                        id="tasksDone" 
+                        name="tasks_done" 
+                        placeholder="List all the tasks/features/bugs you completed today. Example:&#10;- Fixed login page responsiveness&#10;- Completed API documentation&#10;- Code review for PR #123"
+                        required
+                        maxlength="2000"
+                    ></textarea>
+                    <div class="char-counter" id="tasksCounter">0 / 2000</div>
+                </div>
+            </div>
+
+            <!-- Blockers Section -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span class="form-section-icon">⛔</span>
+                    <span>Blockers</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        Any blockers or challenges faced?
+                        <span class="form-label-hint">(Optional)</span>
+                    </label>
+                    <textarea 
+                        class="form-textarea" 
+                        id="blockers" 
+                        name="blockers" 
+                        placeholder="Share any obstacles, blockers, or issues that prevented progress. Example:&#10;- Waiting for design approval from stakeholder&#10;- Database server timeout issues&#10;- Need clarification on requirements"
+                        maxlength="1000"
+                    ></textarea>
+                    <div class="char-counter" id="blockersCounter">0 / 1000</div>
+                </div>
+            </div>
+
+            <!-- Time & Mood Section -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <span class="form-section-icon">⏱️</span>
+                    <span>Time & Mood</span>
+                </div>
+
+                <!-- Time Spent -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Hours worked today
+                        <span class="form-label-required">*</span>
+                    </label>
+                    <div class="time-input-group">
+                        <div class="time-input-item">
+                            <label>Hours</label>
+                            <input 
+                                type="number" 
+                                id="timeSpentHours" 
+                                name="time_spent_hours" 
+                                min="0" 
+                                max="24" 
+                                step="0.5" 
+                                value="8"
+                                required
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mood Selector -->
+                <div class="form-group">
+                    <label class="form-label">
+                        How was your mood today?
+                        <span class="form-label-required">*</span>
+                    </label>
+                    <div class="mood-selector">
+                        <div class="mood-option">
+                            <input type="radio" id="mood-great" name="mood" value="great" class="mood-radio" required>
+                            <label for="mood-great" class="mood-label">
+                                <div class="mood-emoji">😄</div>
+                                <span>Great</span>
+                            </label>
+                        </div>
+                        <div class="mood-option">
+                            <input type="radio" id="mood-good" name="mood" value="good" class="mood-radio">
+                            <label for="mood-good" class="mood-label">
+                                <div class="mood-emoji">🙂</div>
+                                <span>Good</span>
+                            </label>
+                        </div>
+                        <div class="mood-option">
+                            <input type="radio" id="mood-neutral" name="mood" value="neutral" class="mood-radio">
+                            <label for="mood-neutral" class="mood-label">
+                                <div class="mood-emoji">😐</div>
+                                <span>Neutral</span>
+                            </label>
+                        </div>
+                        <div class="mood-option">
+                            <input type="radio" id="mood-tired" name="mood" value="tired" class="mood-radio">
+                            <label for="mood-tired" class="mood-label">
+                                <div class="mood-emoji">😴</div>
+                                <span>Tired</span>
+                            </label>
+                        </div>
+                        <div class="mood-option">
+                            <input type="radio" id="mood-stressed" name="mood" value="stressed" class="mood-radio">
+                            <label for="mood-stressed" class="mood-label">
+                                <div class="mood-emoji">😰</div>
+                                <span>Stressed</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Box -->
+            <div class="tips-box">
+                <div class="tips-title">
+                    <i class="bi bi-lightbulb"></i> Tips for a better report
+                </div>
+                <ul class="tips-list">
+                    <li>✓ Be specific about accomplishments and measurable outcomes</li>
+                    <li>✓ Mention any help you received or provided to teammates</li>
+                    <li>✓ Include blockers so your manager can help remove obstacles</li>
+                    <li>✓ Be honest about your mood to support team wellbeing</li>
+                </ul>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <div class="form-actions-left">
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Clear
+                    </button>
+                </div>
+                <div class="form-actions-right">
+                    <button type="button" class="btn btn-text" onclick="goBack()">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="bi bi-check-circle"></i> Submit Report
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set today's date
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('reportDate').textContent = today.toLocaleDateString('en-US', options);
+
+        // Load saved data from localStorage (optional)
+        loadSavedData();
+    });
+
+    // Character counters
+    const tasksDoneField = document.getElementById('tasksDone');
+    const blockersField = document.getElementById('blockers');
+
+    tasksDoneField.addEventListener('input', function() {
+        updateCounter('tasksCounter', this.value.length, 2000);
+    });
+
+    blockersField.addEventListener('input', function() {
+        updateCounter('blockersCounter', this.value.length, 1000);
+    });
+
+    function updateCounter(elementId, current, max) {
+        const counter = document.getElementById(elementId);
+        const percentage = (current / max) * 100;
+        
+        counter.textContent = `${current} / ${max}`;
+        
+        if (percentage > 90) {
+            counter.classList.add('danger');
+            counter.classList.remove('warning');
+        } else if (percentage > 75) {
+            counter.classList.add('warning');
+            counter.classList.remove('danger');
+        } else {
+            counter.classList.remove('warning', 'danger');
+        }
+    }
+
+    // Form submission
+    document.getElementById('dailyReportForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById('submitBtn');
+        const originalBtnText = submitBtn.innerHTML;
+        
+        // Validate form
+        if (!this.checkValidity()) {
+            showAlert('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Disable button and show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+        // Get form data
+        const formData = new FormData(this);
+
+        // Submit via AJAX
+        fetch('{% url "submit_daily_report" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message || 'Daily report submitted successfully!', 'success');
+                
+                // Clear saved data
+                clearSavedData();
+                
+                // Reset form
+                document.getElementById('dailyReportForm').reset();
+                
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '{% url "employee_dashboard" %}';
+                }, 2000);
+            } else {
+                showAlert(data.error || 'Failed to submit report', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        })
+        .catch(error => {
+            showAlert('An error occurred. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        });
+    });
+
+    // Show alerts
+    function showAlert(message, type) {
+        const alertContainer = document.getElementById('alertContainer');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.innerHTML = `
+            <span class="alert-icon">
+                ${type === 'success' ? '✅' : '❌'}
+            </span>
+            <span>${message}</span>
+        `;
+        
+        alertContainer.innerHTML = '';
+        alertContainer.appendChild(alert);
+
+        // Auto-remove error alerts after 5 seconds
+        if (type === 'error') {
+            setTimeout(() => alert.remove(), 5000);
+        }
+    }
+
+    // Save form data to localStorage
+    function saveToDraft() {
+        const draft = {
+            tasks_done: document.getElementById('tasksDone').value,
+            blockers: document.getElementById('blockers').value,
+            time_spent_hours: document.getElementById('timeSpentHours').value,
+            mood: document.querySelector('input[name="mood"]:checked')?.value || ''
+        };
+        localStorage.setItem('dailyReportDraft', JSON.stringify(draft));
+    }
+
+    // Load saved data from localStorage
+    function loadSavedData() {
+        const draft = localStorage.getItem('dailyReportDraft');
+        if (draft) {
+            const data = JSON.parse(draft);
+            if (data.tasks_done) document.getElementById('tasksDone').value = data.tasks_done;
+            if (data.blockers) document.getElementById('blockers').value = data.blockers;
+            if (data.time_spent_hours) document.getElementById('timeSpentHours').value = data.time_spent_hours;
+            if (data.mood) document.getElementById(`mood-${data.mood}`).checked = true;
+
+            // Trigger character counter update
+            document.getElementById('tasksDone').dispatchEvent(new Event('input'));
+            document.getElementById('blockers').dispatchEvent(new Event('input'));
+        }
+    }
+
+    // Clear saved data
+    function clearSavedData() {
+        localStorage.removeItem('dailyReportDraft');
+    }
+
+    // Auto-save draft every 30 seconds
+    setInterval(saveToDraft, 30000);
+
+    // Save draft before leaving page
+    window.addEventListener('beforeunload', function(e) {
+        const tasksDone = document.getElementById('tasksDone').value;
+        const blockers = document.getElementById('blockers').value;
+        
+        if (tasksDone || blockers) {
+            saveToDraft();
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Go back
+    function goBack() {
+        if (confirm('Are you sure? Any unsaved data will be lost.')) {
+            window.location.href = '{% url "employee_dashboard" %}';
+        }
+    }
+</script>
+{% endblock %}

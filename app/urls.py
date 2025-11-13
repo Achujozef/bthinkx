@@ -5,14 +5,10 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('edtech/', views.edtech, name='edtech'),
     path('dev/', views.dev, name='dev'),    
-
+    path('career/', views.career, name='career'),
+    path('dev-team-login/', views.dev_team_login, name='dev_team_login'),
     path('submit-contact-form/', views.submit_contact_form, name='submit_contact_form'),
     path('roadmap/', views.roadmap_view, name='roadmap'),
 
-    path('login/', views.user_login, name='login'),
-    path('logout/', views.user_logout, name='logout'),
 
-    path('dashboard/student/', views.student_dashboard, name='student_dashboard'),
-    path('dashboard/coordinator/', views.coordinator_dashboard, name='coordinator_dashboard'),
-    path('dashboard/manager/', views.manager_dashboard, name='manager_dashboard'),
 ]

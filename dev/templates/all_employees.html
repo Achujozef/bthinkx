@@ -1,0 +1,395 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Employees - BThinkX{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">All <span class="gradient-text">Employees</span></h1>
+            <p class="page-subtitle">Manage and view all company employees</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-secondary" onclick="window.print()">
+                <i class="bi bi-printer"></i>
+                Export
+            </button>
+            <a href="{% url 'add_employee' %}" class="btn-primary">
+                <i class="bi bi-person-plus"></i>
+                Add Employee
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon attendance">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.total_employees }}</h3>
+                <p class="stat-label">Total Active Employees</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon tasks">
+                <i class="bi bi-person-plus"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.new_this_month }}</h3>
+                <p class="stat-label">New This Month</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon leaves">
+                <i class="bi bi-calendar-x"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.on_leave_today }}</h3>
+                <p class="stat-label">On Leave Today</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="dashboard-card" style="margin-top: 32px;">
+        <div class="card-body">
+            <form method="get" class="filters-form">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: end;">
+                    <div class="form-group">
+                        <label class="form-label">Search</label>
+                        <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Name, email, employee code...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Department</label>
+                        <select name="department" class="form-control">
+                            <option value="">All Departments</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if department_filter == dept.id|stringformat:"s" %}selected{% endif %}>
+                                {{ dept.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control">
+                            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                            <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <i class="bi bi-search"></i>
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Employees Table -->
+    <div class="dashboard-card" style="margin-top: 24px;">
+        <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="employees-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Employee Code</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Manager</th>
+                            <th>Joining Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in page_obj %}
+                        <tr>
+                            <td>
+                                <div class="employee-cell">
+                                    {% if employee.user.avatar %}
+                                    <img src="{{ employee.user.avatar.url }}" alt="{{ employee.user.get_full_name }}" class="employee-avatar">
+                                    {% else %}
+                                    <div class="employee-avatar-placeholder">
+                                        {{ employee.user.first_name.0 }}{{ employee.user.last_name.0 }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="employee-info">
+                                        <div class="employee-name">{{ employee.user.get_full_name }}</div>
+                                        <div class="employee-email">{{ employee.user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="employee-code">{{ employee.employee_code|default:"—" }}</span></td>
+                            <td>{{ employee.department.name|default:"—" }}</td>
+                            <td>{{ employee.designation.title|default:"—" }}</td>
+                            <td>
+                                {% if employee.manager %}
+                                {{ employee.manager.get_full_name }}
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
+                            <td>{{ employee.date_of_joining|date:"M d, Y"|default:"—" }}</td>
+                            <td>
+                                {% if employee.is_active_employee %}
+                                <span class="status-badge status-active">Active</span>
+                                {% else %}
+                                <span class="status-badge status-inactive">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'view_employee' employee.id %}" class="btn-icon" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'edit_employee' employee.id %}" class="btn-icon" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i class="bi bi-people"></i>
+                                    <p>No employees found</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-container">
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page=1&search={{ search_query }}&department={{ department_filter }}&status={{ status_filter }}" class="page-link">
+                    <i class="bi bi-chevron-double-left"></i>
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&department={{ department_filter }}&status={{ status_filter }}" class="page-link">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                {% endif %}
+
+                <span class="page-info">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&department={{ department_filter }}&status={{ status_filter }}" class="page-link">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query }}&department={{ department_filter }}&status={{ status_filter }}" class="page-link">
+                    <i class="bi bi-chevron-double-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.filters-form .form-group {
+    margin-bottom: 0;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.employees-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.employees-table thead {
+    background: var(--secondary-bg);
+}
+
+.employees-table th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--card-border);
+}
+
+.employees-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--card-border);
+    font-size: 14px;
+}
+
+.employees-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.employees-table tbody tr:hover {
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.employee-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.employee-avatar,
+.employee-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.employee-avatar-placeholder {
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 14px;
+}
+
+.employee-info {
+    flex: 1;
+}
+
+.employee-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.employee-email {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.employee-code {
+    padding: 4px 10px;
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--accent-purple);
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.status-badge.status-active {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--accent-green);
+}
+
+.status-badge.status-inactive {
+    background: rgba(148, 163, 184, 0.2);
+    color: var(--text-secondary);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.btn-icon:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: var(--accent-purple);
+    color: var(--accent-purple);
+}
+
+.pagination-container {
+    padding: 20px;
+    border-top: 1px solid var(--card-border);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.page-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.page-link:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: var(--accent-purple);
+    color: var(--accent-purple);
+}
+
+.page-info {
+    padding: 0 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .employees-table {
+        font-size: 12px;
+    }
+    
+    .employees-table th,
+    .employees-table td {
+        padding: 12px 8px;
+    }
+    
+    .employee-name {
+        font-size: 13px;
+    }
+    
+    .employee-email {
+        font-size: 11px;
+    }
+}
+</style>
+{% endblock %}

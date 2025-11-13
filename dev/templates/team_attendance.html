@@ -1,0 +1,623 @@
+<!-- team_attendance.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Team Attendance - BThinkX{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Team <span class="gradient-text">Attendance</span></h1>
+            <p class="page-subtitle">Monitor your team's attendance and working hours</p>
+        </div>
+        <div class="header-actions">
+            <form method="get" style="display: flex; gap: 12px;">
+                <input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" class="form-control" style="width: auto;">
+                <button type="submit" class="btn-primary">
+                    <i class="bi bi-search"></i>
+                    View
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon attendance">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.total_team }}</h3>
+                <p class="stat-label">Total Team Members</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon tasks">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.present }}</h3>
+                <p class="stat-label">Present Today</p>
+                <span class="stat-badge success">{{ stats.present|floatformat:0 }}%</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon leaves">
+                <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.absent }}</h3>
+                <p class="stat-label">Absent Today</p>
+                <span class="stat-badge danger">{{ stats.absent|floatformat:0 }}%</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon projects">
+                <i class="bi bi-clock"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.avg_hours|floatformat:1 }}h</h3>
+                <p class="stat-label">Average Hours</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="bi bi-calendar-check"></i>
+                Attendance for {{ selected_date|date:"F d, Y" }}
+            </h2>
+            <button class="btn-secondary" onclick="window.print()">
+                <i class="bi bi-printer"></i>
+                Print Report
+            </button>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Login Time</th>
+                            <th>Logout Time</th>
+                            <th>Hours Worked</th>
+                            <th>Breaks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in team_data %}
+                        <tr class="attendance-row {% if data.status == 'absent' %}absent-row{% endif %}">
+                            <td>
+                                <div class="employee-cell">
+                                    {% if data.employee.user.avatar %}
+                                    <img src="{{ data.employee.user.avatar.url }}" alt="{{ data.employee.user.get_full_name }}" class="employee-avatar">
+                                    {% else %}
+                                    <div class="employee-avatar-placeholder">
+                                        {{ data.employee.user.first_name.0 }}{{ data.employee.user.last_name.0 }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="employee-info">
+                                        <div class="employee-name">{{ data.employee.user.get_full_name }}</div>
+                                        <div class="employee-email">{{ data.employee.employee_code }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ data.employee.department.name|default:"—" }}</td>
+                            <td>
+                                {% if data.status == 'present' %}
+                                <span class="status-badge status-present">
+                                    <i class="bi bi-check-circle"></i> Present
+                                </span>
+                                {% else %}
+                                <span class="status-badge status-absent">
+                                    <i class="bi bi-x-circle"></i> Absent
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if data.attendance.login_time %}
+                                <span class="time-badge">
+                                    <i class="bi bi-box-arrow-in-right"></i>
+                                    {{ data.attendance.login_time|time:"h:i A" }}
+                                </span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if data.attendance.logout_time %}
+                                <span class="time-badge">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    {{ data.attendance.logout_time|time:"h:i A" }}
+                                </span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if data.hours_worked > 0 %}
+                                <span class="hours-badge">
+                                    <i class="bi bi-clock-history"></i>
+                                    {{ data.hours_worked|floatformat:1 }} hrs
+                                </span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if data.attendance %}
+                                <button class="btn-icon" onclick="viewBreaks('{{ data.employee.id }}')">
+                                    <i class="bi bi-list"></i>
+                                </button>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="bi bi-calendar-x"></i>
+                                    <p>No attendance records for this date</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.attendance-table thead {
+    background: var(--secondary-bg);
+}
+
+.attendance-table th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--card-border);
+}
+
+.attendance-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.attendance-row {
+    transition: background 0.2s ease;
+}
+
+.attendance-row:hover {
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.attendance-row.absent-row {
+    opacity: 0.6;
+}
+
+.status-badge.status-present {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--accent-green);
+}
+
+.status-badge.status-absent {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--accent-red);
+}
+
+.time-badge,
+.hours-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.time-badge i,
+.hours-badge i {
+    color: var(--accent-purple);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+</style>
+
+<script>
+function viewBreaks(employeeId) {
+    alert('Break details for employee ' + employeeId);
+    // Implement modal or redirect to breaks page
+}
+</script>
+{% endblock %}
+
+<!-- ========================================== -->
+<!-- approve_leaves.html -->
+<!-- ========================================== -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Approve Leave Requests - BThinkX{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Approve <span class="gradient-text">Leave Requests</span></h1>
+            <p class="page-subtitle">Review and approve team leave applications</p>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon tasks">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.pending }}</h3>
+                <p class="stat-label">Pending Requests</p>
+                {% if stats.pending > 0 %}
+                <span class="stat-badge warning">Action Required</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon attendance">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.approved }}</h3>
+                <p class="stat-label">Approved This Month</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon leaves">
+                <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ stats.rejected }}</h3>
+                <p class="stat-label">Rejected This Month</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="dashboard-card" style="margin-top: 32px;">
+        <div class="card-body">
+            <form method="get" class="filters-form">
+                <div style="display: flex; gap: 16px; align-items: end;">
+                    <div class="form-group">
+                        <label class="form-label">Status Filter</label>
+                        <select name="status" class="form-control" onchange="this.form.submit()">
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                            <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leave Requests List -->
+    <div class="leaves-grid">
+        {% for leave in page_obj %}
+        <div class="leave-card">
+            <div class="leave-header">
+                <div class="employee-cell">
+                    {% if leave.employee.user.avatar %}
+                    <img src="{{ leave.employee.user.avatar.url }}" alt="{{ leave.employee.user.get_full_name }}" class="employee-avatar">
+                    {% else %}
+                    <div class="employee-avatar-placeholder">
+                        {{ leave.employee.user.first_name.0 }}{{ leave.employee.user.last_name.0 }}
+                    </div>
+                    {% endif %}
+                    <div class="employee-info">
+                        <div class="employee-name">{{ leave.employee.user.get_full_name }}</div>
+                        <div class="employee-email">{{ leave.employee.department.name|default:"No Department" }}</div>
+                    </div>
+                </div>
+                <span class="status-badge status-{{ leave.status }}">
+                    {{ leave.get_status_display }}
+                </span>
+            </div>
+
+            <div class="leave-body">
+                <div class="leave-info-grid">
+                    <div class="leave-info-item">
+                        <span class="info-label">Leave Type</span>
+                        <span class="info-value">
+                            <i class="bi bi-tag"></i>
+                            {{ leave.leave_type.name }}
+                        </span>
+                    </div>
+                    <div class="leave-info-item">
+                        <span class="info-label">Duration</span>
+                        <span class="info-value">
+                            <i class="bi bi-calendar-range"></i>
+                            {{ leave.days }} day{{ leave.days|pluralize }}
+                        </span>
+                    </div>
+                    <div class="leave-info-item">
+                        <span class="info-label">Start Date</span>
+                        <span class="info-value">
+                            <i class="bi bi-calendar-check"></i>
+                            {{ leave.start_date|date:"M d, Y" }}
+                        </span>
+                    </div>
+                    <div class="leave-info-item">
+                        <span class="info-label">End Date</span>
+                        <span class="info-value">
+                            <i class="bi bi-calendar-x"></i>
+                            {{ leave.end_date|date:"M d, Y" }}
+                        </span>
+                    </div>
+                </div>
+
+                {% if leave.reason %}
+                <div class="leave-reason">
+                    <span class="info-label">Reason:</span>
+                    <p>{{ leave.reason }}</p>
+                </div>
+                {% endif %}
+
+                <div class="leave-meta">
+                    <span class="meta-item">
+                        <i class="bi bi-clock"></i>
+                        Applied {{ leave.created_at|timesince }} ago
+                    </span>
+                    {% if leave.approver %}
+                    <span class="meta-item">
+                        <i class="bi bi-person-check"></i>
+                        {{ leave.status|title }} by {{ leave.approver.get_full_name }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if leave.status == 'pending' %}
+            <div class="leave-actions">
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="leave_id" value="{{ leave.id }}">
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn-approve">
+                        <i class="bi bi-check-circle"></i>
+                        Approve
+                    </button>
+                </form>
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="leave_id" value="{{ leave.id }}">
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="btn-reject">
+                        <i class="bi bi-x-circle"></i>
+                        Reject
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
+            <i class="bi bi-calendar-check"></i>
+            <p>No leave requests to display</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination-container">
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}" class="page-link">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            {% endif %}
+            <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}" class="page-link">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.leaves-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.leave-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.leave-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+}
+
+.leave-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--card-border);
+    background: var(--secondary-bg);
+}
+
+.leave-body {
+    padding: 24px;
+}
+
+.leave-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.leave-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.info-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.info-value i {
+    color: var(--accent-purple);
+}
+
+.leave-reason {
+    padding: 16px;
+    background: var(--secondary-bg);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.leave-reason p {
+    margin-top: 8px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.leave-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.meta-item i {
+    color: var(--accent-purple);
+}
+
+.leave-actions {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--card-border);
+    background: var(--secondary-bg);
+}
+
+.btn-approve,
+.btn-reject {
+    flex: 1;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.btn-approve {
+    background: linear-gradient(135deg, var(--accent-green), #059669);
+    color: white;
+}
+
+.btn-approve:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-reject {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--accent-red);
+}
+
+.btn-reject:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--accent-red);
+}
+
+.status-badge.status-pending {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--accent-yellow);
+}
+
+@media (max-width: 768px) {
+    .leaves-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .leave-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

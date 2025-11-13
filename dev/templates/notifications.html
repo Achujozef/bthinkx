@@ -1,0 +1,761 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifications - BThinkX{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       Notifications Page Specific Styles
+       ============================================ */
+
+    .notifications-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .notifications-filters {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .filter-btn {
+        padding: 10px 20px;
+        background: transparent;
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+        background: rgba(139, 92, 246, 0.1);
+        border-color: var(--accent-purple);
+        color: var(--accent-purple);
+    }
+
+    .notification-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    /* Notification Cards */
+    .notifications-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .notification-card {
+        display: flex;
+        gap: 16px;
+        padding: 20px;
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        transition: var(--transition);
+        cursor: pointer;
+        position: relative;
+    }
+
+    .notification-card:hover {
+        background: rgba(139, 92, 246, 0.05);
+        border-color: var(--accent-purple);
+        transform: translateX(4px);
+    }
+
+    .notification-card.unread {
+        background: rgba(139, 92, 246, 0.08);
+        border-color: var(--accent-purple);
+    }
+
+    .notification-card.unread::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        border-radius: 16px 0 0 16px;
+    }
+
+    .notification-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .notification-icon.info {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--accent-blue);
+    }
+
+    .notification-icon.success {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--accent-green);
+    }
+
+    .notification-icon.warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--accent-yellow);
+    }
+
+    .notification-icon.error {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--accent-red);
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+
+    .notification-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .notification-time {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .notification-body {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        line-height: 1.6;
+    }
+
+    .notification-meta {
+        display: flex;
+        gap: 16px;
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .notification-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .notification-meta-item i {
+        font-size: 14px;
+    }
+
+    .notification-actions-item {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .notification-action-btn {
+        padding: 8px 16px;
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 8px;
+        color: var(--accent-purple);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .notification-action-btn:hover {
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        color: white;
+        border-color: transparent;
+    }
+
+    .notification-checkbox {
+        position: relative;
+    }
+
+    .notification-checkbox input {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--accent-purple);
+    }
+
+    /* Read Status Indicator */
+    .read-status {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent-purple);
+        margin-left: auto;
+    }
+
+    .notification-card.read .read-status {
+        display: none;
+    }
+
+    /* Notification Groups */
+    .notification-group {
+        margin-bottom: 32px;
+    }
+
+    .notification-group-title {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+        padding: 12px 0;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--card-border);
+    }
+
+    /* Empty State */
+    .notifications-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 40px;
+        text-align: center;
+    }
+
+    .notifications-empty i {
+        font-size: 64px;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+        opacity: 0.5;
+    }
+
+    .notifications-empty h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .notifications-empty p {
+        color: var(--text-secondary);
+        max-width: 400px;
+    }
+
+    /* Bulk Actions */
+    .bulk-actions {
+        display: flex;
+        gap: 12px;
+        padding: 16px 20px;
+        background: rgba(139, 92, 246, 0.05);
+        border-radius: 12px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    .bulk-actions-info {
+        font-size: 14px;
+        color: var(--text-secondary);
+        flex: 1;
+    }
+
+    .bulk-actions-info strong {
+        color: var(--accent-purple);
+    }
+
+    .bulk-action-btn {
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid var(--accent-purple);
+        border-radius: 8px;
+        color: var(--accent-purple);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .bulk-action-btn:hover {
+        background: var(--accent-purple);
+        color: white;
+    }
+
+    .bulk-action-btn.danger {
+        border-color: var(--accent-red);
+        color: var(--accent-red);
+    }
+
+    .bulk-action-btn.danger:hover {
+        background: var(--accent-red);
+        color: white;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 40px;
+    }
+
+    .pagination-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .pagination-btn:hover {
+        border-color: var(--accent-purple);
+        color: var(--accent-purple);
+    }
+
+    .pagination-btn.active {
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        color: white;
+        border-color: transparent;
+    }
+
+    .pagination-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .notifications-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .notifications-filters {
+            flex-wrap: wrap;
+        }
+
+        .notification-card {
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .notification-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+        }
+
+        .bulk-actions {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 24px;
+        }
+
+        .notification-card {
+            padding: 12px;
+        }
+
+        .notification-meta {
+            flex-direction: column;
+        }
+
+        .bulk-action-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Notifications</h1>
+        <p class="page-subtitle">Stay updated with all your activity</p>
+    </div>
+    <div class="notification-actions">
+        <button class="btn-secondary" onclick="markAllAsRead()">
+            <i class="bi bi-check-all"></i> Mark all read
+        </button>
+        <button class="btn-secondary" onclick="clearAll()">
+            <i class="bi bi-trash"></i> Clear all
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="notifications-filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="unread">Unread</button>
+    <button class="filter-btn" data-filter="info">Info</button>
+    <button class="filter-btn" data-filter="success">Success</button>
+    <button class="filter-btn" data-filter="warning">Warning</button>
+    <button class="filter-btn" data-filter="error">Error</button>
+</div>
+
+<!-- Bulk Actions (shown when items selected) -->
+<div class="bulk-actions" id="bulkActions" style="display: none;">
+    <div class="bulk-actions-info">
+        <strong id="selectedCount">0</strong> notifications selected
+    </div>
+    <button class="bulk-action-btn" onclick="markSelectedAsRead()">Mark as read</button>
+    <button class="bulk-action-btn danger" onclick="deleteSelected()">Delete</button>
+</div>
+
+<!-- Notifications Container -->
+<div class="notifications-container">
+    <!-- Unread Notifications Group -->
+    <div class="notification-group" id="unreadGroup">
+        <div class="notification-group-title">New</div>
+        
+        <!-- Task Assignment Notification -->
+        <div class="notification-card unread" data-type="info">
+            <div class="notification-checkbox">
+                <input type="checkbox" onchange="updateBulkActions()">
+            </div>
+            <div class="notification-icon info">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h3 class="notification-title">New Task Assigned</h3>
+                    <span class="notification-time">2 minutes ago</span>
+                </div>
+                <p class="notification-body">You have been assigned a new task "Update User Dashboard" by John Doe. Due date is tomorrow.</p>
+                <div class="notification-meta">
+                    <span class="notification-meta-item">
+                        <i class="bi bi-person"></i> John Doe
+                    </span>
+                    <span class="notification-meta-item">
+                        <i class="bi bi-briefcase"></i> Project: Dashboard Redesign
+                    </span>
+                </div>
+                <div class="notification-actions-item">
+                    <a href="#" class="notification-action-btn">View Task</a>
+                    <button class="notification-action-btn" onclick="dismissNotification(this)">Dismiss</button>
+                </div>
+            </div>
+            <div class="read-status"></div>
+        </div>
+
+        <!-- Leave Approved Notification -->
+        <div class="notification-card unread" data-type="success">
+            <div class="notification-checkbox">
+                <input type="checkbox" onchange="updateBulkActions()">
+            </div>
+            <div class="notification-icon success">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h3 class="notification-title">Leave Approved</h3>
+                    <span class="notification-time">1 hour ago</span>
+                </div>
+                <p class="notification-body">Your leave request for November 20-22, 2025 has been approved by your manager.</p>
+                <div class="notification-meta">
+                    <span class="notification-meta-item">
+                        <i class="bi bi-calendar"></i> Nov 20-22, 2025
+                    </span>
+                    <span class="notification-meta-item">
+                        <i class="bi bi-check"></i> Approved
+                    </span>
+                </div>
+            </div>
+            <div class="read-status"></div>
+        </div>
+
+        <!-- Project Update Notification -->
+        <div class="notification-card unread" data-type="warning">
+            <div class="notification-checkbox">
+                <input type="checkbox" onchange="updateBulkActions()">
+            </div>
+            <div class="notification-icon warning">
+                <i class="bi bi-exclamation-circle-fill"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h3 class="notification-title">Project Deadline Approaching</h3>
+                    <span class="notification-time">3 hours ago</span>
+                </div>
+                <p class="notification-body">Project "Mobile App MVP" deadline is approaching. You have 2 days remaining to complete your assigned tasks.</p>
+                <div class="notification-meta">
+                    <span class="notification-meta-item">
+                        <i class="bi bi-folder"></i> Mobile App MVP
+                    </span>
+                    <span class="notification-meta-item">
+                        <i class="bi bi-hourglass-end"></i> 2 days left
+                    </span>
+                </div>
+                <div class="notification-actions-item">
+                    <a href="#" class="notification-action-btn">View Project</a>
+                </div>
+            </div>
+            <div class="read-status"></div>
+        </div>
+    </div>
+
+    <!-- Today's Notifications Group -->
+    <div class="notification-group">
+        <div class="notification-group-title">Today</div>
+        
+        <!-- Performance Review Notification -->
+        <div class="notification-card" data-type="info">
+            <div class="notification-checkbox">
+                <input type="checkbox" onchange="updateBulkActions()">
+            </div>
+            <div class="notification-icon info">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h3 class="notification-title">Performance Review Scheduled</h3>
+                    <span class="notification-time">10:30 AM</span>
+                </div>
+                <p class="notification-body">Your quarterly performance review is scheduled for tomorrow at 3:00 PM with Sarah Johnson (HR Manager).</p>
+                <div class="notification-meta">
+                    <span class="notification-meta-item">
+                        <i class="bi bi-calendar"></i> Nov 14, 2025 at 3:00 PM
+                    </span>
+                    <span class="notification-meta-item">
+                        <i class="bi bi-person-badge"></i> Sarah Johnson
+                    </span>
+                </div>
+                <div class="notification-actions-item">
+                    <a href="#" class="notification-action-btn">Add to Calendar</a>
+                </div>
+            </div>
+            <div class="read-status"></div>
+        </div>
+
+        <!-- Team Meeting Notification -->
+        <div class="notification-card" data-type="info">
+            <div class="notification-checkbox">
+                <input type="checkbox" onchange="updateBulkActions()">
+            </div>
+            <div class="notification-icon info">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h3 class="notification-title">Team Standup Meeting</h3>
+                    <span class="notification-time">09:15 AM</span>
+                </div>
+                <p class="notification-body">Team standup meeting will begin in 15 minutes. Join us on the video conference to discuss today's progress.</p>
+                <div class="notification-meta">
+                    <span class="notification-meta-item">
+                        <i class="bi bi-camera-video"></i> Starting in 15 min
+                    </span>
+                    <span class="notification-meta-item">
+                        <i class="bi bi-link-45deg"></i> Video Conference
+                    </span>
+                </div>
+                <div class="notification-actions-item">
+                    <a href="#" class="notification-action-btn">Join Meeting</a>
+                </div>
+            </div>
+            <div class="read-status"></div>
+        </div>
+    </div>
+
+    <!-- Earlier Notifications Group -->
+    <div class="notification-group">
+        <div class="notification-group-title">Earlier</div>
+        
+        <!-- Attendance Marked Notification -->
+        <div class="notification-card" data-type="success">
+            <div class="notification-checkbox">
+                <input type="checkbox" onchange="updateBulkActions()">
+            </div>
+            <div class="notification-icon success">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h3 class="notification-title">Attendance Marked</h3>
+                    <span class="notification-time">Nov 12, 2025</span>
+                </div>
+                <p class="notification-body">Your attendance for November 12 has been marked as Present. You worked 8.5 hours today.</p>
+                <div class="notification-meta">
+                    <span class="notification-meta-item">
+                        <i class="bi bi-clock"></i> 8h 30m
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Submission Notification -->
+        <div class="notification-card" data-type="success">
+            <div class="notification-checkbox">
+                <input type="checkbox" onchange="updateBulkActions()">
+            </div>
+            <div class="notification-icon success">
+                <i class="bi bi-file-check"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h3 class="notification-title">Daily Report Submitted</h3>
+                    <span class="notification-time">Nov 12, 2025</span>
+                </div>
+                <p class="notification-body">Your daily report for November 12 has been successfully submitted and is under review.</p>
+                <div class="notification-meta">
+                    <span class="notification-meta-item">
+                        <i class="bi bi-check-circle"></i> Under Review
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Maintenance Notification -->
+        <div class="notification-card" data-type="warning">
+            <div class="notification-checkbox">
+                <input type="checkbox" onchange="updateBulkActions()">
+            </div>
+            <div class="notification-icon warning">
+                <i class="bi bi-gear"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h3 class="notification-title">System Maintenance</h3>
+                    <span class="notification-time">Nov 11, 2025</span>
+                </div>
+                <p class="notification-body">The system will undergo maintenance on Nov 15 from 10 PM to 12 AM. Expected downtime: 2 hours.</p>
+                <div class="notification-meta">
+                    <span class="notification-meta-item">
+                        <i class="bi bi-calendar"></i> Nov 15, 10 PM - 12 AM
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+    <button class="pagination-btn" disabled>
+        <i class="bi bi-chevron-left"></i>
+    </button>
+    <button class="pagination-btn active">1</button>
+    <button class="pagination-btn">2</button>
+    <button class="pagination-btn">3</button>
+    <button class="pagination-btn">
+        <i class="bi bi-chevron-right"></i>
+    </button>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter functionality
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            filterNotifications(filter);
+        });
+    });
+
+    function filterNotifications(filter) {
+        document.querySelectorAll('.notification-card').forEach(card => {
+            if (filter === 'all') {
+                card.style.display = 'flex';
+            } else if (filter === 'unread') {
+                card.style.display = card.classList.contains('unread') ? 'flex' : 'none';
+            } else if (filter === card.dataset.type) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Bulk actions
+    function updateBulkActions() {
+        const checked = document.querySelectorAll('.notification-checkbox input:checked').length;
+        const bulkActionsEl = document.getElementById('bulkActions');
+        const selectedCountEl = document.getElementById('selectedCount');
+        
+        if (checked > 0) {
+            bulkActionsEl.style.display = 'flex';
+            selectedCountEl.textContent = checked;
+        } else {
+            bulkActionsEl.style.display = 'none';
+        }
+    }
+
+    function markAllAsRead() {
+        document.querySelectorAll('.notification-card.unread').forEach(card => {
+            card.classList.remove('unread');
+        });
+    }
+
+    function markSelectedAsRead() {
+        document.querySelectorAll('.notification-checkbox input:checked').forEach(checkbox => {
+            const card = checkbox.closest('.notification-card');
+            card.classList.remove('unread');
+            checkbox.checked = false;
+        });
+        updateBulkActions();
+    }
+
+    function deleteSelected() {
+        if (confirm('Delete selected notifications?')) {
+            document.querySelectorAll('.notification-checkbox input:checked').forEach(checkbox => {
+                const card = checkbox.closest('.notification-card');
+                card.style.opacity = '0';
+                setTimeout(() => card.remove(), 300);
+            });
+            updateBulkActions();
+        }
+    }
+
+    function clearAll() {
+        if (confirm('Delete all notifications? This action cannot be undone.')) {
+            document.querySelectorAll('.notification-card').forEach(card => {
+                card.style.opacity = '0';
+                setTimeout(() => card.remove(), 300);
+            });
+        }
+    }
+
+    function dismissNotification(btn) {
+        const card = btn.closest('.notification-card');
+        card.style.opacity = '0';
+        setTimeout(() => card.remove(), 300);
+    }
+</script>
+{% endblock %}

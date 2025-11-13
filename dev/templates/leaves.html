@@ -1,0 +1,1017 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leave Requests - BThinkX{% endblock %}
+
+{% block extra_css %}
+<style>
+    .leaves-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .leaves-title {
+        font-size: 32px;
+        font-weight: 800;
+        font-family: 'Space Grotesk', sans-serif;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .leaves-controls {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .btn-apply-leave {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-apply-leave:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        padding: 10px 16px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .filter-select:hover {
+        border-color: var(--accent-purple);
+        background: rgba(139, 92, 246, 0.1);
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--accent-purple);
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    }
+
+    /* Summary Cards */
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .summary-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: var(--transition);
+    }
+
+    .summary-card:hover {
+        border-color: var(--accent-purple);
+        background: rgba(139, 92, 246, 0.05);
+    }
+
+    .summary-card-icon {
+        font-size: 24px;
+    }
+
+    .summary-card-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .summary-card-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    /* Leave Request Cards */
+    .leaves-container {
+        display: grid;
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .leave-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 20px;
+        align-items: flex-start;
+        transition: var(--transition);
+    }
+
+    .leave-card:hover {
+        border-color: var(--accent-purple);
+        background: rgba(139, 92, 246, 0.05);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+    }
+
+    .leave-card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(139, 92, 246, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    .leave-card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .leave-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .leave-type-badge {
+        padding: 6px 12px;
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--accent-purple);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .leave-days-badge {
+        padding: 6px 12px;
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--accent-yellow);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .leave-status-badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: capitalize;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .leave-status-badge.pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--accent-yellow);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .leave-status-badge.approved {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-green);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .leave-status-badge.rejected {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--accent-red);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .leave-status-badge.cancelled {
+        background: rgba(100, 116, 139, 0.1);
+        color: var(--text-secondary);
+        border: 1px solid rgba(100, 116, 139, 0.3);
+    }
+
+    .leave-card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .leave-card-dates {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .leave-card-date-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .leave-card-date-value {
+        color: var(--accent-purple);
+        font-weight: 600;
+    }
+
+    .leave-card-reason {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        padding: 12px;
+        background: rgba(139, 92, 246, 0.05);
+        border-left: 3px solid var(--accent-purple);
+        border-radius: 4px;
+        word-break: break-word;
+    }
+
+    .leave-card-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: var(--text-secondary);
+        padding-top: 12px;
+        border-top: 1px solid var(--card-border);
+    }
+
+    .leave-card-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .leave-card-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
+    }
+
+    .leave-action-btn {
+        padding: 8px 16px;
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--accent-purple);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .leave-action-btn:hover {
+        background: rgba(139, 92, 246, 0.2);
+        border-color: var(--accent-purple);
+        transform: translateY(-1px);
+    }
+
+    .leave-action-btn.danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--accent-red);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .leave-action-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: var(--accent-red);
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+    }
+
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 32px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 24px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .modal-close:hover {
+        color: var(--text-primary);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        padding: 12px;
+        background: var(--primary-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        transition: var(--transition);
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--accent-purple);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--card-border);
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-secondary {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--accent-purple);
+        background: rgba(139, 92, 246, 0.1);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+    }
+
+    .empty-state-icon {
+        font-size: 80px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-state-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+    .empty-state-description {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .leave-card {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .leave-card-actions {
+            align-items: flex-start;
+        }
+
+        .summary-cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .leaves-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .leaves-title {
+            font-size: 24px;
+        }
+
+        .leaves-controls {
+            width: 100%;
+            justify-content: stretch;
+        }
+
+        .btn-apply-leave {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .filter-group {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .filter-select {
+            width: 100%;
+        }
+
+        .summary-cards {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .summary-card {
+            padding: 16px;
+        }
+
+        .summary-card-value {
+            font-size: 20px;
+        }
+
+        .leave-card {
+            grid-template-columns: 1fr;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .leave-card-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+        }
+
+        .leave-card-header {
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .leave-type-badge,
+        .leave-days-badge,
+        .leave-status-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+        }
+
+        .leave-card-dates {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .leave-card-meta {
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 8px;
+        }
+
+        .leave-card-actions {
+            flex-direction: row;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .leave-action-btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .modal-content {
+            padding: 20px;
+            width: 95%;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .leaves-title {
+            font-size: 20px;
+        }
+
+        .summary-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .leave-card-header {
+            flex-direction: column;
+        }
+
+        .leave-type-badge,
+        .leave-days-badge,
+        .leave-status-badge {
+            width: 100%;
+            text-align: center;
+        }
+
+        .empty-state {
+            padding: 40px 16px;
+        }
+
+        .empty-state-icon {
+            font-size: 60px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="padding: 32px 20px;">
+    <!-- Page Header -->
+    <div class="leaves-header">
+        <div>
+            <h1 class="leaves-title">Leave Requests</h1>
+            <p style="color: var(--text-secondary); margin-top: 8px;">
+                Manage and track your leave requests
+            </p>
+        </div>
+        <div class="leaves-controls">
+            <button class="btn-apply-leave" onclick="openLeaveModal()">
+                <i class="bi bi-plus-circle"></i> Apply for Leave
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    {% if leaves %}
+    <div class="summary-cards">
+        {% regroup leaves by status as grouped_leaves %}
+        
+        <div class="summary-card">
+            <div class="summary-card-icon">⏳</div>
+            <div class="summary-card-label">Pending</div>
+            <div class="summary-card-value" id="pendingCount">
+                {% for group in grouped_leaves %}
+                    {% if group.grouper == 'pending' %}{{ group.list|length }}{% endif %}
+                {% endfor %}
+                {% if not grouped_leaves %}0{% endif %}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-card-icon">✅</div>
+            <div class="summary-card-label">Approved</div>
+            <div class="summary-card-value" id="approvedCount">
+                {% for group in grouped_leaves %}
+                    {% if group.grouper == 'approved' %}{{ group.list|length }}{% endif %}
+                {% endfor %}
+                {% if not grouped_leaves %}0{% endif %}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-card-icon">❌</div>
+            <div class="summary-card-label">Rejected</div>
+            <div class="summary-card-value" id="rejectedCount">
+                {% for group in grouped_leaves %}
+                    {% if group.grouper == 'rejected' %}{{ group.list|length }}{% endif %}
+                {% endfor %}
+                {% if not grouped_leaves %}0{% endif %}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-card-icon">📋</div>
+            <div class="summary-card-label">Total</div>
+            <div class="summary-card-value">{{ leaves|length }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filter -->
+    <div style="margin-bottom: 24px;">
+        <div class="filter-group">
+            <select class="filter-select" id="statusFilter" onchange="filterLeaves()">
+                <option value="">Status: All</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Leave Requests -->
+    <div class="leaves-container">
+        {% if leaves %}
+            {% for leave in leaves %}
+            <div class="leave-card" data-status="{{ leave.status }}">
+                <!-- Icon -->
+                <div class="leave-card-icon">
+                    {% if leave.status == 'approved' %}
+                        ✅
+                    {% elif leave.status == 'rejected' %}
+                        ❌
+                    {% elif leave.status == 'cancelled' %}
+                        ⊘
+                    {% else %}
+                        ⏳
+                    {% endif %}
+                </div>
+
+                <!-- Content -->
+                <div class="leave-card-content">
+                    <!-- Header with badges -->
+                    <div class="leave-card-header">
+                        {% if leave.leave_type %}
+                        <span class="leave-type-badge">
+                            {{ leave.leave_type.name }}
+                        </span>
+                        {% endif %}
+                        <span class="leave-days-badge">
+                            {{ leave.days|floatformat:1 }} days
+                        </span>
+                        <span class="leave-status-badge {{ leave.status }}">
+                            {{ leave.get_status_display }}
+                        </span>
+                    </div>
+
+                    <!-- Dates -->
+                    <div class="leave-card-dates">
+                        <div class="leave-card-date-item">
+                            <i class="bi bi-calendar-event"></i>
+                            <span>From <span class="leave-card-date-value">{{ leave.start_date|date:"M d, Y" }}</span></span>
+                        </div>
+                        <div class="leave-card-date-item">
+                            <i class="bi bi-calendar-check"></i>
+                            <span>To <span class="leave-card-date-value">{{ leave.end_date|date:"M d, Y" }}</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Reason -->
+                    {% if leave.reason %}
+                    <div class="leave-card-reason">
+                        <strong>Reason:</strong> {{ leave.reason }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Meta Information -->
+                    <div class="leave-card-meta">
+                        <div class="leave-card-meta-item">
+                            <i class="bi bi-calendar"></i>
+                            <span>Requested: {{ leave.created_at|date:"M d, Y" }}</span>
+                        </div>
+
+                        {% if leave.approver %}
+                        <div class="leave-card-meta-item">
+                            <i class="bi bi-person-check"></i>
+                            <span>Approver: {{ leave.approver.get_full_name }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if leave.status != 'pending' %}
+                        <div class="leave-card-meta-item">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Decided: {{ leave.updated_at|date:"M d, Y" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="leave-card-actions">
+                    {% if leave.status == 'pending' %}
+                    <button class="leave-action-btn" onclick="editLeave('{{ leave.id }}')">
+                        <i class="bi bi-pencil"></i> Edit
+                    </button>
+                    <button class="leave-action-btn danger" onclick="cancelLeave('{{ leave.id }}')">
+                        <i class="bi bi-trash"></i> Cancel
+                    </button>
+                    {% else %}
+                    <button class="leave-action-btn" onclick="viewLeave('{{ leave.id }}')">
+                        <i class="bi bi-eye"></i> View
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3 class="empty-state-title">No Leave Requests</h3>
+                <p class="empty-state-description">
+                    You haven't submitted any leave requests yet. Click the button above to apply for leave.
+                </p>
+                <button class="btn-apply-leave" onclick="openLeaveModal()">
+                    <i class="bi bi-plus-circle"></i> Apply for Leave
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Apply Leave Modal -->
+<div class="modal" id="leaveModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Apply for Leave</h2>
+            <button class="modal-close" onclick="closeLeaveModal()">×</button>
+        </div>
+
+        <form method="POST" action="" id="leaveForm">
+            {% csrf_token %}
+
+            <!-- Leave Type -->
+            <div class="form-group">
+                <label class="form-label" for="leaveType">Leave Type *</label>
+                <select class="form-select" id="leaveType" name="leave_type" required>
+                    <option value="">Select a leave type</option>
+                    {% for leave_type in leave_types %}
+                    <option value="{{ leave_type.id }}">{{ leave_type.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Date Range -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="startDate">Start Date *</label>
+                    <input type="date" class="form-input" id="startDate" name="start_date" required onchange="calculateDays()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="endDate">End Date *</label>
+                    <input type="date" class="form-input" id="endDate" name="end_date" required onchange="calculateDays()">
+                </div>
+            </div>
+
+            <!-- Days -->
+            <div class="form-group">
+                <label class="form-label" for="days">Number of Days</label>
+                <input type="number" class="form-input" id="days" name="days" step="0.5" readonly style="background: rgba(139, 92, 246, 0.05); cursor: not-allowed;">
+            </div>
+
+            <!-- Reason -->
+            <div class="form-group">
+                <label class="form-label" for="reason">Reason for Leave</label>
+                <textarea class="form-textarea" id="reason" name="reason" placeholder="Please provide the reason for your leave request..."></textarea>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeLeaveModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Submit Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Leave Modal Functions
+    function openLeaveModal() {
+        document.getElementById('leaveModal').classList.add('show');
+    }
+
+    function closeLeaveModal() {
+        document.getElementById('leaveModal').classList.remove('show');
+        document.getElementById('leaveForm').reset();
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('leaveModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeLeaveModal();
+        }
+    });
+
+    // Calculate days between dates
+    function calculateDays() {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+
+        if (startDate && endDate && endDate >= startDate) {
+            const diffTime = Math.abs(endDate - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both days
+            document.getElementById('days').value = diffDays.toFixed(1);
+        }
+    }
+
+    // Filter Leaves by Status
+    function filterLeaves() {
+        const status = document.getElementById('statusFilter').value;
+        const cards = document.querySelectorAll('.leave-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            if (!status || card.dataset.status === status) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Show empty state if no leaves match
+        if (visibleCount === 0) {
+            const container = document.querySelector('.leaves-container');
+            if (!container.querySelector('.filter-empty-state')) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state filter-empty-state';
+                emptyState.innerHTML = `
+                    <div class="empty-state-icon">🔍</div>
+                    <h3 class="empty-state-title">No Leave Requests Found</h3>
+                    <p class="empty-state-description">
+                        No leave requests match your selected filter.
+                    </p>
+                `;
+                container.appendChild(emptyState);
+            }
+        } else {
+            const filterEmpty = document.querySelector('.filter-empty-state');
+            if (filterEmpty) {
+                filterEmpty.remove();
+            }
+        }
+    }
+
+    // Leave Actions
+    function viewLeave(leaveId) {
+        // window.location.href = `/leaves/${leaveId}/`;
+        alert(`View leave ${leaveId}`);
+    }
+
+    function editLeave(leaveId) {
+        // window.location.href = `/leaves/${leaveId}/edit/`;
+        alert(`Edit leave ${leaveId}`);
+    }
+
+    function cancelLeave(leaveId) {
+        if (confirm('Are you sure you want to cancel this leave request?')) {
+            // Make AJAX request to cancel leave
+            // fetch(`/api/leaves/${leaveId}/cancel/`, { method: 'POST' })
+            alert(`Cancelled leave ${leaveId}`);
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Restore filter from URL
+        const params = new URLSearchParams(window.location.search);
+        const status = params.get('status');
+        
+        if (status) {
+            document.getElementById('statusFilter').value = status;
+            filterLeaves();
+        }
+
+        // Set minimum date to today for leave application
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').min = today;
+        document.getElementById('endDate').min = today;
+    });
+
+    // Ensure end date is not before start date
+    document.getElementById('startDate')?.addEventListener('change', function() {
+        document.getElementById('endDate').min = this.value;
+    });
+</script>
+{% endblock %}
