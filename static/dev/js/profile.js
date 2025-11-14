@@ -36,7 +36,7 @@ function openEditModal() {
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">First Name</label>
-                        <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" required>
+                        <input type="text" name="first_name" class="form-control" value="{{ user.first_nameee }}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Last Name</label>
@@ -91,46 +91,57 @@ function openEditModal() {
 function uploadAvatar(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        
-        // Validate file size (5MB max)
+
+        // Size validation
         if (file.size > 5 * 1024 * 1024) {
             alert('File size exceeds 5MB limit');
             return;
         }
-        
-        // Validate file type
+
+        // Type validation
         if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
             alert('Only JPG, PNG, and GIF files are supported');
             return;
         }
-        
-        // Preview avatar
+
+        // Preview
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = document.querySelector('.profile-avatar');
-            if (img) {
-                img.src = e.target.result;
-            }
+            if (img) img.src = e.target.result;
         };
         reader.readAsDataURL(file);
-        
-        // Auto-submit form with avatar
+
+        // Create form
         const form = document.createElement('form');
         form.method = 'POST';
         form.enctype = 'multipart/form-data';
-        form.innerHTML = `
-            {% csrf_token %}
-            <input type="hidden" name="action" value="upload_avatar">
-        `;
-        
+
+        // Inject CSRF token
+        const csrf = document.getElementById('csrfToken').value;
+        const csrfField = document.createElement('input');
+        csrfField.type = 'hidden';
+        csrfField.name = 'csrfmiddlewaretoken';
+        csrfField.value = csrf;
+        form.appendChild(csrfField);
+
+        // action field
+        const actionField = document.createElement('input');
+        actionField.type = 'hidden';
+        actionField.name = 'action';
+        actionField.value = 'upload_avatar';
+        form.appendChild(actionField);
+
+        // File input
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.name = 'avatar';
         fileInput.files = input.files;
         form.appendChild(fileInput);
-        
+
         document.body.appendChild(form);
         form.submit();
-        document.body.removeChild(form);
+        form.remove();
     }
 }
+

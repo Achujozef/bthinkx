@@ -1,46 +1,40 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .models import *
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden
-from django.db.models import Q, Count, Sum, Avg
-from django.utils import timezone
-from django.core.paginator import Paginator
 from django.contrib import messages
-from datetime import datetime, timedelta
-import json
-from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Sum, Avg, Q
-from django.utils import timezone
-from datetime import datetime, timedelta
-from django.http import JsonResponse
+from django.db.models import Q
 from django.core.paginator import Paginator
+from django.utils import timezone
+from .models import *
+from datetime import datetime, timedelta
+
 
 def employee_login(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
             messages.success(request, f"Welcome {user.first_name or user.username}!")
+
+            if user.is_superuser or user.role == "admin":
+                return redirect("hr_dashboard")
+
             return redirect("employee_dashboard")
-        else:
-            messages.error(request, "Invalid username or password")
+
+        messages.error(request, "Invalid username or password")
+
     return render(request, "employee_login.html")
+
 
 @login_required
 def employee_logout(request):
     logout(request)
     return redirect("employee_login")
-
-
-# views.py - Employee Dashboard Views
-
 
 @login_required
 def employee_dashboard(request):
@@ -52,12 +46,12 @@ def employee_dashboard(request):
     except:
         return redirect('employee_login')
     
-    # Get current date info
+
     today = timezone.now().date()
     current_month = today.month
     current_year = today.year
     
-    # Attendance stats
+
     attendance_today = Attendance.objects.filter(
         employee=employee,
         date=today
@@ -71,13 +65,12 @@ def employee_dashboard(request):
     
     attendance_stats = {
         'present_days': monthly_attendance.filter(login_time__isnull=False).count(),
-        'total_working_days': 22,  # Can be dynamic
+        'total_working_days': 22, 
         'logged_in_today': attendance_today and attendance_today.login_time,
         'today_login_time': attendance_today.login_time if attendance_today else None,
         'today_logout_time': attendance_today.logout_time if attendance_today else None,
     }
-    
-    # Leave stats
+
     leave_stats = {
         'pending': LeaveRequest.objects.filter(employee=employee, status='pending').count(),
         'approved_this_month': LeaveRequest.objects.filter(
@@ -85,10 +78,9 @@ def employee_dashboard(request):
             status='approved',
             start_date__month=current_month
         ).count(),
-        'total_available': 20,  # Calculate from LeaveType
+        'total_available': 20, 
     }
-    
-    # Task stats
+
     my_tasks = Task.objects.filter(assignee=user)
     task_stats = {
         'todo': my_tasks.filter(status='todo').count(),
@@ -102,32 +94,26 @@ def employee_dashboard(request):
             status__in=['todo', 'in_progress']
         ).count(),
     }
-    
-    # Recent tasks
+
     recent_tasks = my_tasks.order_by('-updated_at')[:5]
-    
-    # Recent notifications
+
     notifications = Notification.objects.filter(
         recipient=user,
         is_read=False
     ).order_by('-created_at')[:5]
     
-    # Upcoming events
     upcoming_events = CalendarEvent.objects.filter(
         Q(organizer=user) | Q(attendees=user),
         start__gte=timezone.now()
     ).order_by('start')[:5]
     
-    # Daily report check
     daily_report_submitted = DailyReport.objects.filter(
         employee=employee,
         date=today
     ).exists()
     
-    # Projects
     active_projects = employee.projects.filter(status='ongoing')[:5]
     
-    # Announcements
     recent_announcements = Announcement.objects.filter(
         company=employee.company,
         is_public=True
@@ -259,8 +245,6 @@ def submit_daily_report(request):
     
     return render(request, 'daily_report.html')
 
-
-# Manager-specific views
 @login_required
 def manager_dashboard(request):
     """Dashboard for managers"""
@@ -269,23 +253,16 @@ def manager_dashboard(request):
     if user.role not in ['manager', 'admin', 'hr']:
         return redirect('employee_dashboard')
     
-    # Get team members
     team_members = Employee.objects.filter(manager=user)
-    
-    # Team attendance today
     today = timezone.now().date()
     team_attendance = Attendance.objects.filter(
         employee__in=team_members,
         date=today
     )
-    
-    # Pending leave requests
     pending_leaves = LeaveRequest.objects.filter(
         employee__in=team_members,
         status='pending'
     )
-    
-    # Team tasks
     team_tasks = Task.objects.filter(assignee__in=[tm.user for tm in team_members])
     
     context = {
@@ -297,8 +274,6 @@ def manager_dashboard(request):
     
     return render(request, 'manager_dashboard.html', context)
 
-
-# HR-specific views
 @login_required
 def hr_dashboard(request):
     """Dashboard for HR"""
@@ -309,16 +284,13 @@ def hr_dashboard(request):
     
     company = user.employee_profile.company
     
-    # All employees stats
     total_employees = Employee.objects.filter(company=company, is_active_employee=True).count()
     
-    # Recent hires
     recent_hires = Employee.objects.filter(
         company=company,
         date_of_joining__gte=timezone.now().date() - timedelta(days=30)
     )
     
-    # Leave requests
     all_leave_requests = LeaveRequest.objects.filter(
         employee__company=company
     ).order_by('-created_at')[:10]
@@ -336,8 +308,6 @@ def hr_dashboard(request):
 def all_employees(request):
     """Complete employee directory with filters and search"""
     user = request.user
-    
-    # Check if user has HR/Admin access
     if user.role not in ['hr', 'admin']:
         return HttpResponseForbidden("You don't have permission to access this page.")
     
@@ -346,13 +316,11 @@ def all_employees(request):
     except:
         return redirect('employee_dashboard')
     
-    # Get all employees
     employees = Employee.objects.filter(
         company=company,
         is_deleted=False
     ).select_related('user', 'department', 'designation', 'manager')
     
-    # Filters
     department_filter = request.GET.get('department', '')
     status_filter = request.GET.get('status', 'active')
     search_query = request.GET.get('search', '')
@@ -372,19 +340,15 @@ def all_employees(request):
             Q(user__email__icontains=search_query) |
             Q(employee_code__icontains=search_query)
         )
-    
-    # Order by
+
     employees = employees.order_by('-created_at')
     
-    # Pagination
     paginator = Paginator(employees, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Get departments for filter
     departments = Department.objects.filter(company=company)
     
-    # Statistics
     stats = {
         'total_employees': Employee.objects.filter(company=company, is_active_employee=True).count(),
         'new_this_month': Employee.objects.filter(
@@ -412,52 +376,46 @@ def all_employees(request):
     return render(request, 'all_employees.html', context)
 
 
-# ============================================
-# 👤 Profile & Settings
-# ============================================
+
 
 @login_required
 def profile(request):
     """User profile view and edit"""
     user = request.user
-    
+
     try:
         employee = user.employee_profile
     except:
         return redirect('employee_dashboard')
-    
+
     if request.method == 'POST':
-        # Update profile
         user.first_name = request.POST.get('first_name', user.first_name)
         user.last_name = request.POST.get('last_name', user.last_name)
-        user.phone = request.POST.get('phone', user.phone)
         
-        # Handle avatar upload
-        if 'avatar' in request.FILES:
+        phone = request.POST.get('phone')
+        if hasattr(user, 'phone') and phone is not None:
+            user.phone = phone
+
+        if hasattr(user, 'avatar') and 'avatar' in request.FILES:
             user.avatar = request.FILES['avatar']
-        
+
         user.save()
-        
-        # Update employee info
         employee.emergency_contact = request.POST.get('emergency_contact', employee.emergency_contact)
         employee.address = request.POST.get('address', employee.address)
         employee.save()
-        
+
         messages.success(request, 'Profile updated successfully!')
         return redirect('profile')
-    
-    # Get user's recent activity
     recent_tasks = Task.objects.filter(assignee=user).order_by('-updated_at')[:5]
     recent_leaves = LeaveRequest.objects.filter(employee=employee).order_by('-created_at')[:5]
-    
-    # Performance stats
+
     performance_stats = {
         'total_tasks_completed': Task.objects.filter(assignee=user, status='done').count(),
         'projects_involved': employee.projects.count(),
         'attendance_rate': calculate_attendance_rate(employee),
         'avg_task_completion_time': calculate_avg_task_time(user),
     }
-    
+
     context = {
         'user': user,
         'employee': employee,
@@ -465,7 +423,7 @@ def profile(request):
         'recent_leaves': recent_leaves,
         'performance_stats': performance_stats,
     }
-    
+
     return render(request, 'profile.html', context)
 
 
@@ -518,10 +476,6 @@ def settings(request):
     return render(request, 'settings.html', context)
 
 
-# ============================================
-# 📚 Resources
-# ============================================
-
 @login_required
 def documents(request):
     """Company documents and employee documents"""
@@ -533,30 +487,25 @@ def documents(request):
     except:
         return redirect('employee_dashboard')
     
-    # Get documents
     company_documents = Document.objects.filter(
         company=company,
         is_deleted=False
     ).order_by('-created_at')
     
-    # Filter by tags
     tag_filter = request.GET.get('tag', '')
     if tag_filter:
         company_documents = company_documents.filter(tags__contains=[tag_filter])
-    
-    # Search
+
     search_query = request.GET.get('search', '')
     if search_query:
         company_documents = company_documents.filter(
             Q(title__icontains=search_query)
         )
-    
-    # Pagination
+
     paginator = Paginator(company_documents, 15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    # Get all unique tags
+
     all_tags = []
     for doc in Document.objects.filter(company=company):
         if doc.tags:
@@ -583,18 +532,15 @@ def knowledgebase(request):
         company = employee.company
     except:
         return redirect('employee_dashboard')
-    
-    # Get KB articles
+
     articles = KBArticle.objects.filter(
         company=company,
         is_deleted=False
     )
     
-    # Filter by public/private
     if user.role not in ['admin', 'hr']:
         articles = articles.filter(is_public=True)
     
-    # Search
     search_query = request.GET.get('search', '')
     if search_query:
         articles = articles.filter(
@@ -603,13 +549,11 @@ def knowledgebase(request):
         )
     
     articles = articles.order_by('-created_at')
-    
-    # Pagination
+
     paginator = Paginator(articles, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    # Popular articles (based on views - you'd need to track this)
+
     popular_articles = articles[:5]
     
     context = {
@@ -631,24 +575,19 @@ def training(request):
         company = employee.company
     except:
         return redirect('employee_dashboard')
-    
-    # Get all courses
+
     all_courses = Course.objects.filter(
         company=company,
         is_deleted=False
     )
-    
-    # Get user's enrollments
     my_enrollments = Enrollment.objects.filter(
         user=user,
         is_deleted=False
     ).select_related('course')
     
-    # Available courses (not enrolled)
     enrolled_course_ids = my_enrollments.values_list('course_id', flat=True)
     available_courses = all_courses.exclude(id__in=enrolled_course_ids)
     
-    # Statistics
     stats = {
         'total_courses': all_courses.count(),
         'enrolled': my_enrollments.count(),
@@ -665,10 +604,6 @@ def training(request):
     return render(request, 'employees/training.html', context)
 
 
-# ============================================
-# 🧾 Support
-# ============================================
-
 @login_required
 def tickets(request):
     """Support tickets system"""
@@ -680,7 +615,6 @@ def tickets(request):
     except:
         return redirect('employee_dashboard')
     
-    # Create new ticket
     if request.method == 'POST':
         title = request.POST.get('title')
         description = request.POST.get('description')
@@ -698,15 +632,12 @@ def tickets(request):
         
         messages.success(request, f'Ticket #{ticket.id} created successfully!')
         return redirect('tickets')
-    
-    # Get tickets
+
     status_filter = request.GET.get('status', 'all')
     
     if user.role in ['admin', 'hr']:
-        # Admin/HR can see all tickets
         tickets_list = Ticket.objects.filter(company=company)
     else:
-        # Regular users see their own tickets
         tickets_list = Ticket.objects.filter(
             Q(reporter=user) | Q(assignee=user)
         )
@@ -716,12 +647,10 @@ def tickets(request):
     
     tickets_list = tickets_list.order_by('-created_at')
     
-    # Pagination
     paginator = Paginator(tickets_list, 15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Statistics
     stats = {
         'open': Ticket.objects.filter(reporter=user, status='open').count(),
         'in_progress': Ticket.objects.filter(reporter=user, status='in_progress').count(),
@@ -742,7 +671,6 @@ def help_center(request):
     """Help center with FAQs and guides"""
     user = request.user
     
-    # FAQs organized by category
     faqs = {
         'Getting Started': [
             {'q': 'How do I reset my password?', 'a': 'Go to Settings > Security > Change Password and follow the instructions.'},
@@ -765,8 +693,7 @@ def help_center(request):
             {'q': 'How do I access training materials?', 'a': 'Navigate to Training page under Resources.'},
         ],
     }
-    
-    # Quick links
+
     quick_links = [
         {'title': 'Employee Handbook', 'url': '/documents/', 'icon': 'book'},
         {'title': 'IT Support', 'url': '/tickets/', 'icon': 'life-preserver'},
@@ -782,16 +709,11 @@ def help_center(request):
     return render(request, 'employees/help_center.html', context)
 
 
-# ============================================
-# 🔔 Notifications
-# ============================================
-
 @login_required
 def all_notifications(request):
     """All notifications page"""
     user = request.user
-    
-    # Mark as read action
+
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'mark_all_read':
@@ -803,7 +725,6 @@ def all_notifications(request):
             Notification.objects.filter(id=notif_id, recipient=user).update(is_read=True)
             return JsonResponse({'success': True})
     
-    # Get notifications
     filter_type = request.GET.get('type', 'all')
     
     notifications = Notification.objects.filter(recipient=user)
@@ -814,13 +735,11 @@ def all_notifications(request):
         notifications = notifications.filter(notif_type=filter_type)
     
     notifications = notifications.order_by('-created_at')
-    
-    # Pagination
+
     paginator = Paginator(notifications, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Stats
     stats = {
         'total': Notification.objects.filter(recipient=user).count(),
         'unread': Notification.objects.filter(recipient=user, is_read=False).count(),
@@ -837,10 +756,6 @@ def all_notifications(request):
     return render(request, 'notifications.html', context)
 
 
-# ============================================
-# 🕒 API Endpoints (Attendance)
-# ============================================
-
 @login_required
 def attendance_login(request):
     """API endpoint for attendance login"""
@@ -855,8 +770,7 @@ def attendance_login(request):
         return JsonResponse({'success': False, 'error': 'Employee profile not found'})
     
     today = timezone.now().date()
-    
-    # Check if already logged in
+
     attendance = Attendance.objects.filter(employee=employee, date=today).first()
     
     if attendance and attendance.login_time:
@@ -865,8 +779,7 @@ def attendance_login(request):
             'error': 'Already logged in today',
             'login_time': attendance.login_time.strftime('%I:%M %p')
         })
-    
-    # Create or update attendance
+
     if not attendance:
         attendance = Attendance.objects.create(
             employee=employee,
@@ -877,8 +790,7 @@ def attendance_login(request):
     else:
         attendance.login_time = timezone.now()
         attendance.save()
-    
-    # Create notification
+
     Notification.objects.create(
         recipient=user,
         title='Attendance Logged',
@@ -907,8 +819,7 @@ def attendance_logout(request):
         return JsonResponse({'success': False, 'error': 'Employee profile not found'})
     
     today = timezone.now().date()
-    
-    # Get today's attendance
+
     attendance = Attendance.objects.filter(employee=employee, date=today).first()
     
     if not attendance or not attendance.login_time:
@@ -923,16 +834,13 @@ def attendance_logout(request):
             'error': 'Already logged out today',
             'logout_time': attendance.logout_time.strftime('%I:%M %p')
         })
-    
-    # Update logout time
+
     attendance.logout_time = timezone.now()
-    
-    # Calculate total work time
+
     time_diff = attendance.logout_time - attendance.login_time
     attendance.total_work_seconds = int(time_diff.total_seconds())
     attendance.save()
     
-    # Create notification
     work_hours = attendance.total_work_seconds / 3600
     Notification.objects.create(
         recipient=user,
@@ -948,11 +856,6 @@ def attendance_logout(request):
         'total_hours': f'{work_hours:.2f}'
     })
 
-
-# ============================================
-# 👥 Manager Actions
-# ============================================
-
 @login_required
 def team_attendance(request):
     """Manager view for team attendance"""
@@ -966,30 +869,24 @@ def team_attendance(request):
     except:
         return redirect('employee_dashboard')
     
-    # Get team members
     if user.role == 'manager':
         team_members = Employee.objects.filter(manager=user, is_active_employee=True)
     else:
-        # Admin/HR can see all
         team_members = Employee.objects.filter(company=employee.company, is_active_employee=True)
     
-    # Date filter
     date_str = request.GET.get('date', timezone.now().date().isoformat())
     try:
         selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
     except:
         selected_date = timezone.now().date()
     
-    # Get attendance for selected date
     attendance_records = Attendance.objects.filter(
         employee__in=team_members,
         date=selected_date
     ).select_related('employee', 'employee__user')
-    
-    # Create a map of employee to attendance
+
     attendance_map = {att.employee.id: att for att in attendance_records}
     
-    # Prepare team data
     team_data = []
     for member in team_members:
         att = attendance_map.get(member.id)
@@ -1000,7 +897,6 @@ def team_attendance(request):
             'hours_worked': (att.total_work_seconds / 3600) if (att and att.total_work_seconds) else 0,
         })
     
-    # Statistics
     stats = {
         'total_team': team_members.count(),
         'present': sum(1 for d in team_data if d['status'] == 'present'),
@@ -1014,7 +910,7 @@ def team_attendance(request):
         'stats': stats,
     }
     
-    return render(request, 'employees/team_attendance.html', context)
+    return render(request, 'team_attendance.html', context)
 
 
 @login_required
@@ -1029,11 +925,10 @@ def approve_leaves(request):
         employee = user.employee_profile
     except:
         return redirect('employee_dashboard')
-    
-    # Handle approval/rejection
+
     if request.method == 'POST':
         leave_id = request.POST.get('leave_id')
-        action = request.POST.get('action')  # 'approve' or 'reject'
+        action = request.POST.get('action') 
         
         leave_request = get_object_or_404(LeaveRequest, id=leave_id)
         
@@ -1042,7 +937,6 @@ def approve_leaves(request):
             leave_request.approver = user
             leave_request.save()
             
-            # Notify employee
             Notification.objects.create(
                 recipient=leave_request.employee.user,
                 title='Leave Request Approved',
@@ -1057,7 +951,6 @@ def approve_leaves(request):
             leave_request.approver = user
             leave_request.save()
             
-            # Notify employee
             Notification.objects.create(
                 recipient=leave_request.employee.user,
                 title='Leave Request Rejected',
@@ -1069,13 +962,11 @@ def approve_leaves(request):
         
         return redirect('approve_leaves')
     
-    # Get team members
     if user.role == 'manager':
         team_members = Employee.objects.filter(manager=user, is_active_employee=True)
     else:
         team_members = Employee.objects.filter(company=employee.company, is_active_employee=True)
     
-    # Get pending leave requests
     status_filter = request.GET.get('status', 'pending')
     
     leave_requests = LeaveRequest.objects.filter(
@@ -1086,13 +977,10 @@ def approve_leaves(request):
         leave_requests = leave_requests.filter(status=status_filter)
     
     leave_requests = leave_requests.order_by('-created_at')
-    
-    # Pagination
     paginator = Paginator(leave_requests, 15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Statistics
     stats = {
         'pending': LeaveRequest.objects.filter(employee__in=team_members, status='pending').count(),
         'approved': LeaveRequest.objects.filter(employee__in=team_members, status='approved').count(),
@@ -1107,17 +995,12 @@ def approve_leaves(request):
     
     return render(request, 'employees/approve_leaves.html', context)
 
-
-# ============================================
-# Helper Functions
-# ============================================
-
 def calculate_attendance_rate(employee):
     """Calculate attendance percentage"""
     current_month = timezone.now().month
     current_year = timezone.now().year
     
-    total_working_days = 22  # You can make this dynamic
+    total_working_days = 22 
     present_days = Attendance.objects.filter(
         employee=employee,
         date__month=current_month,

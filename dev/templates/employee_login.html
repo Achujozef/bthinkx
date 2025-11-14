@@ -645,7 +645,7 @@
             <div class="login-header">
                 <div class="logo-icon">👨‍💼</div>
                 <h1>Dev Team</h1>
-                <p>Admin Access Portal</p>
+                <p>Access Portal</p>
             </div>
 
             <!-- Messages -->
@@ -690,7 +690,7 @@
                         <input type="checkbox" name="remember" id="remember">
                         <span>Remember me</span>
                     </label>
-                    <a href="#" class="forgot-password">Forgot Password?</a>
+                    <a href="#" class="forgot-password" style="pointer-events: none; opacity: 0.5; cursor: not-allowed;" tabindex="-1" aria-disabled="true">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="btn-primary" id="submitBtn">
@@ -706,17 +706,17 @@
 
             <!-- OAuth -->
             <div class="oauth-buttons">
-                <button class="oauth-btn" onclick="alert('GitHub OAuth coming soon')">
+                <button class="oauth-btn" disabled style="opacity:0.5; cursor:not-allowed;" aria-disabled="true">
                     <span>🐙</span> GitHub
                 </button>
-                <button class="oauth-btn" onclick="alert('Google OAuth coming soon')">
+                <button class="oauth-btn" disabled style="opacity:0.5; cursor:not-allowed;" aria-disabled="true">
                     <span>🔵</span> Google
                 </button>
             </div>
 
             <!-- Sign Up Link -->
             <div class="signup-link">
-                <p>Don't have access? <a href="mailto:contact@bthinkx.com">Request Access</a></p>
+                <p>Don't have access? <a href="mailto:contact@bthinkx.com" style="pointer-events: none; opacity: 0.5; cursor: not-allowed;" tabindex="-1" aria-disabled="true">Request Access</a></p>
             </div>
         </div>
     </div>

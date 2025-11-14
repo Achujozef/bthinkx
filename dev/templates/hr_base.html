@@ -1,0 +1,420 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BThinkX - Employee Portal{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'dev/css/main.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body data-theme="dark">
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span class="theme-toggle-icon">🌙</span>
+    </button>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            <a href="{% url 'employee_dashboard' %}" class="logo">
+                <span class="logo-text">BThinkX</span>
+            </a>
+        </div>
+
+        <div class="nav-center">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Search tasks, projects, employees...">
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <!-- Notifications Dropdown -->
+            <div class="nav-item dropdown">
+                <button class="nav-button" aria-label="Notifications">
+                    <i class="bi bi-bell"></i>
+                    {% if unread_notifications_count > 0 %}
+                    <span class="badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-header">
+                        <h3>Notifications</h3>
+                        <button class="btn-text">Mark all read</button>
+                    </div>
+                    <div class="dropdown-body">
+                        {% for notification in notifications %}
+                        <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
+                            <div class="notification-icon">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h4>{{ notification.title }}</h4>
+                                <p>{{ notification.body|truncatewords:15 }}</p>
+                                <span class="time">{{ notification.created_at|timesince }} ago</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                            <p>No notifications</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'all_notifications' %}">View all notifications</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Profile Dropdown -->
+            <div class="nav-item dropdown">
+                <button class="nav-button user-button" aria-label="User menu">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" class="avatar">
+                    {% else %}
+                    <div class="avatar-placeholder">{{ user.first_name.0|upper }}{{ user.last_name.0|upper }}</div>
+                    {% endif %}
+                    <span class="user-name">{{ user.get_full_name }}</span>
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="user-info">
+                        <div class="user-details">
+                            <h4>{{ user.get_full_name }}</h4>
+                            <p>{{ user.employee_profile.designation.title }}</p>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'profile' %}" class="dropdown-item">
+                        <i class="bi bi-person"></i> My Profile
+                    </a>
+                    <a href="{% url 'settings' %}" class="dropdown-item">
+                        <i class="bi bi-gear"></i> Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'logout' %}" class="dropdown-item">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Overlay (for sidebar) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+            <!-- Main Navigation Section -->
+            <div class="nav-section">
+                <h3 class="nav-section-title">Main</h3>
+                <ul class="nav-menu">
+                    <li class="nav-menu-item {% if request.resolver_match.url_name == 'hr_dashboard' %}active{% endif %}">
+                        <a href="{% url 'hr_dashboard' %}" class="nav-link">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-menu-item {% if 'tasks' in request.path %}active{% endif %}">
+                        <a href="{% url 'my_tasks' %}" class="nav-link">
+                            <i class="bi bi-check2-square"></i>
+                            <span>All Tasks</span>
+                            {% if task_stats.todo > 0 %}
+                            <span class="badge-mini">{{ task_stats.todo }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-menu-item {% if 'projects' in request.path %}active{% endif %}">
+                        <a href="{% url 'my_projects' %}" class="nav-link">
+                            <i class="bi bi-folder"></i>
+                            <span>All Projects</span>
+                        </a>
+                    </li>
+                    <li class="nav-menu-item {% if 'attendance' in request.path %}active{% endif %}">
+                        <a href="{% url 'team_attendance' %}" class="nav-link">
+                            <i class="bi bi-calendar-check"></i>
+                            <span>Team Attendance</span>
+                        </a>
+                    </li>
+                    <li class="nav-menu-item {% if 'leaves' in request.path %}active{% endif %}">
+                        <a href="{% url 'my_leaves' %}" class="nav-link">
+                            <i class="bi bi-calendar-x"></i>
+                            <span>Leave Requests</span>
+                            {% if leave_stats.pending > 0 %}
+                            <span class="badge-mini warning">{{ leave_stats.pending }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-menu-item {% if 'daily-report' in request.path %}active{% endif %}">
+                        <a href="{% url 'submit_daily_report' %}" class="nav-link">
+                            <i class="bi bi-file-text"></i>
+                            <span>Daily Report</span>
+                            {% if not daily_report_submitted %}
+                            <span class="badge-mini danger">!</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Manager Section (if applicable) -->
+            {% if user.role in 'manager,admin,hr' %}
+            <div class="nav-section">
+                <h3 class="nav-section-title">Management</h3>
+                <ul class="nav-menu">
+                    {% if user.role in 'manager,admin' %}
+                    <li class="nav-menu-item">
+                        <a href="{% url 'manager_dashboard' %}" class="nav-link">
+                            <i class="bi bi-people"></i>
+                            <span>Team Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-menu-item">
+                        <a href="{% url 'team_attendance' %}" class="nav-link">
+                            <i class="bi bi-calendar3"></i>
+                            <span>Team Attendance</span>
+                        </a>
+                    </li>
+                    <li class="nav-menu-item">
+                        <a href="{% url 'approve_leaves' %}" class="nav-link">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Approve Leaves</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% if user.role in 'hr,admin' %}
+                    <li class="nav-menu-item">
+                        <a href="{% url 'hr_dashboard' %}" class="nav-link">
+                            <i class="bi bi-briefcase"></i>
+                            <span>HR Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-menu-item">
+                        <a href="{% url 'all_employees' %}" class="nav-link">
+                            <i class="bi bi-person-badge"></i>
+                            <span>All Employees</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Resources Section (Coming Soon) -->
+            <div class="nav-section">
+                <h3 class="nav-section-title">Resources</h3>
+                <ul class="nav-menu">
+                    <li class="nav-menu-item coming-soon">
+                        <div class="nav-link disabled-link">
+                            <i class="bi bi-file-earmark"></i>
+                            <span>Documents</span>
+                            <span class="badge-coming-soon">Coming Soon</span>
+                        </div>
+                    </li>
+                    <li class="nav-menu-item coming-soon">
+                        <div class="nav-link disabled-link">
+                            <i class="bi bi-book"></i>
+                            <span>Knowledge Base</span>
+                            <span class="badge-coming-soon">Coming Soon</span>
+                        </div>
+                    </li>
+                    <li class="nav-menu-item coming-soon">
+                        <div class="nav-link disabled-link">
+                            <i class="bi bi-trophy"></i>
+                            <span>Training</span>
+                            <span class="badge-coming-soon">Coming Soon</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Support Section (Coming Soon) -->
+            <div class="nav-section">
+                <h3 class="nav-section-title">Support</h3>
+                <ul class="nav-menu">
+                    <li class="nav-menu-item coming-soon">
+                        <div class="nav-link disabled-link">
+                            <i class="bi bi-life-preserver"></i>
+                            <span>Support Tickets</span>
+                            <span class="badge-coming-soon">Coming Soon</span>
+                        </div>
+                    </li>
+                    <li class="nav-menu-item coming-soon">
+                        <div class="nav-link disabled-link">
+                            <i class="bi bi-question-circle"></i>
+                            <span>Help Center</span>
+                            <span class="badge-coming-soon">Coming Soon</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Sidebar Footer with Quick Actions -->
+        <div class="sidebar-footer">
+            <div class="quick-actions">
+                <button class="quick-action-btn" title="Attendance" aria-label="Quick attendance">
+                    <i class="bi bi-clock"></i>
+                </button>
+                <button class="quick-action-btn" title="Tasks" aria-label="Quick tasks">
+                    <i class="bi bi-check-square"></i>
+                </button>
+                <button class="quick-action-btn" title="Calendar" aria-label="Quick calendar">
+                    <i class="bi bi-calendar"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Base Scripts -->
+    <script>
+        // ========================================
+        // Theme Toggle Functionality
+        // ========================================
+        (function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('.theme-toggle-icon');
+            const body = document.body;
+
+            // Initialize theme from localStorage
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            body.setAttribute('data-theme', currentTheme);
+            themeIcon.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+
+            // Theme toggle event
+            themeToggle.addEventListener('click', () => {
+                const current = body.getAttribute('data-theme');
+                const newTheme = current === 'dark' ? 'light' : 'dark';
+                
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+                
+                // Animate toggle button
+                themeToggle.style.transform = 'rotate(360deg) scale(1.1)';
+                setTimeout(() => {
+                    themeToggle.style.transform = 'rotate(0deg) scale(1)';
+                }, 400);
+            });
+        })();
+
+        // ========================================
+        // Sidebar Toggle Functionality
+        // ========================================
+        (function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggle = document.getElementById('sidebarToggle');
+            const isMobile = () => window.innerWidth <= 768;
+
+            function openSidebar() {
+                sidebar.classList.add('mobile-open');
+                overlay.classList.add('active');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+            }
+
+            // Toggle sidebar open/close
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isMobile()) {
+                    if (sidebar.classList.contains('mobile-open')) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
+                }
+            });
+
+            // Close sidebar when clicking overlay
+            overlay.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeSidebar();
+            });
+
+            // Close sidebar when clicking any nav link
+            sidebar.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (isMobile()) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (!isMobile()) {
+                    closeSidebar();
+                }
+            });
+
+            // Close sidebar when pressing Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isMobile()) {
+                    closeSidebar();
+                }
+            });
+        })();
+
+        // ========================================
+        // Dropdown Menu Functionality
+        // ========================================
+        (function() {
+            const dropdowns = document.querySelectorAll('.dropdown');
+
+            dropdowns.forEach(dropdown => {
+                const button = dropdown.querySelector('.nav-button');
+                const menu = dropdown.querySelector('.dropdown-menu');
+
+                if (!button || !menu) return;
+
+                // Toggle dropdown
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Close other dropdowns
+                    dropdowns.forEach(other => {
+                        if (other !== dropdown) {
+                            other.querySelector('.dropdown-menu')?.classList.remove('show');
+                        }
+                    });
+                    
+                    menu.classList.toggle('show');
+                });
+            });
+
+            // Close all dropdowns when clicking outside
+            document.addEventListener('click', () => {
+                dropdowns.forEach(dropdown => {
+                    dropdown.querySelector('.dropdown-menu')?.classList.remove('show');
+                });
+            });
+        })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,1012 @@
+{% extends 'hr_base.html' %}
+{% load static %}
+
+{% block title %}HR Dashboard - BThinkX{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard Header */
+    .dashboard-header {
+        margin-bottom: 32px;
+    }
+
+    .dashboard-title {
+        font-size: 32px;
+        font-weight: 800;
+        font-family: 'Space Grotesk', sans-serif;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+    }
+
+    .dashboard-subtitle {
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+
+    /* Quick Actions Bar */
+    .quick-actions {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+    }
+
+    .quick-action-btn {
+        padding: 12px 24px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .quick-action-btn:hover {
+        border-color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .quick-action-btn.primary {
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        color: white;
+        border: none;
+    }
+
+    .quick-action-btn.primary:hover {
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .stat-card:hover {
+        border-color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.05);
+        transform: translateY(-4px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.15);
+    }
+
+    .stat-card:hover::before {
+        opacity: 1;
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .stat-icon::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        opacity: 0.1;
+    }
+
+    .stat-icon.blue::before {
+        background: var(--accent-blue);
+    }
+
+    .stat-icon.purple::before {
+        background: var(--accent-purple);
+    }
+
+    .stat-icon.green::before {
+        background: var(--accent-green);
+    }
+
+    .stat-icon.yellow::before {
+        background: var(--accent-yellow);
+    }
+
+    .stat-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1;
+    }
+
+    .stat-change {
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .stat-change.positive {
+        color: var(--accent-green);
+    }
+
+    .stat-change.negative {
+        color: var(--accent-red);
+    }
+
+    /* Main Content Grid */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    /* Section Card */
+    .section-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .section-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--card-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-action {
+        font-size: 13px;
+        color: var(--accent-blue);
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: var(--transition);
+    }
+
+    .section-action:hover {
+        color: var(--accent-purple);
+    }
+
+    .section-body {
+        padding: 24px;
+        flex: 1;
+    }
+
+    /* Leave Request Item */
+    .leave-item {
+        padding: 16px;
+        background: rgba(139, 92, 246, 0.03);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        margin-bottom: 12px;
+        transition: var(--transition);
+    }
+
+    .leave-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .leave-item:hover {
+        border-color: var(--accent-purple);
+        background: rgba(139, 92, 246, 0.08);
+    }
+
+    .leave-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        gap: 12px;
+    }
+
+    .leave-item-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .leave-item-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .leave-item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .leave-item-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .leave-item-type {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    .leave-status-badge {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: capitalize;
+        white-space: nowrap;
+    }
+
+    .leave-status-badge.pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--accent-yellow);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .leave-status-badge.approved {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-green);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .leave-status-badge.rejected {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--accent-red);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .leave-item-details {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    .leave-item-detail {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .leave-item-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--card-border);
+    }
+
+    .leave-action-btn {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: 1px solid;
+    }
+
+    .leave-action-btn.approve {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-green);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .leave-action-btn.approve:hover {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: var(--accent-green);
+    }
+
+    .leave-action-btn.reject {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--accent-red);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .leave-action-btn.reject:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: var(--accent-red);
+    }
+
+    .leave-action-btn.view {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--accent-blue);
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .leave-action-btn.view:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: var(--accent-blue);
+    }
+
+    /* Recent Hires */
+    .hire-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(59, 130, 246, 0.03);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        margin-bottom: 10px;
+        transition: var(--transition);
+    }
+
+    .hire-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .hire-item:hover {
+        border-color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.08);
+    }
+
+    .hire-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .hire-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .hire-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .hire-position {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    .hire-date {
+        font-size: 11px;
+        color: var(--accent-blue);
+        font-weight: 600;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+
+    .empty-state-text {
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
+
+    /* Charts */
+    .chart-container {
+        position: relative;
+        height: 280px;
+        margin-top: 16px;
+    }
+
+    /* Activity Feed */
+    .activity-item {
+        display: flex;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+        background: rgba(59, 130, 246, 0.1);
+    }
+
+    .activity-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .activity-text {
+        font-size: 13px;
+        color: var(--text-primary);
+    }
+
+    .activity-time {
+        font-size: 11px;
+        color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-title {
+            font-size: 24px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+            padding: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 24px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+        }
+
+        .quick-actions {
+            flex-direction: column;
+        }
+
+        .quick-action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .leave-item-header {
+            flex-direction: column;
+        }
+
+        .leave-item-actions {
+            flex-direction: column;
+        }
+
+        .section-header {
+            padding: 16px;
+        }
+
+        .section-body {
+            padding: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dashboard-title {
+            font-size: 20px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+        }
+
+        .leave-item-details {
+            flex-direction: column;
+            gap: 8px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="padding: 32px 20px;">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">HR Dashboard</h1>
+        <p class="dashboard-subtitle">
+            Welcome back! Here's what's happening with your workforce today.
+        </p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="#" class="quick-action-btn primary">
+            <i class="bi bi-person-plus"></i> Add Employee
+        </a>
+        <a href="#" class="quick-action-btn">
+            <i class="bi bi-calendar-event"></i> Manage Leave Types
+        </a>
+        <a href="#" class="quick-action-btn">
+            <i class="bi bi-file-earmark-text"></i> Generate Report
+        </a>
+        <a href="#" class="quick-action-btn">
+            <i class="bi bi-gear"></i> Settings
+        </a>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                👥
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Total Employees</div>
+                <div class="stat-value">{{ total_employees }}</div>
+                <div class="stat-change positive">
+                    <i class="bi bi-arrow-up"></i>
+                    {{ recent_hires.count }} this month
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                ⏳
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Pending Leaves</div>
+                <div class="stat-value">
+                    {{ all_leave_requests|length }}
+                </div>
+                <div class="stat-change">
+                    <i class="bi bi-clock"></i>
+                    Needs review
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                ✨
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">New Hires</div>
+                <div class="stat-value">{{ recent_hires.count }}</div>
+                <div class="stat-change positive">
+                    <i class="bi bi-calendar3"></i>
+                    Last 30 days
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon yellow">
+                📊
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Active Projects</div>
+                <div class="stat-value">--</div>
+                <div class="stat-change">
+                    <i class="bi bi-briefcase"></i>
+                    In progress
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Leave Requests Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="bi bi-calendar-check"></i>
+                    Recent Leave Requests
+                </h2>
+                <a href="#" class="section-action">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="section-body">
+                {% if all_leave_requests %}
+                    {% for leave in all_leave_requests %}
+                    <div class="leave-item">
+                        <div class="leave-item-header">
+                            <div class="leave-item-user">
+                                <div class="leave-item-avatar">
+                                    {{ leave.employee.user.first_name.0 }}{{ leave.employee.user.last_name.0 }}
+                                </div>
+                                <div class="leave-item-info">
+                                    <div class="leave-item-name">
+                                        {{ leave.employee.user.get_full_name }}
+                                    </div>
+                                    <div class="leave-item-type">
+                                        {% if leave.leave_type %}{{ leave.leave_type.name }}{% else %}Leave Request{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="leave-status-badge {{ leave.status }}">
+                                {{ leave.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <div class="leave-item-details">
+                            <div class="leave-item-detail">
+                                <i class="bi bi-calendar-event"></i>
+                                {{ leave.start_date|date:"M d" }} - {{ leave.end_date|date:"M d, Y" }}
+                            </div>
+                            <div class="leave-item-detail">
+                                <i class="bi bi-clock"></i>
+                                {{ leave.days|floatformat:1 }} days
+                            </div>
+                            <div class="leave-item-detail">
+                                <i class="bi bi-calendar3"></i>
+                                {{ leave.created_at|timesince }} ago
+                            </div>
+                        </div>
+
+                        {% if leave.status == 'pending' %}
+                        <div class="leave-item-actions">
+                            <button class="leave-action-btn view" onclick="viewLeave('{{ leave.id }}')">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                            <button class="leave-action-btn approve" onclick="approveLeave('{{ leave.id }}')">
+                                <i class="bi bi-check-circle"></i> Approve
+                            </button>
+                            <button class="leave-action-btn reject" onclick="rejectLeave('{{ leave.id }}')">
+                                <i class="bi bi-x-circle"></i> Reject
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">No leave requests to review</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Hires Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="bi bi-person-plus"></i>
+                    Recent Hires
+                </h2>
+                <a href="#" class="section-action">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="section-body">
+                {% if recent_hires %}
+                    {% for employee in recent_hires %}
+                    <div class="hire-item">
+                        <div class="hire-avatar">
+                            {{ employee.user.first_name.0 }}{{ employee.user.last_name.0 }}
+                        </div>
+                        <div class="hire-info">
+                            <div class="hire-name">{{ employee.user.get_full_name }}</div>
+                            <div class="hire-position">
+                                {% if employee.designation %}{{ employee.designation }}{% else %}Employee{% endif %}
+                            </div>
+                            <div class="hire-date">
+                                Joined {{ employee.date_of_joining|date:"M d, Y" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👋</div>
+                        <div class="empty-state-text">No new hires in the last 30 days</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Stats Row -->
+    <div class="content-grid">
+        <!-- Activity Feed -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="bi bi-activity"></i>
+                    Recent Activity
+                </h2>
+            </div>
+            <div class="section-body">
+                <div class="activity-item">
+                    <div class="activity-icon">👤</div>
+                    <div class="activity-content">
+                        <div class="activity-text">New employee onboarding completed</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">✅</div>
+                    <div class="activity-content">
+                        <div class="activity-text">Leave request approved for John Doe</div>
+                        <div class="activity-time">5 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">📄</div>
+                    <div class="activity-content">
+                        <div class="activity-text">Monthly report generated</div>
+                        <div class="activity-time">1 day ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">🎉</div>
+                    <div class="activity-content">
+                        <div class="activity-text">Work anniversary celebration scheduled</div>
+                        <div class="activity-time">2 days ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="bi bi-graph-up"></i>
+                    Department Overview
+                </h2>
+            </div>
+            <div class="section-body">
+                <div class="chart-container">
+                    <div style="display: flex; flex-direction: column; gap: 16px; height: 100%; justify-content: center;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(59, 130, 246, 0.05); border-radius: 8px;">
+                            <span style="font-size: 13px; color: var(--text-secondary);">Engineering</span>
+                            <span style="font-size: 16px; font-weight: 700; color: var(--accent-blue);">--</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(139, 92, 246, 0.05); border-radius: 8px;">
+                            <span style="font-size: 13px; color: var(--text-secondary);">Sales</span>
+                            <span style="font-size: 16px; font-weight: 700; color: var(--accent-purple);">--</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(16, 185, 129, 0.05); border-radius: 8px;">
+                            <span style="font-size: 13px; color: var(--text-secondary);">Marketing</span>
+                            <span style="font-size: 16px; font-weight: 700; color: var(--accent-green);">--</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(245, 158, 11, 0.05); border-radius: 8px;">
+                            <span style="font-size: 13px; color: var(--text-secondary);">Operations</span>
+                            <span style="font-size: 16px; font-weight: 700; color: var(--accent-yellow);">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Leave Action Functions
+    function viewLeave(leaveId) {
+        // window.location.href = `/hr/leaves/${leaveId}/`;
+        alert(`View leave request ${leaveId}`);
+    }
+
+    function approveLeave(leaveId) {
+        if (confirm('Are you sure you want to approve this leave request?')) {
+            // Make AJAX request to approve
+            // fetch(`/api/leaves/${leaveId}/approve/`, { method: 'POST' })
+            alert(`Approved leave ${leaveId}`);
+            location.reload();
+        }
+    }
+
+    function rejectLeave(leaveId) {
+        const reason = prompt('Please provide a reason for rejection:');
+        if (reason) {
+            // Make AJAX request to reject with reason
+            // fetch(`/api/leaves/${leaveId}/reject/`, { 
+            //     method: 'POST',
+            //     body: JSON.stringify({ reason })
+            // })
+            alert(`Rejected leave ${leaveId}`);
+            location.reload();
+        }
+    }
+
+    // Initialize tooltips and animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Animate cards on load
+        const cards = document.querySelectorAll('.stat-card, .section-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Add ripple effect to buttons
+        const buttons = document.querySelectorAll('.quick-action-btn, .leave-action-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s ease-out';
+                ripple.style.pointerEvents = 'none';
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Update relative time every minute
+        setInterval(() => {
+            document.querySelectorAll('.activity-time').forEach(el => {
+                // This would update relative times if you're using a library like moment.js
+                // For now, it's just a placeholder
+            });
+        }, 60000);
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Alt + N = Add New Employee
+            if (e.altKey && e.key === 'n') {
+                e.preventDefault();
+                document.querySelector('.quick-action-btn.primary')?.click();
+            }
+            
+            // Alt + R = Generate Report
+            if (e.altKey && e.key === 'r') {
+                e.preventDefault();
+                const reportBtn = Array.from(document.querySelectorAll('.quick-action-btn'))
+                    .find(btn => btn.textContent.includes('Report'));
+                reportBtn?.click();
+            }
+        });
+    });
+
+    // Auto-refresh dashboard data every 5 minutes
+    setInterval(() => {
+        // This would fetch updated data via AJAX
+        // For now, it's just a placeholder
+        console.log('Dashboard data refresh check');
+    }, 300000);
+
+    // Add CSS for ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

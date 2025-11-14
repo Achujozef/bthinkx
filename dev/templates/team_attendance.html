@@ -1,623 +1,743 @@
-<!-- team_attendance.html -->
-{% extends 'base.html' %}
+{% extends 'hr_base.html' %}
 {% load static %}
 
 {% block title %}Team Attendance - BThinkX{% endblock %}
 
+{% block extra_css %}
+<style>
+    .attendance-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .attendance-title {
+        font-size: 32px;
+        font-weight: 800;
+        font-family: 'Space Grotesk', sans-serif;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .attendance-controls {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .date-picker-wrapper {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 10px 16px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        transition: var(--transition);
+    }
+
+    .date-picker-wrapper:hover {
+        border-color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .date-input {
+        padding: 8px 12px;
+        background: var(--primary-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .date-input:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .date-nav-btn {
+        padding: 8px 12px;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 6px;
+        color: var(--accent-blue);
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .date-nav-btn:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: var(--accent-blue);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .stat-card:hover {
+        border-color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.05);
+        transform: translateY(-4px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.15);
+    }
+
+    .stat-card:hover::before {
+        opacity: 1;
+    }
+
+    .stat-card.blue::before {
+        background: var(--accent-blue);
+    }
+
+    .stat-card.green::before {
+        background: var(--accent-green);
+    }
+
+    .stat-card.red::before {
+        background: var(--accent-red);
+    }
+
+    .stat-card.purple::before {
+        background: var(--accent-purple);
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .stat-icon::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        opacity: 0.1;
+    }
+
+    .stat-icon.blue::before {
+        background: var(--accent-blue);
+    }
+
+    .stat-icon.green::before {
+        background: var(--accent-green);
+    }
+
+    .stat-icon.red::before {
+        background: var(--accent-red);
+    }
+
+    .stat-icon.purple::before {
+        background: var(--accent-purple);
+    }
+
+    .stat-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    /* Attendance Table */
+    .attendance-table-container {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 32px;
+    }
+
+    .table-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--card-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .export-btn {
+        padding: 8px 16px;
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--accent-purple);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .export-btn:hover {
+        background: rgba(139, 92, 246, 0.2);
+        border-color: var(--accent-purple);
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .attendance-table thead {
+        background: rgba(139, 92, 246, 0.05);
+    }
+
+    .attendance-table th {
+        padding: 16px 24px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--card-border);
+    }
+
+    .attendance-table td {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--card-border);
+        font-size: 14px;
+        color: var(--text-primary);
+    }
+
+    .attendance-table tbody tr {
+        transition: var(--transition);
+    }
+
+    .attendance-table tbody tr:hover {
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .attendance-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .employee-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .employee-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .employee-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .employee-name {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .employee-code {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: capitalize;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .status-badge.present {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-green);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.absent {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--accent-red);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-badge.on-leave {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--accent-yellow);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .time-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .time-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .time-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+    }
+
+    .hours-badge {
+        padding: 6px 12px;
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--accent-blue);
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 14px;
+        display: inline-block;
+    }
+
+    .action-btn {
+        padding: 6px 12px;
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--accent-purple);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        background: rgba(139, 92, 246, 0.2);
+        border-color: var(--accent-purple);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .empty-state-icon {
+        font-size: 80px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-state-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+    .empty-state-description {
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .attendance-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .attendance-title {
+            font-size: 24px;
+        }
+
+        .attendance-controls {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .date-picker-wrapper {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            padding: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 24px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+        }
+
+        .attendance-table-container {
+            overflow-x: auto;
+        }
+
+        .attendance-table {
+            min-width: 800px;
+        }
+
+        .table-header {
+            flex-direction: column;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .export-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .attendance-title {
+            font-size: 20px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+        }
+
+        .attendance-table th,
+        .attendance-table td {
+            padding: 12px 16px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="dashboard-container">
-    <div class="page-header">
-        <div class="header-content">
-            <h1 class="page-title">Team <span class="gradient-text">Attendance</span></h1>
-            <p class="page-subtitle">Monitor your team's attendance and working hours</p>
+<div class="content-wrapper" style="padding: 32px 20px;">
+    <!-- Page Header -->
+    <div class="attendance-header">
+        <div>
+            <h1 class="attendance-title">Team Attendance</h1>
+            <p style="color: var(--text-secondary); margin-top: 8px;">
+                Monitor and manage your team's attendance for {{ selected_date|date:"F d, Y" }}
+            </p>
         </div>
-        <div class="header-actions">
-            <form method="get" style="display: flex; gap: 12px;">
-                <input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" class="form-control" style="width: auto;">
-                <button type="submit" class="btn-primary">
-                    <i class="bi bi-search"></i>
-                    View
+        <div class="attendance-controls">
+            <div class="date-picker-wrapper">
+                <button class="date-nav-btn" onclick="navigateDate(-1)">
+                    <i class="bi bi-chevron-left"></i>
                 </button>
-            </form>
+                <input type="date" 
+                       class="date-input" 
+                       id="dateInput" 
+                       value="{{ selected_date|date:'Y-m-d' }}"
+                       onchange="changeDate(this.value)">
+                <button class="date-nav-btn" onclick="navigateDate(1)">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button class="date-nav-btn" onclick="goToToday()">
+                    Today
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Statistics -->
+    <!-- Stats Grid -->
     <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon attendance">
-                <i class="bi bi-people"></i>
-            </div>
+        <div class="stat-card blue">
+            <div class="stat-icon blue">👥</div>
             <div class="stat-content">
-                <h3 class="stat-value">{{ stats.total_team }}</h3>
-                <p class="stat-label">Total Team Members</p>
+                <div class="stat-label">Total Team</div>
+                <div class="stat-value">{{ stats.total_team }}</div>
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon tasks">
-                <i class="bi bi-check-circle"></i>
-            </div>
+        <div class="stat-card green">
+            <div class="stat-icon green">✅</div>
             <div class="stat-content">
-                <h3 class="stat-value">{{ stats.present }}</h3>
-                <p class="stat-label">Present Today</p>
-                <span class="stat-badge success">{{ stats.present|floatformat:0 }}%</span>
+                <div class="stat-label">Present</div>
+                <div class="stat-value">{{ stats.present }}</div>
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon leaves">
-                <i class="bi bi-x-circle"></i>
-            </div>
+        <div class="stat-card red">
+            <div class="stat-icon red">❌</div>
             <div class="stat-content">
-                <h3 class="stat-value">{{ stats.absent }}</h3>
-                <p class="stat-label">Absent Today</p>
-                <span class="stat-badge danger">{{ stats.absent|floatformat:0 }}%</span>
+                <div class="stat-label">Absent</div>
+                <div class="stat-value">{{ stats.absent }}</div>
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon projects">
-                <i class="bi bi-clock"></i>
-            </div>
+        <div class="stat-card purple">
+            <div class="stat-icon purple">⏱️</div>
             <div class="stat-content">
-                <h3 class="stat-value">{{ stats.avg_hours|floatformat:1 }}h</h3>
-                <p class="stat-label">Average Hours</p>
+                <div class="stat-label">Avg Hours</div>
+                <div class="stat-value">{{ stats.avg_hours|floatformat:1 }}</div>
             </div>
         </div>
     </div>
 
     <!-- Attendance Table -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <h2 class="card-title">
-                <i class="bi bi-calendar-check"></i>
-                Attendance for {{ selected_date|date:"F d, Y" }}
+    <div class="attendance-table-container">
+        <div class="table-header">
+            <h2 class="table-title">
+                <i class="bi bi-table"></i>
+                Attendance Details
             </h2>
-            <button class="btn-secondary" onclick="window.print()">
-                <i class="bi bi-printer"></i>
-                Print Report
+            <button class="export-btn" onclick="exportAttendance()">
+                <i class="bi bi-download"></i>
+                Export Report
             </button>
         </div>
-        <div class="card-body" style="padding: 0;">
-            <div class="table-responsive">
-                <table class="attendance-table">
-                    <thead>
-                        <tr>
-                            <th>Employee</th>
-                            <th>Department</th>
-                            <th>Status</th>
-                            <th>Login Time</th>
-                            <th>Logout Time</th>
-                            <th>Hours Worked</th>
-                            <th>Breaks</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for data in team_data %}
-                        <tr class="attendance-row {% if data.status == 'absent' %}absent-row{% endif %}">
-                            <td>
-                                <div class="employee-cell">
-                                    {% if data.employee.user.avatar %}
-                                    <img src="{{ data.employee.user.avatar.url }}" alt="{{ data.employee.user.get_full_name }}" class="employee-avatar">
-                                    {% else %}
-                                    <div class="employee-avatar-placeholder">
-                                        {{ data.employee.user.first_name.0 }}{{ data.employee.user.last_name.0 }}
-                                    </div>
-                                    {% endif %}
-                                    <div class="employee-info">
-                                        <div class="employee-name">{{ data.employee.user.get_full_name }}</div>
-                                        <div class="employee-email">{{ data.employee.employee_code }}</div>
-                                    </div>
+
+        {% if team_data %}
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Status</th>
+                    <th>Login Time</th>
+                    <th>Logout Time</th>
+                    <th>Hours Worked</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in team_data %}
+                <tr>
+                    <td>
+                        <div class="employee-cell">
+                            <div class="employee-avatar">
+                                {{ data.employee.user.first_name.0 }}{{ data.employee.user.last_name.0 }}
+                            </div>
+                            <div class="employee-info">
+                                <div class="employee-name">
+                                    {{ data.employee.user.get_full_name }}
                                 </div>
-                            </td>
-                            <td>{{ data.employee.department.name|default:"—" }}</td>
-                            <td>
-                                {% if data.status == 'present' %}
-                                <span class="status-badge status-present">
-                                    <i class="bi bi-check-circle"></i> Present
-                                </span>
-                                {% else %}
-                                <span class="status-badge status-absent">
-                                    <i class="bi bi-x-circle"></i> Absent
-                                </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if data.attendance.login_time %}
-                                <span class="time-badge">
-                                    <i class="bi bi-box-arrow-in-right"></i>
-                                    {{ data.attendance.login_time|time:"h:i A" }}
-                                </span>
-                                {% else %}
-                                <span class="text-muted">—</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if data.attendance.logout_time %}
-                                <span class="time-badge">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                    {{ data.attendance.logout_time|time:"h:i A" }}
-                                </span>
-                                {% else %}
-                                <span class="text-muted">—</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if data.hours_worked > 0 %}
-                                <span class="hours-badge">
-                                    <i class="bi bi-clock-history"></i>
-                                    {{ data.hours_worked|floatformat:1 }} hrs
-                                </span>
-                                {% else %}
-                                <span class="text-muted">—</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if data.attendance %}
-                                <button class="btn-icon" onclick="viewBreaks('{{ data.employee.id }}')">
-                                    <i class="bi bi-list"></i>
-                                </button>
-                                {% else %}
-                                <span class="text-muted">—</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7">
-                                <div class="empty-state">
-                                    <i class="bi bi-calendar-x"></i>
-                                    <p>No attendance records for this date</p>
+                                <div class="employee-code">
+                                    {{ data.employee.employee_code|default:"N/A" }}
                                 </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge {{ data.status }}">
+                            {% if data.status == 'present' %}
+                                ✓ Present
+                            {% else %}
+                                ✗ Absent
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if data.attendance and data.attendance.login_time %}
+                        <div class="time-cell">
+                            <span class="time-value">{{ data.attendance.login_time|time:"g:i A" }}</span>
+                            <span class="time-label">Check In</span>
+                        </div>
+                        {% else %}
+                        <span style="color: var(--text-secondary);">--:--</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if data.attendance and data.attendance.logout_time %}
+                        <div class="time-cell">
+                            <span class="time-value">{{ data.attendance.logout_time|time:"g:i A" }}</span>
+                            <span class="time-label">Check Out</span>
+                        </div>
+                        {% else %}
+                        <span style="color: var(--text-secondary);">--:--</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if data.hours_worked > 0 %}
+                        <span class="hours-badge">{{ data.hours_worked|floatformat:1 }}h</span>
+                        {% else %}
+                        <span style="color: var(--text-secondary);">0.0h</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="#" class="action-btn" onclick="viewDetails('{{ data.employee.id }}', '{{ selected_date|date:'Y-m-d' }}')">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <h3 class="empty-state-title">No Team Members</h3>
+            <p class="empty-state-description">
+                No team members found for the selected date.
+            </p>
         </div>
+        {% endif %}
     </div>
 </div>
-
-<style>
-.attendance-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.attendance-table thead {
-    background: var(--secondary-bg);
-}
-
-.attendance-table th {
-    padding: 16px;
-    text-align: left;
-    font-weight: 700;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-secondary);
-    border-bottom: 2px solid var(--card-border);
-}
-
-.attendance-table td {
-    padding: 16px;
-    border-bottom: 1px solid var(--card-border);
-}
-
-.attendance-row {
-    transition: background 0.2s ease;
-}
-
-.attendance-row:hover {
-    background: rgba(139, 92, 246, 0.05);
-}
-
-.attendance-row.absent-row {
-    opacity: 0.6;
-}
-
-.status-badge.status-present {
-    background: rgba(16, 185, 129, 0.2);
-    color: var(--accent-green);
-}
-
-.status-badge.status-absent {
-    background: rgba(239, 68, 68, 0.2);
-    color: var(--accent-red);
-}
-
-.time-badge,
-.hours-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: rgba(139, 92, 246, 0.1);
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.time-badge i,
-.hours-badge i {
-    color: var(--accent-purple);
-}
-
-.text-muted {
-    color: var(--text-muted);
-}
-</style>
-
-<script>
-function viewBreaks(employeeId) {
-    alert('Break details for employee ' + employeeId);
-    // Implement modal or redirect to breaks page
-}
-</script>
 {% endblock %}
 
-<!-- ========================================== -->
-<!-- approve_leaves.html -->
-<!-- ========================================== -->
-
-{% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Approve Leave Requests - BThinkX{% endblock %}
-
-{% block content %}
-<div class="dashboard-container">
-    <div class="page-header">
-        <div class="header-content">
-            <h1 class="page-title">Approve <span class="gradient-text">Leave Requests</span></h1>
-            <p class="page-subtitle">Review and approve team leave applications</p>
-        </div>
-    </div>
-
-    <!-- Statistics -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon tasks">
-                <i class="bi bi-clock-history"></i>
-            </div>
-            <div class="stat-content">
-                <h3 class="stat-value">{{ stats.pending }}</h3>
-                <p class="stat-label">Pending Requests</p>
-                {% if stats.pending > 0 %}
-                <span class="stat-badge warning">Action Required</span>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon attendance">
-                <i class="bi bi-check-circle"></i>
-            </div>
-            <div class="stat-content">
-                <h3 class="stat-value">{{ stats.approved }}</h3>
-                <p class="stat-label">Approved This Month</p>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon leaves">
-                <i class="bi bi-x-circle"></i>
-            </div>
-            <div class="stat-content">
-                <h3 class="stat-value">{{ stats.rejected }}</h3>
-                <p class="stat-label">Rejected This Month</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="dashboard-card" style="margin-top: 32px;">
-        <div class="card-body">
-            <form method="get" class="filters-form">
-                <div style="display: flex; gap: 16px; align-items: end;">
-                    <div class="form-group">
-                        <label class="form-label">Status Filter</label>
-                        <select name="status" class="form-control" onchange="this.form.submit()">
-                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-                            <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
-                            <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
-                            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
-                        </select>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Leave Requests List -->
-    <div class="leaves-grid">
-        {% for leave in page_obj %}
-        <div class="leave-card">
-            <div class="leave-header">
-                <div class="employee-cell">
-                    {% if leave.employee.user.avatar %}
-                    <img src="{{ leave.employee.user.avatar.url }}" alt="{{ leave.employee.user.get_full_name }}" class="employee-avatar">
-                    {% else %}
-                    <div class="employee-avatar-placeholder">
-                        {{ leave.employee.user.first_name.0 }}{{ leave.employee.user.last_name.0 }}
-                    </div>
-                    {% endif %}
-                    <div class="employee-info">
-                        <div class="employee-name">{{ leave.employee.user.get_full_name }}</div>
-                        <div class="employee-email">{{ leave.employee.department.name|default:"No Department" }}</div>
-                    </div>
-                </div>
-                <span class="status-badge status-{{ leave.status }}">
-                    {{ leave.get_status_display }}
-                </span>
-            </div>
-
-            <div class="leave-body">
-                <div class="leave-info-grid">
-                    <div class="leave-info-item">
-                        <span class="info-label">Leave Type</span>
-                        <span class="info-value">
-                            <i class="bi bi-tag"></i>
-                            {{ leave.leave_type.name }}
-                        </span>
-                    </div>
-                    <div class="leave-info-item">
-                        <span class="info-label">Duration</span>
-                        <span class="info-value">
-                            <i class="bi bi-calendar-range"></i>
-                            {{ leave.days }} day{{ leave.days|pluralize }}
-                        </span>
-                    </div>
-                    <div class="leave-info-item">
-                        <span class="info-label">Start Date</span>
-                        <span class="info-value">
-                            <i class="bi bi-calendar-check"></i>
-                            {{ leave.start_date|date:"M d, Y" }}
-                        </span>
-                    </div>
-                    <div class="leave-info-item">
-                        <span class="info-label">End Date</span>
-                        <span class="info-value">
-                            <i class="bi bi-calendar-x"></i>
-                            {{ leave.end_date|date:"M d, Y" }}
-                        </span>
-                    </div>
-                </div>
-
-                {% if leave.reason %}
-                <div class="leave-reason">
-                    <span class="info-label">Reason:</span>
-                    <p>{{ leave.reason }}</p>
-                </div>
-                {% endif %}
-
-                <div class="leave-meta">
-                    <span class="meta-item">
-                        <i class="bi bi-clock"></i>
-                        Applied {{ leave.created_at|timesince }} ago
-                    </span>
-                    {% if leave.approver %}
-                    <span class="meta-item">
-                        <i class="bi bi-person-check"></i>
-                        {{ leave.status|title }} by {{ leave.approver.get_full_name }}
-                    </span>
-                    {% endif %}
-                </div>
-            </div>
-
-            {% if leave.status == 'pending' %}
-            <div class="leave-actions">
-                <form method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="leave_id" value="{{ leave.id }}">
-                    <input type="hidden" name="action" value="approve">
-                    <button type="submit" class="btn-approve">
-                        <i class="bi bi-check-circle"></i>
-                        Approve
-                    </button>
-                </form>
-                <form method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="leave_id" value="{{ leave.id }}">
-                    <input type="hidden" name="action" value="reject">
-                    <button type="submit" class="btn-reject">
-                        <i class="bi bi-x-circle"></i>
-                        Reject
-                    </button>
-                </form>
-            </div>
-            {% endif %}
-        </div>
-        {% empty %}
-        <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
-            <i class="bi bi-calendar-check"></i>
-            <p>No leave requests to display</p>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Pagination -->
-    {% if page_obj.has_other_pages %}
-    <div class="pagination-container">
-        <div class="pagination">
-            {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}" class="page-link">
-                <i class="bi bi-chevron-left"></i>
-            </a>
-            {% endif %}
-            <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}" class="page-link">
-                <i class="bi bi-chevron-right"></i>
-            </a>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
-</div>
-
-<style>
-.leaves-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-    gap: 24px;
-    margin-top: 24px;
-}
-
-.leave-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--card-border);
-    border-radius: 20px;
-    overflow: hidden;
-    transition: var(--transition);
-}
-
-.leave-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(139, 92, 246, 0.5);
-    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
-}
-
-.leave-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--card-border);
-    background: var(--secondary-bg);
-}
-
-.leave-body {
-    padding: 24px;
-}
-
-.leave-info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-.leave-info-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.info-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-    font-weight: 600;
-}
-
-.info-value {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.info-value i {
-    color: var(--accent-purple);
-}
-
-.leave-reason {
-    padding: 16px;
-    background: var(--secondary-bg);
-    border-radius: 12px;
-    margin-bottom: 16px;
-}
-
-.leave-reason p {
-    margin-top: 8px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-}
-
-.leave-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    font-size: 13px;
-    color: var(--text-muted);
-}
-
-.meta-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.meta-item i {
-    color: var(--accent-purple);
-}
-
-.leave-actions {
-    display: flex;
-    gap: 12px;
-    padding: 20px 24px;
-    border-top: 1px solid var(--card-border);
-    background: var(--secondary-bg);
-}
-
-.btn-approve,
-.btn-reject {
-    flex: 1;
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: var(--transition);
-}
-
-.btn-approve {
-    background: linear-gradient(135deg, var(--accent-green), #059669);
-    color: white;
-}
-
-.btn-approve:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-}
-
-.btn-reject {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    color: var(--accent-red);
-}
-
-.btn-reject:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: var(--accent-red);
-}
-
-.status-badge.status-pending {
-    background: rgba(245, 158, 11, 0.2);
-    color: var(--accent-yellow);
-}
-
-@media (max-width: 768px) {
-    .leaves-grid {
-        grid-template-columns: 1fr;
+{% block extra_js %}
+<script>
+    // Date Navigation
+    function changeDate(dateStr) {
+        window.location.href = `?date=${dateStr}`;
     }
-    
-    .leave-info-grid {
-        grid-template-columns: 1fr;
+
+    function navigateDate(days) {
+        const currentDate = new Date('{{ selected_date|date:"Y-m-d" }}');
+        currentDate.setDate(currentDate.getDate() + days);
+        const newDate = currentDate.toISOString().split('T')[0];
+        changeDate(newDate);
     }
-}
-</style>
+
+    function goToToday() {
+        const today = new Date().toISOString().split('T')[0];
+        changeDate(today);
+    }
+
+    // View Details
+    function viewDetails(employeeId, date) {
+        // window.location.href = `/attendance/employee/${employeeId}/?date=${date}`;
+        alert(`View attendance details for employee ${employeeId} on ${date}`);
+    }
+
+    // Export Attendance
+    function exportAttendance() {
+        const date = '{{ selected_date|date:"Y-m-d" }}';
+        // window.location.href = `/attendance/export/?date=${date}`;
+        alert(`Export attendance report for ${date}`);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Highlight current date
+        const dateInput = document.getElementById('dateInput');
+        const today = new Date().toISOString().split('T')[0];
+        const selectedDate = '{{ selected_date|date:"Y-m-d" }}';
+        
+        if (selectedDate === today) {
+            dateInput.style.borderColor = 'var(--accent-green)';
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Arrow Left = Previous Day
+            if (e.altKey && e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateDate(-1);
+            }
+            
+            // Arrow Right = Next Day
+            if (e.altKey && e.key === 'ArrowRight') {
+                e.preventDefault();
+                navigateDate(1);
+            }
+            
+            // T = Today
+            if (e.altKey && e.key === 't') {
+                e.preventDefault();
+                goToToday();
+            }
+        });
+
+        // Auto-refresh every 5 minutes if viewing today
+        if (selectedDate === today) {
+            setInterval(() => {
+                location.reload();
+            }, 300000);
+        }
+    });
+</script>
 {% endblock %}
