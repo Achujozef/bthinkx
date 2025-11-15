@@ -112,7 +112,6 @@
             </div>
         </div>
     </nav>
-
     <!-- Mobile Overlay (for sidebar) -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -123,8 +122,8 @@
             <div class="nav-section">
                 <h3 class="nav-section-title">Main</h3>
                 <ul class="nav-menu">
-                    <li class="nav-menu-item {% if request.resolver_match.url_name == 'hr_dashboard' %}active{% endif %}">
-                        <a href="{% url 'hr_dashboard' %}" class="nav-link">
+                    <li class="nav-menu-item {% if request.resolver_match.url_name == 'employee_dashboard' %}active{% endif %}">
+                        <a href="{% url 'employee_dashboard' %}" class="nav-link">
                             <i class="bi bi-speedometer2"></i>
                             <span>Dashboard</span>
                         </a>
@@ -132,7 +131,7 @@
                     <li class="nav-menu-item {% if 'tasks' in request.path %}active{% endif %}">
                         <a href="{% url 'my_tasks' %}" class="nav-link">
                             <i class="bi bi-check2-square"></i>
-                            <span>All Tasks</span>
+                            <span>My Tasks</span>
                             {% if task_stats.todo > 0 %}
                             <span class="badge-mini">{{ task_stats.todo }}</span>
                             {% endif %}
@@ -141,13 +140,13 @@
                     <li class="nav-menu-item {% if 'projects' in request.path %}active{% endif %}">
                         <a href="{% url 'my_projects' %}" class="nav-link">
                             <i class="bi bi-folder"></i>
-                            <span>All Projects</span>
+                            <span>Projects</span>
                         </a>
                     </li>
                     <li class="nav-menu-item {% if 'attendance' in request.path %}active{% endif %}">
-                        <a href="{% url 'team_attendance' %}" class="nav-link">
+                        <a href="{% url 'my_attendance' %}" class="nav-link">
                             <i class="bi bi-calendar-check"></i>
-                            <span>Team Attendance</span>
+                            <span>Attendance</span>
                         </a>
                     </li>
                     <li class="nav-menu-item {% if 'leaves' in request.path %}active{% endif %}">
