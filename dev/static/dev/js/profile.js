@@ -180,8 +180,8 @@ function uploadAvatar(input) {
         form.appendChild(fileInput);
 
         document.body.appendChild(form);
-        form.submit();
+        form.submit(); 
         form.remove();
     }
 }
-
+   
