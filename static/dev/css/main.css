@@ -56,6 +56,41 @@ body {
     overflow-x: hidden;
 }
 
+/* Hide scrollbars while keeping scroll functionality */
+html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
+/* Hide scrollbars in sidebar and main content */
+.sidebar-content {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sidebar-content::-webkit-scrollbar {
+    display: none;
+}
+
+.main-content {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.main-content::-webkit-scrollbar {
+    display: none;
+}
+
+/* Generic scrollbar hiding for any scrollable element */
+*::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
 /* ============================================
    3. THEME TOGGLE
    ============================================ */
@@ -841,6 +876,51 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ====================================================================
+   8. DISABLED MENU ITEMS & COMING SOON BADGES
+   ==================================================================== */
+
+.disabled-link {
+    color: var(--text-muted, #94a3b8);
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 8px;
+    transition: none;
+    user-select: none;
+}
+
+.disabled-link:hover {
+    background: none;
+    color: var(--text-muted, #94a3b8);
+}
+
+.disabled-link i {
+    color: var(--text-muted, #94a3b8);
+    margin-right: 12px;
+}
+
+.badge-coming-soon {
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(148, 163, 184, 0.15);
+    color: var(--text-muted, #94a3b8);
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* ====================================================================
+   9. RESPONSIVE DESIGN
+   ==================================================================== */
 
 @media (max-width: 768px) {
     /* Sidebar */
