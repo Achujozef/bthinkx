@@ -9,6 +9,9 @@ urlpatterns = [
     path('tasks/', views.my_tasks, name='my_tasks'),
     path('attendance/', views.my_attendance, name='my_attendance'),
     path('leaves/', views.my_leaves, name='my_leaves'),
+    path('api/leaves/create/', views.create_leave_request, name='create_leave_request'),
+    path('api/leaves/<str:leave_id>/update/', views.update_leave_request, name='update_leave_request'),
+    path('api/leaves/<str:leave_id>/cancel/', views.cancel_leave_request, name='cancel_leave_request'),
     path('projects/', views.my_projects, name='my_projects'),
     path('daily-report/', views.submit_daily_report, name='submit_daily_report'),
     

@@ -8,7 +8,12 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 from .models import *
 from datetime import datetime, timedelta
-
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.db.models import Q, Sum, Count
+from datetime import datetime, timedelta
+import calendar
 
 def employee_login(request):
     if request.method == "POST":
@@ -166,38 +171,178 @@ def my_tasks(request):
     
     return render(request, 'tasks.html', context)
 
-
 @login_required
 def my_attendance(request):
-    """Attendance history view"""
+    """Attendance history view with proper filtering and leave support"""
     employee = request.user.employee_profile
     
-    month = request.GET.get('month', timezone.now().month)
-    year = request.GET.get('year', timezone.now().year)
+    # Get current date
+    now = timezone.now()
     
+    # Get month and year from request, with proper validation
+    try:
+        month = int(request.GET.get('month', now.month))
+        year = int(request.GET.get('year', now.year))
+        
+        # Validate month range
+        if month < 1 or month > 12:
+            month = now.month
+        
+        # Validate year (reasonable range)
+        current_year = now.year
+        if year < current_year - 5 or year > current_year + 2:
+            year = current_year
+            
+    except (ValueError, TypeError):
+        # If conversion fails, use current month/year
+        month = now.month
+        year = now.year
+    
+    # Date range for the month
+    start_date = datetime(year, month, 1)
+    end_date = datetime(year, month, calendar.monthrange(year, month)[1])
+    
+    # Get attendance records for the selected month
     attendances = Attendance.objects.filter(
         employee=employee,
         date__month=month,
         date__year=year
     ).order_by('-date')
     
+    # Get approved leaves for the selected month
+    approved_leaves = LeaveRequest.objects.filter(
+        employee=employee,
+        status='approved',
+        start_date__lte=end_date.date(),
+        end_date__gte=start_date.date()
+    )
+    
+    # Get holidays for the selected month
+    holidays = Holiday.objects.filter(
+        company=employee.company,
+        date__month=month,
+        date__year=year
+    )
+    
+    # Calculate statistics
+    present_count = attendances.filter(
+        login_time__isnull=False,
+        logout_time__isnull=False
+    ).count()
+    
+    absent_count = attendances.filter(
+        login_time__isnull=True,
+        logout_time__isnull=True
+    ).count()
+    
+    half_day_count = attendances.filter(
+        login_time__isnull=False,
+        logout_time__isnull=True
+    ).count()
+    
+    # Count leave days
+    leave_count = 0
+    current = start_date
+    while current <= end_date:
+        current_date = current.date()
+        # Check if date falls within any approved leave
+        for leave in approved_leaves:
+            if leave.start_date <= current_date <= leave.end_date:
+                leave_count += 1
+                break
+        current += timedelta(days=1)
+    
+    # Calculate total work hours
+    total_work_seconds = attendances.aggregate(
+        total=Sum('total_work_seconds')
+    )['total'] or 0
+    
+    total_hours = total_work_seconds / 3600 if total_work_seconds else 0
+    
+    # Calculate attendance rate (exclude weekends, holidays, and approved leaves)
+    working_days = 0
+    total_working_days = 0
+    
+    current = start_date
+    while current <= end_date:
+        current_date = current.date()
+        # Check if it's a weekday (0=Monday, 4=Friday, 5=Saturday, 6=Sunday)
+        if current.weekday() < 5:  # Monday to Friday
+            # Skip if it's a holiday
+            if not holidays.filter(date=current_date).exists():
+                total_working_days += 1
+                
+                # Check if there's an attendance record
+                attendance_record = attendances.filter(date=current_date).first()
+                
+                if attendance_record:
+                    # If has both login and logout, it's a full day present
+                    if attendance_record.login_time and attendance_record.logout_time:
+                        working_days += 1
+                    # If has only login, it's a half day
+                    elif attendance_record.login_time:
+                        working_days += 0.5
+                else:
+                    # Check if employee was on approved leave
+                    on_leave = False
+                    for leave in approved_leaves:
+                        if leave.start_date <= current_date <= leave.end_date:
+                            working_days += 1  # Leave counts as present
+                            on_leave = True
+                            break
+                    
+                    # If not on leave and no attendance, it's an absent day
+                    # (already counted in absent_count)
+        
+        current += timedelta(days=1)
+    
+    # Calculate attendance rate
+    attendance_rate = round((working_days / total_working_days) * 100) if total_working_days > 0 else 0
+    
+    # Generate year range for dropdown
+    current_year = now.year
+    years = list(range(current_year - 5, current_year + 3))
+    
     context = {
         'attendances': attendances,
+        'approved_leaves': approved_leaves,
+        'holidays': holidays,
         'month': month,
         'year': year,
+        'years': years,
+        'present_count': present_count,
+        'absent_count': absent_count,
+        'leave_count': int(leave_count),
+        'half_day_count': half_day_count,
+        'total_hours': round(total_hours, 1),
+        'attendance_rate': attendance_rate,
+        'total_working_days': total_working_days,
     }
     
     return render(request, 'attendance.html', context)
 
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
+from datetime import datetime
+import json
+
+from dev.models import LeaveRequest, LeaveType
+
+# ==================== PAGE VIEWS ====================
+
 @login_required
 def my_leaves(request):
-    """Leave management view"""
+    """Leave management page view"""
     employee = request.user.employee_profile
     
     leaves = LeaveRequest.objects.filter(
         employee=employee
-    ).order_by('-created_at')
+    ).order_by('-created_at').select_related('leave_type', 'approver')
     
     leave_types = LeaveType.objects.filter(company=employee.company)
     
@@ -207,6 +352,230 @@ def my_leaves(request):
     }
     
     return render(request, 'leaves.html', context)
+
+
+# ==================== API VIEWS ====================
+
+@login_required
+@require_http_methods(["POST"])
+def create_leave_request(request):
+    """Create a new leave request - handles both AJAX and form submission"""
+    try:
+        employee = request.user.employee_profile
+        
+        # Parse request data
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+        
+        # Validate required fields
+        leave_type_id = data.get('leave_type')
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        days = data.get('days')
+        reason = data.get('reason', '')
+
+        if not all([leave_type_id, start_date, end_date, days]):
+            return JsonResponse({
+                'success': False,
+                'error': 'Please fill in all required fields.'
+            }, status=400)
+
+        # Validate dates
+        try:
+            start = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid date format.'
+            }, status=400)
+
+        if end < start:
+            return JsonResponse({
+                'success': False,
+                'error': 'End date must be after start date.'
+            }, status=400)
+
+        # Get leave type
+        try:
+            leave_type = LeaveType.objects.get(id=leave_type_id, company=employee.company)
+        except LeaveType.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid leave type selected.'
+            }, status=400)
+
+        # Create leave request
+        with transaction.atomic():
+            leave_request = LeaveRequest.objects.create(
+                employee=employee,
+                leave_type=leave_type,
+                start_date=start,
+                end_date=end,
+                days=float(days),
+                reason=reason,
+                status='pending'
+            )
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Leave request submitted successfully!',
+            'leave_id': str(leave_request.id)
+        }, status=201)
+
+    except Exception as e:
+        print(f"Error creating leave: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["PUT"])
+def update_leave_request(request, leave_id):
+    """Update an existing leave request"""
+    try:
+        employee = request.user.employee_profile
+        
+        # Get leave request
+        try:
+            leave_request = LeaveRequest.objects.get(id=leave_id, employee=employee)
+        except LeaveRequest.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Leave request not found.'
+            }, status=404)
+
+        # Check if can be edited (only pending leaves)
+        if leave_request.status != 'pending':
+            return JsonResponse({
+                'success': False,
+                'error': 'Only pending leave requests can be edited.'
+            }, status=400)
+
+        # Parse request data
+        data = json.loads(request.body)
+
+        # Validate and update fields
+        leave_type_id = data.get('leave_type')
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        days = data.get('days')
+        reason = data.get('reason', '')
+
+        if not all([leave_type_id, start_date, end_date, days]):
+            return JsonResponse({
+                'success': False,
+                'error': 'Please fill in all required fields.'
+            }, status=400)
+
+        # Validate dates
+        try:
+            start = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid date format.'
+            }, status=400)
+
+        if end < start:
+            return JsonResponse({
+                'success': False,
+                'error': 'End date must be after start date.'
+            }, status=400)
+
+        # Get leave type
+        try:
+            leave_type = LeaveType.objects.get(id=leave_type_id, company=employee.company)
+        except LeaveType.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid leave type selected.'
+            }, status=400)
+
+        # Update leave request
+        with transaction.atomic():
+            leave_request.leave_type = leave_type
+            leave_request.start_date = start
+            leave_request.end_date = end
+            leave_request.days = float(days)
+            leave_request.reason = reason
+            leave_request.save(update_fields=['leave_type', 'start_date', 'end_date', 'days', 'reason', 'updated_at'])
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Leave request updated successfully!'
+        })
+
+    except Exception as e:
+        print(f"Error updating leave: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def cancel_leave_request(request, leave_id):
+    """Cancel a leave request"""
+    try:
+        employee = request.user.employee_profile
+        
+        # Get leave request
+        try:
+            leave_request = LeaveRequest.objects.get(id=leave_id, employee=employee)
+        except LeaveRequest.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Leave request not found.'
+            }, status=404)
+
+        # Check if can be cancelled (only pending leaves)
+        if leave_request.status != 'pending':
+            return JsonResponse({
+                'success': False,
+                'error': 'Only pending leave requests can be cancelled.'
+            }, status=400)
+
+        # Cancel leave request
+        with transaction.atomic():
+            leave_request.status = 'cancelled'
+            leave_request.save(update_fields=['status', 'updated_at'])
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Leave request cancelled successfully!'
+        })
+
+    except Exception as e:
+        print(f"Error cancelling leave: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+# ==================== URL CONFIGURATION ====================
+# Add these to your urls.py:
+"""
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    # Leave pages
+    path('leaves/', views.my_leaves, name='my_leaves'),
+    
+    # API endpoints
+    path('api/leaves/create/', views.create_leave_request, name='create_leave_request'),
+    path('api/leaves/<str:leave_id>/update/', views.update_leave_request, name='update_leave_request'),
+    path('api/leaves/<str:leave_id>/cancel/', views.cancel_leave_request, name='cancel_leave_request'),
+]
+"""
 
 
 @login_required
@@ -264,12 +633,15 @@ def manager_dashboard(request):
         status='pending'
     )
     team_tasks = Task.objects.filter(assignee__in=[tm.user for tm in team_members])
-    
+    completed_tasks = team_tasks.filter(status='done').count()
+    for member in team_members:
+        member.completed_tasks = member.user.assigned_tasks.filter(status='done').count()
     context = {
         'team_members': team_members,
         'team_attendance': team_attendance,
         'pending_leaves': pending_leaves,
         'team_tasks': team_tasks,
+        'completed_tasks': completed_tasks,
     }
     
     return render(request, 'manager_dashboard.html', context)

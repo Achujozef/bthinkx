@@ -1,0 +1,1317 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manager Dashboard - BThinkX{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Manager Dashboard Specific Styles */
+.manager-dashboard {
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Overview Cards */
+.overview-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.overview-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.overview-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+    border-radius: 50%;
+    transform: translate(40px, -40px);
+}
+
+.overview-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
+}
+
+.overview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.overview-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: white;
+}
+
+.overview-icon.team {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+}
+
+.overview-icon.attendance {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+}
+
+.overview-icon.leaves {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
+
+.overview-icon.tasks {
+    background: linear-gradient(135deg, #10b981, #3b82f6);
+}
+
+.overview-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.overview-badge.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--accent-green);
+}
+
+.overview-badge.warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--accent-yellow);
+}
+
+.overview-badge.danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--accent-red);
+}
+
+.overview-value {
+    font-size: 40px;
+    font-weight: 900;
+    font-family: 'Space Grotesk', sans-serif;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.overview-label {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.overview-trend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.overview-trend.up {
+    color: var(--accent-green);
+}
+
+.overview-trend.down {
+    color: var(--accent-red);
+}
+
+/* Quick Actions */
+.quick-actions-section {
+    margin-bottom: 32px;
+}
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.quick-action-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.quick-action-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-purple);
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--text-primary);
+}
+
+.quick-action-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 22px;
+}
+
+.quick-action-label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Team Grid */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.team-member-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: var(--transition);
+}
+
+.team-member-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+}
+
+.team-member-header {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.team-member-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(139, 92, 246, 0.3);
+}
+
+.team-member-avatar-placeholder {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: white;
+    font-size: 20px;
+    border: 3px solid rgba(139, 92, 246, 0.3);
+}
+
+.team-member-info {
+    flex: 1;
+}
+
+.team-member-name {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.team-member-role {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.team-member-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.team-member-status.online {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--accent-green);
+}
+
+.team-member-status.offline {
+    background: rgba(148, 163, 184, 0.2);
+    color: var(--text-secondary);
+}
+
+.team-member-status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.team-member-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--card-border);
+}
+
+.team-stat {
+    text-align: center;
+}
+
+.team-stat-value {
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--accent-purple);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.team-stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+/* Pending Leaves */
+.leave-request-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: var(--transition);
+}
+
+.leave-request-card:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+}
+
+.leave-request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.leave-requester {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.leave-requester-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.leave-requester-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 14px;
+}
+
+.leave-requester-info h4 {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.leave-requester-info p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.leave-type-badge {
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(139, 92, 246, 0.2);
+    color: var(--accent-purple);
+}
+
+.leave-dates {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--secondary-bg);
+    border-radius: 12px;
+}
+
+.leave-date-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.leave-date-item i {
+    color: var(--accent-purple);
+}
+
+.leave-date-item strong {
+    color: var(--text-primary);
+}
+
+.leave-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.leave-action-btn {
+    flex: 1;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.leave-action-btn.approve {
+    background: linear-gradient(135deg, var(--accent-green), #059669);
+    color: white;
+}
+
+.leave-action-btn.approve:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.leave-action-btn.reject {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--accent-red);
+}
+
+.leave-action-btn.reject:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--accent-red);
+}
+
+/* Tasks Overview */
+.tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.task-item-mini {
+    background: var(--secondary-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: var(--transition);
+}
+
+.task-item-mini:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.task-mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 8px;
+}
+
+.task-mini-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.task-mini-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.task-assignee-mini {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.task-assignee-avatar-mini {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Chart Container */
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+
+/* Loading State */
+.loading-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.loading-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .overview-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .team-member-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .leave-dates {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="manager-dashboard">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Manager <span class="gradient-text">Dashboard</span></h1>
+            <p class="page-subtitle">Oversee your team's performance and activities</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-secondary">
+                <i class="bi bi-calendar-week"></i>
+                This Week
+            </button>
+            <button class="btn-primary">
+                <i class="bi bi-download"></i>
+                Export Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="overview-cards">
+        <div class="overview-card">
+            <div class="overview-header">
+                <div class="overview-icon team">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <span class="overview-badge success">Active</span>
+            </div>
+            <div class="overview-value">{{ team_members.count }}</div>
+            <div class="overview-label">Team Members</div>
+            <div class="overview-trend up">
+                <i class="bi bi-arrow-up"></i>
+                <span>All active</span>
+            </div>
+        </div>
+
+        <div class="overview-card">
+            <div class="overview-header">
+                <div class="overview-icon attendance">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
+                {% if team_attendance.count == team_members.count %}
+                <span class="overview-badge success">100%</span>
+                {% elif team_attendance.count >= team_members.count|floatformat:0|add:"-2" %}
+                <span class="overview-badge warning">Good</span>
+                {% else %}
+                <span class="overview-badge danger">Low</span>
+                {% endif %}
+            </div>
+            <div class="overview-value">{{ team_attendance.count }}/{{ team_members.count }}</div>
+            <div class="overview-label">Present Today</div>
+            <div class="overview-trend {% if team_attendance.count >= team_members.count|floatformat:0|add:"-1" %}up{% else %}down{% endif %}">
+                <i class="bi bi-{% if team_attendance.count >= team_members.count|floatformat:0|add:"-1" %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                <span>{{ team_attendance.count|floatformat:0 }}/{{ team_members.count }} present</span>
+            </div>
+        </div>
+
+        <div class="overview-card">
+            <div class="overview-header">
+                <div class="overview-icon leaves">
+                    <i class="bi bi-calendar-x-fill"></i>
+                </div>
+                {% if pending_leaves.count > 0 %}
+                <span class="overview-badge warning">Pending</span>
+                {% else %}
+                <span class="overview-badge success">Clear</span>
+                {% endif %}
+            </div>
+            <div class="overview-value">{{ pending_leaves.count }}</div>
+            <div class="overview-label">Leave Requests</div>
+            <div class="overview-trend">
+                <i class="bi bi-clock-history"></i>
+                <span>Need approval</span>
+            </div>
+        </div>
+
+        <div class="overview-card">
+            <div class="overview-header">
+                <div class="overview-icon tasks">
+                    <i class="bi bi-check2-square"></i>
+                </div>
+                <span class="overview-badge success">On Track</span>
+            </div>
+            <div class="overview-value">{{ team_tasks.count }}</div>
+            <div class="overview-label">Active Tasks</div>
+            <div class="overview-trend up">
+                <i class="bi bi-graph-up"></i>
+                <span>{{ completed_tasks|default:0 }} completed</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+        <h2 class="section-title" style="margin-bottom: 20px;">
+            <i class="bi bi-lightning-fill"></i>
+            Quick Actions
+        </h2>
+        <div class="quick-actions-grid">
+            <a href="{% url 'approve_leaves' %}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="quick-action-label">Approve Leaves</div>
+            </a>
+            <a href="{% url 'team_attendance' %}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+                <div class="quick-action-label">View Attendance</div>
+            </a>
+            <a href="{% url 'my_tasks' %}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-list-check"></i>
+                </div>
+                <div class="quick-action-label">Assign Tasks</div>
+            </a>
+            <a href="{% url 'my_projects' %}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-folder"></i>
+                </div>
+                <div class="quick-action-label">Team Projects</div>
+            </a>
+            <a href="#" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="quick-action-label">Performance</div>
+            </a>
+            <a href="#" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-file-text"></i>
+                </div>
+                <div class="quick-action-label">Reports</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="dashboard-grid">
+        <!-- Left Column -->
+        <div class="dashboard-col-left">
+            <!-- Team Members -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-people"></i>
+                        My Team
+                    </h2>
+                    <a href="{% url 'team_attendance' %}" class="btn-text">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if team_members %}
+                    <div class="team-grid">
+                        {% for member in team_members|slice:":6" %}
+                        <div class="team-member-card">
+                            <div class="team-member-header">
+                                {% if member.user.avatar %}
+                                <img src="{{ member.user.avatar.url }}" alt="{{ member.user.get_full_name }}" class="team-member-avatar">
+                                {% else %}
+                                <div class="team-member-avatar-placeholder">
+                                    {{ member.user.first_name.0 }}{{ member.user.last_name.0 }}
+                                </div>
+                                {% endif %}
+                                <div class="team-member-info">
+                                    <div class="team-member-name">{{ member.user.get_full_name }}</div>
+                                    <div class="team-member-role">{{ member.designation.title|default:"Employee" }}</div>
+                                    {% with attendance=team_attendance|dictsort:"employee" %}
+                                    {% for att in attendance %}
+                                        {% if att.employee == member %}
+                                            <span class="team-member-status online">Online</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if not attendance or forloop.counter > attendance|length %}
+                                        <span class="team-member-status offline">Offline</span>
+                                    {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="team-member-stats">
+                                <div class="team-stat">
+                                    <div class="team-stat-value">{{ member.projects.count|default:0 }}</div>
+                                    <div class="team-stat-label">Projects</div>
+                                </div>
+                                <div class="team-stat">
+                                    <div class="team-stat-value">{{ member.completed_tasks }}</div>
+                                    <div class="team-stat-label">Tasks</div>
+                                </div>
+                                <div class="team-stat">
+                                    <div class="team-stat-value">95%</div>
+                                    <div class="team-stat-label">Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-people"></i>
+                        <p>No team members assigned</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Team Tasks Overview -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-check2-square"></i>
+                        Team Tasks
+                    </h2>
+                    <a href="{% url 'my_tasks' %}" class="btn-text">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if team_tasks %}
+                    <div class="tasks-list">
+                        {% for task in team_tasks|slice:":5" %}
+                        <div class="task-item-mini">
+                            <div class="task-mini-header">
+                                <div class="task-mini-title">{{ task.title }}</div>
+                                <span class="status-badge status-{{ task.status }}">{{ task.get_status_display }}</span>
+                            </div>
+                            <div class="task-mini-meta">
+                                <div class="task-assignee-mini">
+                                    {% if task.assignee.avatar %}
+                                    <img src="{{ task.assignee.avatar.url }}" class="task-assignee-avatar-mini" alt="{{ task.assignee.get_full_name }}">
+                                    {% else %}
+                                    <div class="task-assignee-avatar-mini" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: 700;">
+                                        {{ task.assignee.first_name.0 }}{{ task.assignee.last_name.0 }}
+                                    </div>
+                                    {% endif %}
+                                    <span>{{ task.assignee.get_full_name }}</span>
+                                </div>
+                                <span>•</span>
+                                <span><i class="bi bi-calendar"></i> {% if task.due_date %}{{ task.due_date|date:"M d" }}{% else %}No due date{% endif %}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-check-circle"></i>
+                        <p>No active tasks</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="dashboard-col-right">
+            <!-- Pending Leave Requests -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-calendar-x"></i>
+                        Pending Leave Requests
+                        {% if pending_leaves.count > 0 %}
+                        <span class="badge-mini warning">{{ pending_leaves.count }}</span>
+                        {% endif %}
+                    </h2>
+                    <a href="{% url 'approve_leaves' %}" class="btn-text">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if pending_leaves %}
+                        {% for leave in pending_leaves|slice:":3" %}
+                            <div class="leave-request-card">
+                            <div class="leave-request-header">
+                                <div class="leave-requester">
+                                    {% if leave.employee.user.avatar %}
+                                    <img src="{{ leave.employee.user.avatar.url }}" class="leave-requester-avatar" alt="{{ leave.employee.user.get_full_name }}">
+                                    {% else %}
+                                    <div class="leave-requester-avatar-placeholder">
+                                        {{ leave.employee.user.first_name.0 }}{{ leave.employee.user.last_name.0 }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="leave-requester-info">
+                                        <h4>{{ leave.employee.user.get_full_name }}</h4>
+                                        <p>{{ leave.employee.designation.title|default:"Employee" }}</p>
+                                    </div>
+                                </div>
+                                <span class="leave-type-badge">{{ leave.leave_type.name }}</span>
+                            </div>
+                            <div class="leave-dates">
+                                <div class="leave-date-item">
+                                    <i class="bi bi-calendar-check"></i>
+                                    <span>From: <strong>{{ leave.start_date|date:"M d, Y" }}</strong></span>
+                                </div>
+                                <div class="leave-date-item">
+                                    <i class="bi bi-calendar-x"></i>
+                                    <span>To: <strong>{{ leave.end_date|date:"M d, Y" }}</strong></span>
+                                </div>
+                                <div class="leave-date-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span><strong>{{ leave.days }} day{{ leave.days|pluralize }}</strong></span>
+                                </div>
+                            </div>
+                            {% if leave.reason %}
+                            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; padding: 12px; background: var(--secondary-bg); border-radius: 8px;">
+                                <strong>Reason:</strong> {{ leave.reason|truncatewords:20 }}
+                            </p>
+                            {% endif %}
+                            <div class="leave-actions">
+                                <form method="post" action="{% url 'approve_leaves' %}" style="flex: 1;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="leave_id" value="{{ leave.id }}">
+                                    <input type="hidden" name="action" value="approve">
+                                    <button type="submit" class="leave-action-btn approve">
+                                        <i class="bi bi-check-circle"></i>
+                                        Approve
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'approve_leaves' %}" style="flex: 1;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="leave_id" value="{{ leave.id }}">
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="submit" class="leave-action-btn reject">
+                                        <i class="bi bi-x-circle"></i>
+                                        Reject
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-calendar-check"></i>
+                        <p>No pending leave requests</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Team Performance Chart -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-graph-up"></i>
+                        Team Performance
+                    </h2>
+                    <select class="btn-secondary" style="padding: 8px 16px; font-size: 13px;">
+                        <option>This Week</option>
+                        <option>This Month</option>
+                        <option>This Quarter</option>
+                    </select>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-clock-history"></i>
+                        Recent Activity
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="activity-timeline">
+                        {% for member in team_members|slice:":5" %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                {% if forloop.counter0|divisibleby:2 %}
+                                <i class="bi bi-check-circle-fill"></i>
+                                {% else %}
+                                <i class="bi bi-clock-fill"></i>
+                                {% endif %}
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>{{ member.user.get_full_name }}</strong> 
+                                    {% if forloop.counter0|divisibleby:2 %}
+                                    completed a task
+                                    {% else %}
+                                    logged attendance
+                                    {% endif %}
+                                </div>
+                                <div class="activity-time">{{ member.created_at|timesince }} ago</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Performance Chart
+const ctx = document.getElementById('performanceChart');
+if (ctx) {
+    const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+    const textColor = isDarkMode ? '#94a3b8' : '#475569';
+    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 23, 42, 0.1)';
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Tasks Completed',
+                data: [12, 19, 15, 25, 22, 18, 20],
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: '#8b5cf6',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }, {
+                label: 'Attendance',
+                data: [{{ team_members.count }}, {{ team_members.count }}, {{ team_members.count|add:"-1" }}, {{ team_members.count }}, {{ team_members.count }}, {{ team_members.count|add:"-2" }}, {{ team_attendance.count }}],
+                borderColor: '#ec4899',
+                backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: '#ec4899',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: textColor,
+                        usePointStyle: true,
+                        padding: 15,
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: isDarkMode ? 'rgba(15, 15, 15, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                    titleColor: textColor,
+                    bodyColor: textColor,
+                    borderColor: gridColor,
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: true,
+                    usePointStyle: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: gridColor,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: textColor,
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: textColor,
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+}
+
+// Activity Timeline Animation
+document.addEventListener('DOMContentLoaded', function() {
+    const activityItems = document.querySelectorAll('.activity-item');
+    activityItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(-20px)';
+        setTimeout(() => {
+            item.style.transition = 'all 0.4s ease';
+            item.style.opacity = '1';
+            item.style.transform = 'translateX(0)';
+        }, index * 100);
+    });
+});
+
+// Counter Animation for Overview Cards
+function animateCounter(element, target, duration = 1500) {
+    const start = 0;
+    const increment = target / (duration / 16);
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            element.textContent = target;
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current);
+        }
+    }, 16);
+}
+
+// Animate counters on page load
+window.addEventListener('load', function() {
+    document.querySelectorAll('.overview-value').forEach(el => {
+        const value = parseInt(el.textContent);
+        if (!isNaN(value)) {
+            el.textContent = '0';
+            animateCounter(el, value);
+        }
+    });
+});
+
+// Refresh data every 5 minutes
+setInterval(function() {
+    // You can implement AJAX refresh here
+    console.log('Checking for updates...');
+}, 300000);
+
+// Leave request actions confirmation
+document.querySelectorAll('.leave-action-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        const action = this.textContent.trim().toLowerCase();
+        const form = this.closest('form');
+        const employeeName = form.closest('.leave-request-card').querySelector('.leave-requester-info h4').textContent;
+        
+        if (!confirm(`Are you sure you want to ${action} leave request from ${employeeName}?`)) {
+            e.preventDefault();
+        }
+    });
+});
+
+// Team member card click to view details
+document.querySelectorAll('.team-member-card').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function() {
+        const name = this.querySelector('.team-member-name').textContent;
+        // You can redirect to employee profile or open a modal
+        console.log('View details for:', name);
+    });
+});
+
+// Quick action cards hover effect
+document.querySelectorAll('.quick-action-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-8px) scale(1.02)';
+    });
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(-4px) scale(1)';
+    });
+});
+
+// Update chart on theme change
+document.getElementById('themeToggle').addEventListener('click', function() {
+    setTimeout(() => {
+        // Reload chart with new theme colors
+        location.reload();
+    }, 500);
+});
+
+// Real-time status update simulation
+function updateOnlineStatus() {
+    document.querySelectorAll('.team-member-status').forEach(status => {
+        // Simulate random online/offline changes
+        if (Math.random() > 0.9) {
+            if (status.classList.contains('online')) {
+                status.classList.remove('online');
+                status.classList.add('offline');
+                status.textContent = 'Offline';
+            } else {
+                status.classList.remove('offline');
+                status.classList.add('online');
+                status.textContent = 'Online';
+            }
+        }
+    });
+}
+
+// Update status every 30 seconds
+setInterval(updateOnlineStatus, 30000);
+
+// Print functionality
+function printReport() {
+    window.print();
+}
+
+// Export functionality
+function exportReport() {
+    // Implement export logic
+    alert('Exporting report...');
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + P for print
+    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        printReport();
+    }
+    
+    // Ctrl/Cmd + E for export
+    if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        exportReport();
+    }
+});
+
+// Smooth scroll to sections
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Toast notification for actions
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add CSS for toast animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+    
+    .activity-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .activity-item {
+        display: flex;
+        gap: 12px;
+        padding: 12px;
+        background: var(--secondary-bg);
+        border-radius: 10px;
+        transition: var(--transition);
+    }
+    
+    .activity-item:hover {
+        background: rgba(139, 92, 246, 0.05);
+    }
+    
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-text {
+        font-size: 14px;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+    
+    .activity-text strong {
+        font-weight: 700;
+    }
+    
+    .activity-time {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

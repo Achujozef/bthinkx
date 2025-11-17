@@ -4,9 +4,8 @@
 {% block title %}My Tasks - BThinkX{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'dev/css/tasks.css' %}">
 <style>
-        .tasks-header {
+    .tasks-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -53,13 +52,19 @@
 
     .filter-select:hover {
         border-color: var(--accent-purple);
-        background: rgba(139, 92, 246, 0.1);
+        background: var(--card-bg);
     }
 
     .filter-select:focus {
         outline: none;
         border-color: var(--accent-purple);
         box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        background: var(--card-bg);
+    }
+
+    .filter-select option {
+        background: var(--card-bg);
+        color: var(--text-primary);
     }
 
     .reset-filters {
@@ -92,11 +97,10 @@
         border-radius: 12px;
         padding: 20px;
         display: grid;
-        grid-template-columns: auto 1fr auto auto;
+        grid-template-columns: auto 1fr auto auto auto;
         gap: 20px;
         align-items: center;
         transition: var(--transition);
-        cursor: pointer;
     }
 
     .task-item:hover {
@@ -117,6 +121,9 @@
         align-items: center;
         justify-content: center;
         transition: var(--transition);
+        flex-shrink: 0;
+        padding: 0;
+        margin: 0;
     }
 
     .task-checkbox:hover {
@@ -142,6 +149,7 @@
         color: var(--text-primary);
         transition: color 0.2s;
         word-break: break-word;
+        cursor: pointer;
     }
 
     .task-item:hover .task-title {
@@ -246,48 +254,7 @@
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        display: inline-block;
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-    }
-
-    .empty-state-icon {
-        font-size: 64px;
-        margin-bottom: 16px;
-        opacity: 0.5;
-    }
-
-    .empty-state-title {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: var(--text-primary);
-    }
-
-    .empty-state-description {
-        color: var(--text-secondary);
-        font-size: 14px;
-        margin-bottom: 24px;
-    }
-
-    .empty-state-action {
-        padding: 10px 20px;
-        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-    }
-
-    .empty-state-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+        background: currentColor;
     }
 
     /* Stats Bar */
@@ -341,6 +308,243 @@
         color: var(--text-primary);
     }
 
+    /* Task Detail Modal */
+    .task-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .task-modal.active {
+        display: flex;
+    }
+
+    .task-modal-content {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        max-width: 800px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .task-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 32px;
+        border-bottom: 1px solid var(--card-border);
+        gap: 20px;
+    }
+
+    .task-modal-header-content {
+        flex: 1;
+    }
+
+    .task-modal-title {
+        font-size: 28px;
+        font-weight: 800;
+        font-family: 'Space Grotesk', sans-serif;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .task-modal-meta {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .task-modal-close {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--text-primary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .task-modal-close:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: var(--accent-red);
+        color: var(--accent-red);
+        transform: rotate(90deg);
+    }
+
+    .task-modal-body {
+        padding: 32px;
+    }
+
+    .task-modal-section {
+        margin-bottom: 32px;
+    }
+
+    .task-modal-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .task-modal-section-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .task-modal-section-title i {
+        color: var(--accent-purple);
+    }
+
+    .task-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .task-info-item {
+        padding: 16px;
+        background: var(--secondary-bg);
+        border-radius: 12px;
+        border: 1px solid var(--card-border);
+    }
+
+    .task-info-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .task-info-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .task-description-box {
+        padding: 20px;
+        background: var(--secondary-bg);
+        border-radius: 12px;
+        border: 1px solid var(--card-border);
+        color: var(--text-secondary);
+        line-height: 1.7;
+    }
+
+    .task-modal-footer {
+        padding: 24px 32px;
+        border-top: 1px solid var(--card-border);
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .modal-btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: var(--transition);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-btn-primary {
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        color: white;
+    }
+
+    .modal-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .modal-btn-secondary {
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--text-primary);
+    }
+
+    .modal-btn-secondary:hover {
+        background: rgba(139, 92, 246, 0.1);
+        border-color: var(--accent-purple);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-state-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+    .empty-state-description {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+
     /* Pagination */
     .pagination-container {
         display: flex;
@@ -361,11 +565,13 @@
         transition: var(--transition);
         font-size: 14px;
         font-weight: 500;
+        text-decoration: none;
     }
 
     .pagination-item:hover {
         border-color: var(--accent-purple);
         background: rgba(139, 92, 246, 0.1);
+        color: var(--text-primary);
     }
 
     .pagination-item.active {
@@ -377,6 +583,33 @@
     .pagination-item.disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .modal-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .task-action-btn {
+        padding: 8px 12px;
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--accent-purple);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .task-action-btn:hover {
+        background: rgba(139, 92, 246, 0.2);
+        border-color: var(--accent-purple);
     }
 
     /* Responsive */
@@ -402,38 +635,33 @@
             font-size: 24px;
         }
 
-        .tasks-controls {
-            width: 100%;
+        .task-modal-content {
+            max-height: 95vh;
         }
 
-        .filter-group {
-            width: 100%;
+        .task-modal-header,
+        .task-modal-body,
+        .task-modal-footer {
+            padding: 20px;
         }
 
-        .filter-select {
-            flex: 1;
-            min-width: 120px;
+        .task-modal-title {
+            font-size: 22px;
+        }
+
+        .task-info-grid {
+            grid-template-columns: 1fr;
         }
 
         .task-item {
-            grid-template-columns: 1fr;
-            gap: 12px;
+            grid-template-columns: auto 1fr;
         }
 
         .task-details {
-            grid-column: 1;
-            justify-content: space-between;
-            border-top: 1px solid var(--card-border);
-            padding-top: 12px;
-            margin-top: 12px;
-        }
-
-        .stat-card-mini {
-            flex: 1;
-            min-width: 120px;
+            grid-column: 2;
+            gap: 8px;
         }
     }
-
 </style>
 {% endblock %}
 
@@ -449,7 +677,6 @@
         </div>
         <div class="tasks-controls">
             <div class="filter-group">
-                <!-- Status Filter -->
                 <select class="filter-select" id="statusFilter" onchange="filterTasks()">
                     <option value="">Status: All</option>
                     <option value="todo" {% if status_filter == 'todo' %}selected{% endif %}>To Do</option>
@@ -457,7 +684,6 @@
                     <option value="done" {% if status_filter == 'done' %}selected{% endif %}>Done</option>
                 </select>
 
-                <!-- Priority Filter -->
                 <select class="filter-select" id="priorityFilter" onchange="filterTasks()">
                     <option value="">Priority: All</option>
                     <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Low</option>
@@ -465,7 +691,6 @@
                     <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>High</option>
                 </select>
 
-                <!-- Reset Button -->
                 {% if status_filter != 'all' or priority_filter != 'all' %}
                 <button class="reset-filters" onclick="resetFilters()">
                     <i class="bi bi-arrow-clockwise"></i> Reset
@@ -507,15 +732,13 @@
         {% if page_obj.object_list %}
             {% for task in page_obj.object_list %}
             <div class="task-item" data-task-id="{{ task.id }}">
-                <!-- Checkbox -->
-                <div class="task-checkbox" onclick="toggleTask({{ task.id }})">
+                <button class="task-checkbox {% if task.status == 'done' %}checked{% endif %}" onclick="toggleTask(event, {{ task.id }})" title="Mark task complete">
                     {% if task.status == 'done' %}
-                    <i class="bi bi-check" style="color: white;"></i>
+                    <i class="bi bi-check"></i>
                     {% endif %}
-                </div>
+                </button>
 
-                <!-- Task Content -->
-                <div class="task-content">
+                <div class="task-content" onclick="viewTaskDetail(event, '{{ task.id }}', '{{ task.title|escapejs }}', '{{ task.description|escapejs }}', '{{ task.status }}', '{{ task.priority }}', '{% if task.project %}{{ task.project.name|escapejs }}{% endif %}', '{% if task.due_date %}{{ task.due_date|date:"M d, Y" }}{% endif %}', '{% if task.assignee %}{{ task.assignee.get_full_name|escapejs }}{% endif %}', '{% if task.reporter %}{{ task.reporter.get_full_name|escapejs }}{% endif %}', '{{ task.created_at|date:"M d, Y" }}', '{{ task.updated_at|date:"M d, Y" }}')">
                     <div class="task-title">{{ task.title }}</div>
                     <div class="task-meta">
                         {% if task.project %}
@@ -531,13 +754,6 @@
                             <span>{{ task.due_date|date:"M d, Y" }}</span>
                         </div>
                         {% endif %}
-                        
-                        {% if task.assignee %}
-                        <div class="task-meta-item">
-                            <i class="bi bi-person"></i>
-                            <span>{{ task.assignee.get_full_name }}</span>
-                        </div>
-                        {% endif %}
                     </div>
                     
                     {% if task.description %}
@@ -545,42 +761,23 @@
                     {% endif %}
                 </div>
 
-                <!-- Task Details (Status & Priority) -->
                 <div class="task-details">
-                    <!-- Status Badge -->
                     <span class="status-badge {{ task.status }}">
-                        {% if task.status == 'todo' %}
-                            <i class="bi bi-circle"></i> To Do
-                        {% elif task.status == 'in_progress' %}
-                            <i class="bi bi-arrow-repeat"></i> In Progress
-                        {% elif task.status == 'done' %}
-                            <i class="bi bi-check-circle-fill"></i> Done
-                        {% endif %}
+                        {{ task.get_status_display }}
                     </span>
 
-                    <!-- Priority Badge -->
                     <span class="priority-badge {{ task.priority }}">
                         <span class="priority-dot"></span>
-                        {% if task.priority == 'low' %}Low
-                        {% elif task.priority == 'medium' %}Medium
-                        {% elif task.priority == 'high' %}High
-                        {% endif %}
+                        {{ task.get_priority_display }}
                     </span>
                 </div>
 
-                <!-- Task Actions (Hidden on Mobile) -->
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <a href="javascript:void(0);" class="task-action-btn" title="View Task" onclick="viewTask({{ task.id }})" style="padding: 8px 12px; background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); border: none; border-radius: 6px; cursor: pointer; transition: var(--transition); font-size: 14px; font-weight: 500;">
-                        <i class="bi bi-eye"></i>
-                    </a>
-                    <a href="javascript:void(0);" class="task-action-btn" title="Edit Task" onclick="editTask({{ task.id }})" style="padding: 8px 12px; background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); border: none; border-radius: 6px; cursor: pointer; transition: var(--transition); font-size: 14px; font-weight: 500;">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                </div>
+                <button class="task-action-btn" onclick="viewTaskDetail(event, '{{ task.id }}', '{{ task.title|escapejs }}', '{{ task.description|escapejs }}', '{{ task.status }}', '{{ task.priority }}', '{% if task.project %}{{ task.project.name|escapejs }}{% endif %}', '{% if task.due_date %}{{ task.due_date|date:"M d, Y" }}{% endif %}', '{% if task.assignee %}{{ task.assignee.get_full_name|escapejs }}{% endif %}', '{% if task.reporter %}{{ task.reporter.get_full_name|escapejs }}{% endif %}', '{{ task.created_at|date:"M d, Y" }}', '{{ task.updated_at|date:"M d, Y" }}')" title="View task details">
+                    <i class="bi bi-eye"></i>
+                </button>
             </div>
             {% endfor %}
         {% else %}
-            <!-- Empty State -->
             <div class="empty-state">
                 <div class="empty-state-icon">📝</div>
                 <h3 class="empty-state-title">No Tasks Found</h3>
@@ -591,11 +788,6 @@
                         You don't have any assigned tasks yet. Check back later!
                     {% endif %}
                 </p>
-                {% if status_filter != 'all' or priority_filter != 'all' %}
-                <button class="empty-state-action" onclick="resetFilters()">
-                    <i class="bi bi-arrow-clockwise"></i> Reset Filters
-                </button>
-                {% endif %}
             </div>
         {% endif %}
     </div>
@@ -603,7 +795,6 @@
     <!-- Pagination -->
     {% if page_obj.has_other_pages %}
     <div class="pagination-container">
-        <!-- Previous -->
         {% if page_obj.has_previous %}
         <a href="?page=1{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if priority_filter != 'all' %}&priority={{ priority_filter }}{% endif %}" class="pagination-item">
             <i class="bi bi-chevron-double-left"></i>
@@ -620,7 +811,6 @@
         </span>
         {% endif %}
 
-        <!-- Page Numbers -->
         {% for num in page_obj.paginator.page_range %}
             {% if page_obj.number == num %}
             <span class="pagination-item active">{{ num }}</span>
@@ -629,7 +819,6 @@
             {% endif %}
         {% endfor %}
 
-        <!-- Next -->
         {% if page_obj.has_next %}
         <a href="?page={{ page_obj.next_page_number }}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if priority_filter != 'all' %}&priority={{ priority_filter }}{% endif %}" class="pagination-item">
             Next <i class="bi bi-chevron-right"></i>
@@ -649,10 +838,64 @@
     {% endif %}
 </div>
 
+<!-- Task Detail Modal -->
+<div class="task-modal" id="taskModal" onclick="closeTaskModal(event)">
+    <div class="task-modal-content" onclick="event.stopPropagation()">
+        <div class="task-modal-header">
+            <div class="task-modal-header-content">
+                <h2 class="task-modal-title" id="modalTaskTitle">Task Title</h2>
+                <div class="task-modal-meta" id="modalTaskMeta">
+                    <!-- Meta info will be dynamically inserted -->
+                </div>
+            </div>
+            <button class="task-modal-close" onclick="closeTaskModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="task-modal-body">
+            <!-- Task Information -->
+            <div class="task-modal-section">
+                <h3 class="task-modal-section-title">
+                    <i class="bi bi-info-circle"></i>
+                    Task Information
+                </h3>
+                <div class="task-info-grid" id="modalTaskInfo">
+                    <!-- Task info will be dynamically inserted -->
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="task-modal-section">
+                <h3 class="task-modal-section-title">
+                    <i class="bi bi-file-text"></i>
+                    Description
+                </h3>
+                <div class="task-description-box" id="modalTaskDescription">
+                    <!-- Description will be dynamically inserted -->
+                </div>
+            </div>
+        </div>
+
+        <div class="task-modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closeTaskModal()">
+                <i class="bi bi-x-circle"></i>
+                Close
+            </button>
+            <button class="modal-btn modal-btn-primary" onclick="editTask()" disabled>
+                <i class="bi bi-pencil"></i>
+                Edit Task
+            </button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    let currentTaskId = null;
+
     // Filter Tasks
     function filterTasks() {
         const status = document.getElementById('statusFilter').value;
@@ -670,32 +913,239 @@
         window.location.href = '?';
     }
 
-    // Toggle Task Completion
-    function toggleTask(taskId) {
+    // Toggle Task Completion - FIXED
+    function toggleTask(event, taskId) {
+        event.preventDefault();
+        event.stopPropagation();
+        
         const taskItem = document.querySelector(`[data-task-id="${taskId}"]`);
         const checkbox = taskItem.querySelector('.task-checkbox');
         
         checkbox.classList.toggle('checked');
         
-        // Here you would make an AJAX request to update the task status
-        // fetch(`/api/tasks/${taskId}/toggle/`, { method: 'POST' })
-        //     .then(response => response.json())
-        //     .then(data => console.log('Task updated:', data));
+        // AJAX request to update task status
+        fetch(`/api/tasks/${taskId}/toggle/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Task status updated successfully', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            checkbox.classList.toggle('checked'); // Revert on error
+        });
     }
 
-    // View Task Details
-    function viewTask(taskId) {
-        // Redirect to task detail page or open modal
-        // window.location.href = `/tasks/${taskId}/`;
-        alert(`View task ${taskId}`);
+    // View Task Detail Modal - FIXED
+    function viewTaskDetail(event, id, title, description, status, priority, project, dueDate, assignee, reporter, createdAt, updatedAt) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        currentTaskId = id;
+        
+        // Set title
+        document.getElementById('modalTaskTitle').textContent = title;
+        
+        // Set meta badges
+        const metaHtml = `
+            <span class="status-badge ${status}">${formatStatus(status)}</span>
+            <span class="priority-badge ${priority}">
+                <span class="priority-dot"></span>
+                ${formatPriority(priority)}
+            </span>
+        `;
+        document.getElementById('modalTaskMeta').innerHTML = metaHtml;
+        
+        // Set task information
+        const infoHtml = `
+            ${project ? `
+            <div class="task-info-item">
+                <div class="task-info-label">Project</div>
+                <div class="task-info-value">
+                    <i class="bi bi-folder"></i>
+                    ${project}
+                </div>
+            </div>
+            ` : ''}
+            
+            ${assignee ? `
+            <div class="task-info-item">
+                <div class="task-info-label">Assigned To</div>
+                <div class="task-info-value">
+                    <i class="bi bi-person"></i>
+                    ${assignee}
+                </div>
+            </div>
+            ` : ''}
+            
+            ${reporter ? `
+            <div class="task-info-item">
+                <div class="task-info-label">Reporter</div>
+                <div class="task-info-value">
+                    <i class="bi bi-person-badge"></i>
+                    ${reporter}
+                </div>
+            </div>
+            ` : ''}
+            
+            ${dueDate ? `
+            <div class="task-info-item">
+                <div class="task-info-label">Due Date</div>
+                <div class="task-info-value">
+                    <i class="bi bi-calendar"></i>
+                    ${dueDate}
+                </div>
+            </div>
+            ` : ''}
+            
+            <div class="task-info-item">
+                <div class="task-info-label">Created</div>
+                <div class="task-info-value">
+                    <i class="bi bi-clock"></i>
+                    ${createdAt}
+                </div>
+            </div>
+            
+            <div class="task-info-item">
+                <div class="task-info-label">Last Updated</div>
+                <div class="task-info-value">
+                    <i class="bi bi-clock-history"></i>
+                    ${updatedAt}
+                </div>
+            </div>
+        `;
+        document.getElementById('modalTaskInfo').innerHTML = infoHtml;
+        
+        // Set description
+        document.getElementById('modalTaskDescription').textContent = description || 'No description provided.';
+        
+        // Show modal
+        document.getElementById('taskModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close Task Modal
+    function closeTaskModal(event) {
+        if (event && event.target.id !== 'taskModal') return;
+        
+        document.getElementById('taskModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+        currentTaskId = null;
     }
 
     // Edit Task
-    function editTask(taskId) {
-        // Redirect to edit page or open modal
-        // window.location.href = `/tasks/${taskId}/edit/`;
-        alert(`Edit task ${taskId}`);
+    function editTask() {
+        if (currentTaskId) {
+            // Redirect to edit page or open edit modal
+            window.location.href = `/tasks/${currentTaskId}/edit/`;
+        }
     }
+
+    // Format status text
+    function formatStatus(status) {
+        const statusMap = {
+            'todo': 'To Do',
+            'in_progress': 'In Progress',
+            'done': 'Done',
+            'blocked': 'Blocked',
+            'review': 'In Review'
+        };
+        return statusMap[status] || status;
+    }
+
+    // Format priority text
+    function formatPriority(priority) {
+        const priorityMap = {
+            'low': 'Low',
+            'medium': 'Medium',
+            'high': 'High',
+            'critical': 'Critical'
+        };
+        return priorityMap[priority] || priority;
+    }
+
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast-notification ${type}`;
+        toast.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px; padding: 16px 24px; background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);">
+                <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'}" style="font-size: 20px; color: ${type === 'success' ? 'var(--accent-green)' : 'var(--accent-red)'}"></i>
+                <span style="color: var(--text-primary); font-weight: 600;">${message}</span>
+            </div>
+        `;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 10001;
+            animation: slideInRight 0.3s ease;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeTaskModal();
+        }
+    });
+
+    // Animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 
     // Restore filter selections on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -709,16 +1159,106 @@
         if (priority) {
             document.getElementById('priorityFilter').value = priority;
         }
+
+        console.log('💡 Tip: Press ESC to close task details modal');
     });
 
-    // Add hover effects to task items
+    // Add smooth hover effects
     document.querySelectorAll('.task-item').forEach(item => {
         item.addEventListener('mouseenter', function() {
-            this.style.borderColor = 'var(--accent-purple)';
+            this.style.transform = 'translateY(-2px)';
         });
         item.addEventListener('mouseleave', function() {
-            this.style.borderColor = 'var(--card-border)';
+            this.style.transform = 'translateY(0)';
         });
     });
+
+    // Counter animation for stats
+    function animateCounter(element, target, duration = 1000) {
+        const start = 0;
+        const increment = target / (duration / 16);
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = target;
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(current);
+            }
+        }, 16);
+    }
+
+    // Animate stat counters on page load
+    window.addEventListener('load', function() {
+        document.querySelectorAll('.stat-card-mini-value').forEach(el => {
+            const text = el.textContent.trim();
+            const matches = text.match(/\d+/g);
+            if (matches && matches.length > 0) {
+                const value = parseInt(matches[0]);
+                if (!isNaN(value)) {
+                    el.textContent = '0';
+                    setTimeout(() => {
+                        animateCounter(el, value);
+                    }, 200);
+                }
+            }
+        });
+    });
+
+    // Mark task as complete shortcut (Ctrl/Cmd + Enter when modal is open)
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            const modal = document.getElementById('taskModal');
+            if (modal.classList.contains('active') && currentTaskId) {
+                // Create a synthetic event
+                const event = new Event('click');
+                toggleTask(event, currentTaskId);
+                closeTaskModal();
+            }
+        }
+    });
+
+    // Focus management for modal
+    const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    
+    function trapFocus(element) {
+        const focusableContent = element.querySelectorAll(focusableElements);
+        const firstFocusable = focusableContent[0];
+        const lastFocusable = focusableContent[focusableContent.length - 1];
+        
+        element.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        });
+        
+        firstFocusable.focus();
+    }
+
+    // Apply focus trap when modal opens
+    const modal = document.getElementById('taskModal');
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                if (modal.classList.contains('active')) {
+                    trapFocus(modal);
+                }
+            }
+        });
+    });
+    
+    observer.observe(modal, { attributes: true });
 </script>
 {% endblock %}

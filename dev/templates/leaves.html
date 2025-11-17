@@ -72,19 +72,25 @@
 
     .filter-select:hover {
         border-color: var(--accent-purple);
-        background: rgba(139, 92, 246, 0.1);
+        background: var(--card-bg);
     }
 
     .filter-select:focus {
         outline: none;
         border-color: var(--accent-purple);
         box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        background: var(--card-bg);
+    }
+
+    .filter-select option {
+        background: var(--card-bg);
+        color: var(--text-primary);
     }
 
     /* Summary Cards */
     .summary-cards {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 16px;
         margin-bottom: 32px;
     }
@@ -103,10 +109,11 @@
     .summary-card:hover {
         border-color: var(--accent-purple);
         background: rgba(139, 92, 246, 0.05);
+        transform: translateY(-2px);
     }
 
     .summary-card-icon {
-        font-size: 24px;
+        font-size: 28px;
     }
 
     .summary-card-label {
@@ -118,9 +125,12 @@
     }
 
     .summary-card-value {
-        font-size: 24px;
+        font-size: 28px;
         font-weight: 700;
-        color: var(--text-primary);
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     /* Leave Request Cards */
@@ -134,7 +144,7 @@
         background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 12px;
-        padding: 20px;
+        padding: 24px;
         display: grid;
         grid-template-columns: auto 1fr auto;
         gap: 20px;
@@ -150,21 +160,22 @@
     }
 
     .leave-card-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: rgba(139, 92, 246, 0.1);
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 28px;
         flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
     }
 
     .leave-card-content {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 16px;
     }
 
     .leave-card-header {
@@ -174,8 +185,15 @@
         flex-wrap: wrap;
     }
 
+    .leave-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+        flex: 1;
+    }
+
     .leave-type-badge {
-        padding: 6px 12px;
+        padding: 6px 14px;
         background: rgba(139, 92, 246, 0.1);
         color: var(--accent-purple);
         border-radius: 6px;
@@ -185,7 +203,7 @@
     }
 
     .leave-days-badge {
-        padding: 6px 12px;
+        padding: 6px 14px;
         background: rgba(245, 158, 11, 0.1);
         color: var(--accent-yellow);
         border-radius: 6px;
@@ -195,82 +213,93 @@
     }
 
     .leave-status-badge {
-        padding: 6px 12px;
+        padding: 6px 14px;
         border-radius: 6px;
         font-size: 12px;
         font-weight: 600;
         text-transform: capitalize;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         white-space: nowrap;
+        border: 1px solid;
     }
 
     .leave-status-badge.pending {
         background: rgba(245, 158, 11, 0.1);
         color: var(--accent-yellow);
-        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-color: rgba(245, 158, 11, 0.3);
     }
 
     .leave-status-badge.approved {
         background: rgba(16, 185, 129, 0.1);
         color: var(--accent-green);
-        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-color: rgba(16, 185, 129, 0.3);
     }
 
     .leave-status-badge.rejected {
         background: rgba(239, 68, 68, 0.1);
         color: var(--accent-red);
-        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-color: rgba(239, 68, 68, 0.3);
     }
 
     .leave-status-badge.cancelled {
         background: rgba(100, 116, 139, 0.1);
         color: var(--text-secondary);
-        border: 1px solid rgba(100, 116, 139, 0.3);
-    }
-
-    .leave-card-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--text-primary);
+        border-color: rgba(100, 116, 139, 0.3);
     }
 
     .leave-card-dates {
         display: flex;
-        gap: 16px;
+        gap: 24px;
         flex-wrap: wrap;
-        font-size: 13px;
-        color: var(--text-secondary);
+        font-size: 14px;
     }
 
     .leave-card-date-item {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
+    }
+
+    .leave-card-date-icon {
+        color: var(--accent-purple);
+        font-size: 16px;
+    }
+
+    .leave-card-date-label {
+        color: var(--text-secondary);
     }
 
     .leave-card-date-value {
-        color: var(--accent-purple);
+        color: var(--text-primary);
         font-weight: 600;
     }
 
     .leave-card-reason {
-        font-size: 13px;
+        font-size: 14px;
         color: var(--text-secondary);
-        line-height: 1.5;
-        padding: 12px;
+        line-height: 1.6;
+        padding: 14px;
         background: rgba(139, 92, 246, 0.05);
         border-left: 3px solid var(--accent-purple);
-        border-radius: 4px;
+        border-radius: 6px;
         word-break: break-word;
+    }
+
+    .leave-card-reason-label {
+        font-weight: 600;
+        color: var(--text-primary);
+        display: block;
+        margin-bottom: 6px;
     }
 
     .leave-card-meta {
         display: flex;
-        gap: 20px;
+        gap: 24px;
         flex-wrap: wrap;
-        font-size: 12px;
-        color: var(--text-secondary);
-        padding-top: 12px;
+        font-size: 13px;
+        padding-top: 16px;
         border-top: 1px solid var(--card-border);
     }
 
@@ -278,6 +307,11 @@
         display: flex;
         align-items: center;
         gap: 6px;
+        color: var(--text-secondary);
+    }
+
+    .leave-card-meta-icon {
+        color: var(--accent-purple);
     }
 
     .leave-card-actions {
@@ -288,13 +322,13 @@
     }
 
     .leave-action-btn {
-        padding: 8px 16px;
+        padding: 10px 18px;
         background: rgba(139, 92, 246, 0.1);
         color: var(--accent-purple);
         border: 1px solid rgba(139, 92, 246, 0.3);
         border-radius: 6px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 600;
         transition: var(--transition);
         display: flex;
@@ -321,6 +355,17 @@
         border-color: var(--accent-red);
     }
 
+    .leave-action-btn.success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-green);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .leave-action-btn.success:hover {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: var(--accent-green);
+    }
+
     /* Modal */
     .modal {
         display: none;
@@ -330,7 +375,7 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(4px);
     }
 
@@ -338,18 +383,25 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     .modal-content {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 32px;
-        max-width: 500px;
+        max-width: 550px;
         width: 90%;
         max-height: 90vh;
         overflow-y: auto;
         animation: slideUp 0.3s ease;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
     @keyframes slideUp {
@@ -371,22 +423,31 @@
     }
 
     .modal-title {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 700;
-        color: var(--text-primary);
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .modal-close {
-        background: none;
+        background: rgba(139, 92, 246, 0.1);
         border: none;
-        color: var(--text-secondary);
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        color: var(--accent-purple);
         font-size: 24px;
         cursor: pointer;
         transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .modal-close:hover {
-        color: var(--text-primary);
+        background: rgba(139, 92, 246, 0.2);
     }
 
     .form-group {
@@ -400,15 +461,22 @@
         font-size: 14px;
         font-weight: 600;
         color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .form-label-required {
+        color: var(--accent-red);
     }
 
     .form-input,
     .form-select,
     .form-textarea {
-        padding: 12px;
+        padding: 12px 14px;
         background: var(--primary-bg);
         border: 1px solid var(--card-border);
-        border-radius: 6px;
+        border-radius: 8px;
         color: var(--text-primary);
         font-family: 'Inter', sans-serif;
         font-size: 14px;
@@ -434,11 +502,21 @@
         gap: 16px;
     }
 
+    .form-info {
+        padding: 12px;
+        background: rgba(59, 130, 246, 0.05);
+        border-left: 3px solid var(--accent-blue);
+        border-radius: 6px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+    }
+
     .form-actions {
         display: flex;
         gap: 12px;
         justify-content: flex-end;
-        margin-top: 24px;
+        margin-top: 28px;
         padding-top: 24px;
         border-top: 1px solid var(--card-border);
     }
@@ -446,11 +524,15 @@
     .btn {
         padding: 12px 24px;
         border: none;
-        border-radius: 6px;
+        border-radius: 8px;
         font-weight: 600;
         cursor: pointer;
         transition: var(--transition);
         font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
     }
 
     .btn-primary {
@@ -461,6 +543,11 @@
     .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 
     .btn-secondary {
@@ -474,10 +561,41 @@
         background: rgba(139, 92, 246, 0.1);
     }
 
+    .btn-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--accent-red);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: var(--accent-red);
+    }
+
+    .alert {
+        padding: 12px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 16px;
+        border-left: 3px solid;
+    }
+
+    .alert-error {
+        background: rgba(239, 68, 68, 0.05);
+        color: var(--accent-red);
+        border-color: var(--accent-red);
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.05);
+        color: var(--accent-green);
+        border-color: var(--accent-green);
+    }
+
     /* Empty State */
     .empty-state {
         text-align: center;
-        padding: 80px 20px;
+        padding: 100px 20px;
         background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 12px;
@@ -499,7 +617,7 @@
     .empty-state-description {
         color: var(--text-secondary);
         font-size: 14px;
-        margin-bottom: 24px;
+        margin-bottom: 28px;
     }
 
     /* Responsive */
@@ -511,6 +629,7 @@
 
         .leave-card-actions {
             align-items: flex-start;
+            flex-direction: row;
         }
 
         .summary-cards {
@@ -531,7 +650,6 @@
 
         .leaves-controls {
             width: 100%;
-            justify-content: stretch;
         }
 
         .btn-apply-leave {
@@ -549,7 +667,7 @@
         }
 
         .summary-cards {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
             gap: 12px;
         }
 
@@ -558,24 +676,22 @@
         }
 
         .summary-card-value {
-            font-size: 20px;
+            font-size: 24px;
         }
 
         .leave-card {
-            grid-template-columns: 1fr;
             gap: 12px;
             padding: 16px;
         }
 
         .leave-card-icon {
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
         }
 
-        .leave-card-header {
-            flex-wrap: wrap;
-            gap: 8px;
+        .leave-card-title {
+            font-size: 16px;
         }
 
         .leave-type-badge,
@@ -587,18 +703,18 @@
 
         .leave-card-dates {
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
         }
 
         .leave-card-meta {
             flex-direction: column;
-            gap: 8px;
-            padding-top: 8px;
+            gap: 12px;
+            padding-top: 12px;
         }
 
         .leave-card-actions {
+            width: 100%;
             flex-direction: row;
-            align-items: stretch;
             gap: 8px;
         }
 
@@ -608,7 +724,7 @@
         }
 
         .modal-content {
-            padding: 20px;
+            padding: 24px;
             width: 95%;
         }
 
@@ -623,35 +739,6 @@
 
         .btn {
             width: 100%;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .leaves-title {
-            font-size: 20px;
-        }
-
-        .summary-cards {
-            grid-template-columns: 1fr;
-        }
-
-        .leave-card-header {
-            flex-direction: column;
-        }
-
-        .leave-type-badge,
-        .leave-days-badge,
-        .leave-status-badge {
-            width: 100%;
-            text-align: center;
-        }
-
-        .empty-state {
-            padding: 40px 16px;
-        }
-
-        .empty-state-icon {
-            font-size: 60px;
         }
     }
 </style>
@@ -677,45 +764,28 @@
     <!-- Summary Cards -->
     {% if leaves %}
     <div class="summary-cards">
-        {% regroup leaves by status as grouped_leaves %}
-        
         <div class="summary-card">
             <div class="summary-card-icon">⏳</div>
             <div class="summary-card-label">Pending</div>
-            <div class="summary-card-value" id="pendingCount">
-                {% for group in grouped_leaves %}
-                    {% if group.grouper == 'pending' %}{{ group.list|length }}{% endif %}
-                {% endfor %}
-                {% if not grouped_leaves %}0{% endif %}
-            </div>
+            <div class="summary-card-value" id="pendingCount">0</div>
         </div>
 
         <div class="summary-card">
             <div class="summary-card-icon">✅</div>
             <div class="summary-card-label">Approved</div>
-            <div class="summary-card-value" id="approvedCount">
-                {% for group in grouped_leaves %}
-                    {% if group.grouper == 'approved' %}{{ group.list|length }}{% endif %}
-                {% endfor %}
-                {% if not grouped_leaves %}0{% endif %}
-            </div>
+            <div class="summary-card-value" id="approvedCount">0</div>
         </div>
 
         <div class="summary-card">
             <div class="summary-card-icon">❌</div>
             <div class="summary-card-label">Rejected</div>
-            <div class="summary-card-value" id="rejectedCount">
-                {% for group in grouped_leaves %}
-                    {% if group.grouper == 'rejected' %}{{ group.list|length }}{% endif %}
-                {% endfor %}
-                {% if not grouped_leaves %}0{% endif %}
-            </div>
+            <div class="summary-card-value" id="rejectedCount">0</div>
         </div>
 
         <div class="summary-card">
             <div class="summary-card-icon">📋</div>
             <div class="summary-card-label">Total</div>
-            <div class="summary-card-value">{{ leaves|length }}</div>
+            <div class="summary-card-value" id="totalCount">0</div>
         </div>
     </div>
     {% endif %}
@@ -737,7 +807,7 @@
     <div class="leaves-container">
         {% if leaves %}
             {% for leave in leaves %}
-            <div class="leave-card" data-status="{{ leave.status }}">
+            <div class="leave-card" data-status="{{ leave.status }}" data-leave-id="{{ leave.id }}">
                 <!-- Icon -->
                 <div class="leave-card-icon">
                     {% if leave.status == 'approved' %}
@@ -753,57 +823,68 @@
 
                 <!-- Content -->
                 <div class="leave-card-content">
-                    <!-- Header with badges -->
+                    <!-- Title and Badges -->
                     <div class="leave-card-header">
-                        {% if leave.leave_type %}
-                        <span class="leave-type-badge">
-                            {{ leave.leave_type.name }}
-                        </span>
-                        {% endif %}
-                        <span class="leave-days-badge">
-                            {{ leave.days|floatformat:1 }} days
-                        </span>
-                        <span class="leave-status-badge {{ leave.status }}">
-                            {{ leave.get_status_display }}
-                        </span>
+                        <div class="leave-card-title">
+                            {% if leave.leave_type %}
+                                {{ leave.leave_type.name }}
+                            {% else %}
+                                Leave Request
+                            {% endif %}
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <span class="leave-days-badge">
+                                <i class="bi bi-calendar-day"></i> {{ leave.days|floatformat:1 }} days
+                            </span>
+                            <span class="leave-status-badge {{ leave.status }}">
+                                <i class="bi bi-dot"></i> {{ leave.get_status_display }}
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Dates -->
                     <div class="leave-card-dates">
                         <div class="leave-card-date-item">
-                            <i class="bi bi-calendar-event"></i>
-                            <span>From <span class="leave-card-date-value">{{ leave.start_date|date:"M d, Y" }}</span></span>
+                            <i class="bi bi-calendar-event leave-card-date-icon"></i>
+                            <div>
+                                <div class="leave-card-date-label">From</div>
+                                <div class="leave-card-date-value">{{ leave.start_date|date:"M d, Y" }}</div>
+                            </div>
                         </div>
                         <div class="leave-card-date-item">
-                            <i class="bi bi-calendar-check"></i>
-                            <span>To <span class="leave-card-date-value">{{ leave.end_date|date:"M d, Y" }}</span></span>
+                            <i class="bi bi-calendar-check leave-card-date-icon"></i>
+                            <div>
+                                <div class="leave-card-date-label">To</div>
+                                <div class="leave-card-date-value">{{ leave.end_date|date:"M d, Y" }}</div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Reason -->
                     {% if leave.reason %}
                     <div class="leave-card-reason">
-                        <strong>Reason:</strong> {{ leave.reason }}
+                        <span class="leave-card-reason-label">Reason:</span>
+                        {{ leave.reason }}
                     </div>
                     {% endif %}
 
                     <!-- Meta Information -->
                     <div class="leave-card-meta">
                         <div class="leave-card-meta-item">
-                            <i class="bi bi-calendar"></i>
+                            <i class="bi bi-calendar leave-card-meta-icon"></i>
                             <span>Requested: {{ leave.created_at|date:"M d, Y" }}</span>
                         </div>
 
                         {% if leave.approver %}
                         <div class="leave-card-meta-item">
-                            <i class="bi bi-person-check"></i>
+                            <i class="bi bi-person-check leave-card-meta-icon"></i>
                             <span>Approver: {{ leave.approver.get_full_name }}</span>
                         </div>
                         {% endif %}
 
                         {% if leave.status != 'pending' %}
                         <div class="leave-card-meta-item">
-                            <i class="bi bi-clock-history"></i>
+                            <i class="bi bi-clock-history leave-card-meta-icon"></i>
                             <span>Decided: {{ leave.updated_at|date:"M d, Y" }}</span>
                         </div>
                         {% endif %}
@@ -813,14 +894,14 @@
                 <!-- Actions -->
                 <div class="leave-card-actions">
                     {% if leave.status == 'pending' %}
-                    <button class="leave-action-btn" onclick="editLeave('{{ leave.id }}')">
+                    <button class="leave-action-btn" onclick="openEditModal('{{ leave.id }}')">
                         <i class="bi bi-pencil"></i> Edit
                     </button>
-                    <button class="leave-action-btn danger" onclick="cancelLeave('{{ leave.id }}')">
+                    <button class="leave-action-btn danger" onclick="openCancelModal('{{ leave.id }}')">
                         <i class="bi bi-trash"></i> Cancel
                     </button>
                     {% else %}
-                    <button class="leave-action-btn" onclick="viewLeave('{{ leave.id }}')">
+                    <button class="leave-action-btn success" onclick="openViewModal('{{ leave.id }}')">
                         <i class="bi bi-eye"></i> View
                     </button>
                     {% endif %}
@@ -843,20 +924,27 @@
     </div>
 </div>
 
-<!-- Apply Leave Modal -->
+<!-- Apply/Edit Leave Modal -->
 <div class="modal" id="leaveModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="modal-title">Apply for Leave</h2>
+            <h2 class="modal-title" id="modalTitle">Apply for Leave</h2>
             <button class="modal-close" onclick="closeLeaveModal()">×</button>
         </div>
 
-        <form method="POST" action="" id="leaveForm">
+        <div id="leaveFormAlert"></div>
+
+        <form method="POST" action="{% url 'create_leave_request' %}" id="leaveForm">
             {% csrf_token %}
+            <input type="hidden" id="leaveId" name="leave_id" value="">
 
             <!-- Leave Type -->
             <div class="form-group">
-                <label class="form-label" for="leaveType">Leave Type *</label>
+                <label class="form-label" for="leaveType">
+                    <i class="bi bi-tags"></i>
+                    Leave Type
+                    <span class="form-label-required">*</span>
+                </label>
                 <select class="form-select" id="leaveType" name="leave_type" required>
                     <option value="">Select a leave type</option>
                     {% for leave_type in leave_types %}
@@ -865,153 +953,194 @@
                 </select>
             </div>
 
-            <!-- Date Range -->
+            <!-- Dates -->
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label" for="startDate">Start Date *</label>
-                    <input type="date" class="form-input" id="startDate" name="start_date" required onchange="calculateDays()">
+                    <label class="form-label" for="startDate">
+                        <i class="bi bi-calendar-event"></i>
+                        Start Date
+                        <span class="form-label-required">*</span>
+                    </label>
+                    <input type="date" class="form-input" id="startDate" name="start_date" required>
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label" for="endDate">End Date *</label>
-                    <input type="date" class="form-input" id="endDate" name="end_date" required onchange="calculateDays()">
+                    <label class="form-label" for="endDate">
+                        <i class="bi bi-calendar-check"></i>
+                        End Date
+                        <span class="form-label-required">*</span>
+                    </label>
+                    <input type="date" class="form-input" id="endDate" name="end_date" required>
                 </div>
             </div>
 
-            <!-- Days -->
+            <!-- Total Days -->
             <div class="form-group">
-                <label class="form-label" for="days">Number of Days</label>
-                <input type="number" class="form-input" id="days" name="days" step="0.5" readonly style="background: rgba(139, 92, 246, 0.05); cursor: not-allowed;">
+                <label class="form-label" for="days">
+                    <i class="bi bi-clock"></i>
+                    Total Days
+                    <span class="form-label-required">*</span>
+                </label>
+                <input type="number" class="form-input" id="days" name="days" step="0.5" required placeholder="Enter total number of days">
             </div>
 
             <!-- Reason -->
             <div class="form-group">
-                <label class="form-label" for="reason">Reason for Leave</label>
-                <textarea class="form-textarea" id="reason" name="reason" placeholder="Please provide the reason for your leave request..."></textarea>
+                <label class="form-label" for="reason">
+                    <i class="bi bi-chat-square-text"></i>
+                    Reason
+                </label>
+                <textarea class="form-textarea" id="reason" name="reason" placeholder="Provide any additional details"></textarea>
             </div>
 
             <!-- Actions -->
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeLeaveModal()">
-                    Cancel
-                </button>
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle"></i> Submit Request
-                </button>
+                <button type="button" class="btn-secondary btn" onclick="closeLeaveModal()">Cancel</button>
+                <button type="submit" class="btn-primary btn" id="saveLeaveBtn">Submit</button>
             </div>
         </form>
     </div>
 </div>
 
+<!-- Cancel Leave Modal -->
+<div class="modal" id="cancelModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Cancel Leave Request</h2>
+            <button class="modal-close" onclick="closeCancelModal()">×</button>
+        </div>
+
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+            Are you sure you want to cancel this leave request? This action cannot be undone.
+        </p>
+
+        <div class="form-actions">
+            <button class="btn-secondary btn" onclick="closeCancelModal()">No, Go Back</button>
+            <button class="btn-danger btn" id="confirmCancelBtn">Yes, Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- View-Only Modal -->
+<div class="modal" id="viewModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Leave Details</h2>
+            <button class="modal-close" onclick="closeViewModal()">×</button>
+        </div>
+
+        <div id="viewContent" style="font-size: 14px; color: var(--text-primary); line-height: 1.6;">
+            <!-- Filled dynamically -->
+        </div>
+
+        <div class="form-actions">
+            <button class="btn-secondary btn" onclick="closeViewModal()">Close</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Leave Modal Functions
-    function openLeaveModal() {
-        document.getElementById('leaveModal').classList.add('show');
-    }
+/* =============== Modal Handling =============== */
+function openLeaveModal() {
+    document.getElementById("leaveModal").classList.add("show");
+    document.getElementById("leaveForm").reset();
+    document.getElementById("modalTitle").innerText = "Apply for Leave";
+    document.getElementById("leaveId").value = "";
+}
 
-    function closeLeaveModal() {
-        document.getElementById('leaveModal').classList.remove('show');
-        document.getElementById('leaveForm').reset();
-    }
+function closeLeaveModal() {
+    document.getElementById("leaveModal").classList.remove("show");
+}
 
-    // Close modal when clicking outside
-    document.getElementById('leaveModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeLeaveModal();
+function openEditModal(id) {
+    const card = document.querySelector(`[data-leave-id="${id}"]`);
+    const leaveType = card.querySelector('.leave-card-title').innerText.trim();
+    const start = card.querySelector('.leave-card-date-value').innerText.trim();
+
+    fetch(`/dev/api/leaves/${id}/update/`)
+    document.getElementById("modalTitle").innerText = "Edit Leave Request";
+    document.getElementById("leaveId").value = id;
+    document.getElementById("leaveModal").classList.add("show");
+}
+
+function openCancelModal(id) {
+    document.getElementById("confirmCancelBtn").onclick = function () {
+        cancelLeave(id);
+    };
+    document.getElementById("cancelModal").classList.add("show");
+}
+
+function closeCancelModal() {
+    document.getElementById("cancelModal").classList.remove("show");
+}
+
+function openViewModal(id) {
+    const card = document.querySelector(`[data-leave-id="${id}"]`);
+    const leaveType = card.querySelector('.leave-card-title').innerText;
+    const days = card.querySelector('.leave-days-badge').innerText;
+    const status = card.querySelector('.leave-status-badge').innerText;
+    const start = card.querySelector('.leave-card-dates .leave-card-date-item:nth-child(1) .leave-card-date-value').innerText;
+    const end = card.querySelector('.leave-card-dates .leave-card-date-item:nth-child(2) .leave-card-date-value').innerText;
+    const reason = card.querySelector('.leave-card-reason')?.innerText || "No reason provided";
+
+    document.getElementById("viewContent").innerHTML = `
+        <p><strong>Type:</strong> ${leaveType}</p>
+        <p><strong>Days:</strong> ${days}</p>
+        <p><strong>Status:</strong> ${status}</p>
+        <p><strong>From:</strong> ${start}</p>
+        <p><strong>To:</strong> ${end}</p>
+        <p><strong>Reason:</strong><br>${reason}</p>
+    `;
+
+    document.getElementById("viewModal").classList.add("show");
+}
+
+function closeViewModal() {
+    document.getElementById("viewModal").classList.remove("show");
+}
+
+/* =============== Cancel API =============== */
+function cancelLeave(id) {
+    fetch(`/dev/api/leaves/${id}/cancel/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        }
+    }).then(res => res.json()).then(data => {
+        if (data.success) {
+            location.reload();
         }
     });
+}
 
-    // Calculate days between dates
-    function calculateDays() {
-        const startDate = new Date(document.getElementById('startDate').value);
-        const endDate = new Date(document.getElementById('endDate').value);
-
-        if (startDate && endDate && endDate >= startDate) {
-            const diffTime = Math.abs(endDate - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both days
-            document.getElementById('days').value = diffDays.toFixed(1);
-        }
-    }
-
-    // Filter Leaves by Status
-    function filterLeaves() {
-        const status = document.getElementById('statusFilter').value;
-        const cards = document.querySelectorAll('.leave-card');
-        let visibleCount = 0;
-
-        cards.forEach(card => {
-            if (!status || card.dataset.status === status) {
-                card.style.display = '';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        // Show empty state if no leaves match
-        if (visibleCount === 0) {
-            const container = document.querySelector('.leaves-container');
-            if (!container.querySelector('.filter-empty-state')) {
-                const emptyState = document.createElement('div');
-                emptyState.className = 'empty-state filter-empty-state';
-                emptyState.innerHTML = `
-                    <div class="empty-state-icon">🔍</div>
-                    <h3 class="empty-state-title">No Leave Requests Found</h3>
-                    <p class="empty-state-description">
-                        No leave requests match your selected filter.
-                    </p>
-                `;
-                container.appendChild(emptyState);
-            }
+/* =============== Filter Leaves =============== */
+function filterLeaves() {
+    const status = document.getElementById('statusFilter').value;
+    const cards = document.querySelectorAll('.leave-card');
+    cards.forEach(card => {
+        if (!status || card.dataset.status === status) {
+            card.style.display = "grid";
         } else {
-            const filterEmpty = document.querySelector('.filter-empty-state');
-            if (filterEmpty) {
-                filterEmpty.remove();
-            }
+            card.style.display = "none";
         }
-    }
-
-    // Leave Actions
-    function viewLeave(leaveId) {
-        // window.location.href = `/leaves/${leaveId}/`;
-        alert(`View leave ${leaveId}`);
-    }
-
-    function editLeave(leaveId) {
-        // window.location.href = `/leaves/${leaveId}/edit/`;
-        alert(`Edit leave ${leaveId}`);
-    }
-
-    function cancelLeave(leaveId) {
-        if (confirm('Are you sure you want to cancel this leave request?')) {
-            // Make AJAX request to cancel leave
-            // fetch(`/api/leaves/${leaveId}/cancel/`, { method: 'POST' })
-            alert(`Cancelled leave ${leaveId}`);
-        }
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-        // Restore filter from URL
-        const params = new URLSearchParams(window.location.search);
-        const status = params.get('status');
-        
-        if (status) {
-            document.getElementById('statusFilter').value = status;
-            filterLeaves();
-        }
-
-        // Set minimum date to today for leave application
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('startDate').min = today;
-        document.getElementById('endDate').min = today;
     });
+}
 
-    // Ensure end date is not before start date
-    document.getElementById('startDate')?.addEventListener('change', function() {
-        document.getElementById('endDate').min = this.value;
+/* =============== Summary Counts =============== */
+window.onload = function() {
+    let pending = 0, approved = 0, rejected = 0, total = 0;
+    document.querySelectorAll('.leave-card').forEach(card => {
+        total++;
+        if (card.dataset.status === "pending") pending++;
+        if (card.dataset.status === "approved") approved++;
+        if (card.dataset.status === "rejected") rejected++;
     });
+    document.getElementById("pendingCount").innerText = pending;
+    document.getElementById("approvedCount").innerText = approved;
+    document.getElementById("rejectedCount").innerText = rejected;
+    document.getElementById("totalCount").innerText = total;
+};
 </script>
 {% endblock %}

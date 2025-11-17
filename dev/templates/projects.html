@@ -52,13 +52,19 @@
 
     .filter-select:hover {
         border-color: var(--accent-blue);
-        background: rgba(59, 130, 246, 0.1);
+        background: var(--card-bg);
     }
 
     .filter-select:focus {
         outline: none;
         border-color: var(--accent-blue);
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        background: var(--card-bg);
+    }
+
+    .filter-select option {
+        background: var(--card-bg);
+        color: var(--text-primary);
     }
 
     /* Projects Grid */
@@ -216,7 +222,6 @@
         color: var(--accent-blue);
     }
 
-    /* Progress Bar */
     .progress-container {
         margin-top: 12px;
     }
@@ -252,7 +257,6 @@
         transition: width 0.3s ease;
     }
 
-    /* Team Members */
     .team-members {
         display: flex;
         align-items: center;
@@ -292,7 +296,6 @@
         margin-left: 4px;
     }
 
-    /* Project Card Footer */
     .project-card-footer {
         padding: 16px 24px;
         border-top: 1px solid var(--card-border);
@@ -328,13 +331,15 @@
         background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
         color: white;
         border: none;
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     .project-action-btn.primary:hover {
-        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        box-shadow: none;
+        transform: none;
     }
 
-    /* Empty State */
     .empty-state {
         text-align: center;
         padding: 80px 20px;
@@ -377,7 +382,6 @@
         box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
     }
 
-    /* Stats Bar */
     .stats-bar {
         display: flex;
         gap: 20px;
@@ -426,6 +430,244 @@
         font-size: 20px;
         font-weight: 700;
         color: var(--text-primary);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .modal-content {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(40px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 24px;
+        border-bottom: 1px solid var(--card-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .modal-title {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+    }
+
+    .modal-title-main {
+        font-size: 24px;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .modal-title-code {
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .modal-close {
+        background: rgba(139, 92, 246, 0.1);
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: var(--accent-purple);
+        transition: var(--transition);
+    }
+
+    .modal-close:hover {
+        background: rgba(139, 92, 246, 0.2);
+    }
+
+    .modal-body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .modal-section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .modal-section-title {
+        font-size: 13px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .modal-section-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .modal-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: rgba(139, 92, 246, 0.05);
+        border: 1px solid rgba(139, 92, 246, 0.1);
+        border-radius: 8px;
+    }
+
+    .modal-item-label {
+        color: var(--text-secondary);
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-item-value {
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .modal-description {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        padding: 12px;
+        background: rgba(139, 92, 246, 0.05);
+        border-radius: 8px;
+        border-left: 3px solid var(--accent-purple);
+    }
+
+    .modal-team {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .modal-team-member {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 8px;
+    }
+
+    .modal-team-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .modal-team-name {
+        font-size: 13px;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .modal-progress {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .modal-progress-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+    }
+
+    .modal-progress-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .modal-progress-value {
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+    }
+
+    .modal-progress-bar {
+        height: 10px;
+        background: rgba(139, 92, 246, 0.1);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .modal-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+        border-radius: 5px;
+        transition: width 0.3s ease;
     }
 
     /* Responsive */
@@ -477,6 +719,11 @@
         .stat-card-mini {
             flex: 1;
             min-width: 120px;
+        }
+
+        .modal-content {
+            width: 95%;
+            max-height: 90vh;
         }
     }
 </style>
@@ -574,7 +821,6 @@
 
                 <!-- Card Body -->
                 <div class="project-card-body">
-                    <!-- Description -->
                     {% if project.description %}
                     <div class="project-description">
                         {{ project.description|truncatewords:20 }}
@@ -650,10 +896,10 @@
 
                 <!-- Card Footer / Actions -->
                 <div class="project-card-footer">
-                    <a href="javascript:void(0);" class="project-action-btn" onclick="viewProject('{{ project.id }}')">
-                        <i class="bi bi-eye"></i> View
+                    <a href="javascript:void(0);" class="project-action-btn" onclick="viewProject('{{ project.id }}', event)">
+                        <i class="bi bi-eye"></i> View Details
                     </a>
-                    <a href="javascript:void(0);" class="project-action-btn primary" onclick="editProject('{{ project.id }}')">
+                    <a href="javascript:void(0);" class="project-action-btn primary" onclick="event.preventDefault();" title="Edit disabled">
                         <i class="bi bi-pencil"></i> Edit
                     </a>
                 </div>
@@ -675,10 +921,199 @@
     </div>
 </div>
 
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="projectModal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <div class="modal-title">
+                <div class="modal-title-main" id="modalProjectName"></div>
+                <div class="modal-title-code" id="modalProjectCode"></div>
+            </div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <!-- Status Badge -->
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <span class="project-status-badge" id="modalProjectStatus"></span>
+            </div>
+
+            <!-- Description -->
+            <div class="modal-section">
+                <div class="modal-section-title">📝 Description</div>
+                <div class="modal-description" id="modalProjectDescription"></div>
+            </div>
+
+            <!-- Client Info -->
+            <div class="modal-section" id="clientSection" style="display: none;">
+                <div class="modal-section-title">🏢 Client</div>
+                <div class="modal-section-content">
+                    <div class="modal-item">
+                        <span class="modal-item-label">
+                            <i class="bi bi-briefcase"></i> Client Name
+                        </span>
+                        <span class="modal-item-value" id="modalClientName"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Details -->
+            <div class="modal-section">
+                <div class="modal-section-title">📅 Project Details</div>
+                <div class="modal-section-content">
+                    <div class="modal-item">
+                        <span class="modal-item-label">
+                            <i class="bi bi-calendar-event"></i> Start Date
+                        </span>
+                        <span class="modal-item-value" id="modalStartDate"></span>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">
+                            <i class="bi bi-calendar-check"></i> End Date
+                        </span>
+                        <span class="modal-item-value" id="modalEndDate"></span>
+                    </div>
+                    <div class="modal-item" id="budgetItem" style="display: none;">
+                        <span class="modal-item-label">
+                            <i class="bi bi-cash-coin"></i> Budget
+                        </span>
+                        <span class="modal-item-value" id="modalBudget"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="modal-section">
+                <div class="modal-section-title">📊 Progress</div>
+                <div class="modal-progress">
+                    <div class="modal-progress-header">
+                        <span class="modal-progress-label">Overall Progress</span>
+                        <span class="modal-progress-value" id="modalProgressPercent">0%</span>
+                    </div>
+                    <div class="modal-progress-bar">
+                        <div class="modal-progress-fill" id="modalProgressFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Members Section -->
+            <div class="modal-section" id="teamSection" style="display: none;">
+                <div class="modal-section-title">👥 Team Members</div>
+                <div class="modal-team" id="modalTeamMembers"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    // Store current project data
+    let currentProjectData = null;
+
+    // View Project - Open Modal
+    function viewProject(projectId, event) {
+        event.preventDefault();
+        
+        // Find project card
+        const card = document.querySelector(`[data-project-id="${projectId}"]`);
+        if (!card) return;
+
+        // Extract data from card
+        const code = card.querySelector('.project-code')?.textContent || '';
+        const name = card.querySelector('.project-card-title').textContent;
+        const description = card.querySelector('.project-description').textContent;
+        const statusBadge = card.querySelector('.project-status-badge');
+        const statusClass = statusBadge.className.match(/\b(planning|ongoing|on_hold|completed|cancelled)\b/)[0];
+        const statusText = statusBadge.textContent;
+        
+        const startDate = card.querySelector('[class*="start_date"]')?.parentElement.nextElementSibling?.textContent || '';
+        const endDate = card.querySelector('[class*="end_date"]')?.parentElement.nextElementSibling?.textContent || '';
+        const budget = card.querySelector('[class*="budget"]')?.parentElement.nextElementSibling?.textContent || '';
+        const client = card.querySelector('.project-card-client')?.textContent || '';
+        
+        const progressPercent = card.querySelector('.progress-value')?.textContent || '0%';
+        const progressValue = progressPercent.replace('%', '');
+        
+        const teamMembers = [];
+        card.querySelectorAll('.member-avatar').forEach(avatar => {
+            teamMembers.push({
+                initials: avatar.textContent,
+                name: avatar.getAttribute('title') || 'Team Member'
+            });
+        });
+
+        // Populate modal
+        document.getElementById('modalProjectName').textContent = name;
+        document.getElementById('modalProjectCode').textContent = code;
+        document.getElementById('modalProjectDescription').textContent = description;
+        
+        // Set status badge
+        const statusBadgeEl = document.getElementById('modalProjectStatus');
+        statusBadgeEl.className = `project-status-badge ${statusClass}`;
+        statusBadgeEl.textContent = statusText;
+        
+        // Set dates
+        document.getElementById('modalStartDate').textContent = startDate || 'Not set';
+        document.getElementById('modalEndDate').textContent = endDate || 'Not set';
+        
+        // Set budget
+        if (budget) {
+            document.getElementById('budgetItem').style.display = 'flex';
+            document.getElementById('modalBudget').textContent = budget;
+        } else {
+            document.getElementById('budgetItem').style.display = 'none';
+        }
+        
+        // Set client
+        if (client) {
+            document.getElementById('clientSection').style.display = 'block';
+            document.getElementById('modalClientName').textContent = client;
+        } else {
+            document.getElementById('clientSection').style.display = 'none';
+        }
+        
+        // Set progress
+        document.getElementById('modalProgressPercent').textContent = progressValue + '%';
+        document.getElementById('modalProgressFill').style.width = progressValue + '%';
+        
+        // Set team members
+        if (teamMembers.length > 0) {
+            document.getElementById('teamSection').style.display = 'block';
+            const teamContainer = document.getElementById('modalTeamMembers');
+            teamContainer.innerHTML = teamMembers.map(member => `
+                <div class="modal-team-member">
+                    <div class="modal-team-avatar">${member.initials}</div>
+                    <div class="modal-team-name">${member.name}</div>
+                </div>
+            `).join('');
+        } else {
+            document.getElementById('teamSection').style.display = 'none';
+        }
+        
+        // Show modal
+        document.getElementById('projectModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close Modal
+    function closeModal(event) {
+        if (event && event.target.id !== 'projectModal') return;
+        
+        document.getElementById('projectModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal({ target: { id: 'projectModal' } });
+        }
+    });
+
     // Filter Projects by Status
     function filterProjects() {
         const status = document.getElementById('statusFilter').value;
@@ -688,7 +1123,7 @@
 
         projects.forEach(card => {
             const badge = card.querySelector('.project-status-badge');
-            const cardStatus = badge.className.match(/status-badge\s+(\w+)/)?.[1] || '';
+            const cardStatus = badge.className.match(/\b(planning|ongoing|on_hold|completed|cancelled)\b/)[0];
             
             if (!status || cardStatus === status) {
                 card.style.display = '';
@@ -721,20 +1156,6 @@
         }
     }
 
-    // View Project Details
-    function viewProject(projectId) {
-        // Redirect to project detail page
-        // window.location.href = `/projects/${projectId}/`;
-        alert(`View project ${projectId}`);
-    }
-
-    // Edit Project
-    function editProject(projectId) {
-        // Redirect to project edit page
-        // window.location.href = `/projects/${projectId}/edit/`;
-        alert(`Edit project ${projectId}`);
-    }
-
     // Go to Dashboard
     function goToDashboard() {
         window.location.href = '{% url "employee_dashboard" %}';
@@ -749,16 +1170,6 @@
             document.getElementById('statusFilter').value = status;
             filterProjects();
         }
-    });
-
-    // Add card animation on hover
-    document.querySelectorAll('.project-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-4px)';
-        });
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
     });
 </script>
 {% endblock %}
