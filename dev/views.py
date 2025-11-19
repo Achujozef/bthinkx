@@ -14,6 +14,16 @@ from django.utils import timezone
 from django.db.models import Q, Sum, Count
 from datetime import datetime, timedelta
 import calendar
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.utils import timezone
+import json
+
+
 
 def employee_login(request):
     if request.method == "POST":
@@ -139,26 +149,50 @@ def employee_dashboard(request):
     }
     
     return render(request, 'dashboard.html', context)
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
+from django.core.paginator import Paginator
+from django.db import transaction
+import json
 
 
 @login_required
 def my_tasks(request):
-    """Tasks list view"""
+    """Tasks list view with filtering"""
     user = request.user
     
     status_filter = request.GET.get('status', 'all')
     priority_filter = request.GET.get('priority', 'all')
     
-    tasks = Task.objects.filter(assignee=user)
+    # Get tasks assigned to user
+    tasks = Task.objects.filter(
+        assignee=user
+    ).select_related(
+        'project', 
+        'assignee', 
+        'reporter', 
+        'updated_by'
+    )
     
-    if status_filter != 'all':
+    # Apply status filter
+    if status_filter and status_filter != 'all':
         tasks = tasks.filter(status=status_filter)
     
-    if priority_filter != 'all':
+    # Apply priority filter
+    if priority_filter and priority_filter != 'all':
         tasks = tasks.filter(priority=priority_filter)
     
-    tasks = tasks.order_by('-priority', 'due_date')
+    # Sort by priority (high first) and due date
+    tasks = tasks.order_by('-priority', 'due_date', '-created_at')
     
+    # Calculate stats
+    total_tasks = tasks.count()
+    pending_tasks = tasks.exclude(status='done').count()
+    completed_tasks = tasks.filter(status='done').count()
+    
+    # Pagination
     paginator = Paginator(tasks, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -167,10 +201,259 @@ def my_tasks(request):
         'page_obj': page_obj,
         'status_filter': status_filter,
         'priority_filter': priority_filter,
+        'total_tasks': total_tasks,
+        'pending_tasks': pending_tasks,
+        'completed_tasks': completed_tasks,
     }
     
     return render(request, 'tasks.html', context)
 
+
+# ==================== API ENDPOINTS ====================
+
+@login_required
+@require_http_methods(["POST"])
+def bulk_complete_tasks(request):
+    """Complete multiple tasks at once"""
+    try:
+        user = request.user
+        data = json.loads(request.body)
+        task_ids = data.get('task_ids', [])
+        
+        if not task_ids:
+            return JsonResponse({
+                'success': False,
+                'error': 'No tasks selected.'
+            }, status=400)
+        
+        # Get tasks that belong to user and are not already done
+        tasks = Task.objects.filter(
+            id__in=task_ids,
+            assignee=user
+        ).exclude(status='done')
+        
+        if not tasks.exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'No valid tasks to complete.'
+            }, status=400)
+        
+        completed_count = 0
+        with transaction.atomic():
+            for task in tasks:
+                task.status = 'done'
+                task.updated_by = user
+                task.save(update_fields=['status', 'updated_by', 'updated_at'])
+                completed_count += 1
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{completed_count} task(s) completed successfully!',
+            'completed_count': completed_count
+        })
+    
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data.'
+        }, status=400)
+    except Exception as e:
+        print(f"Error completing tasks: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_task_status(request, task_id):
+    """Update task status with full control"""
+    try:
+        user = request.user
+        
+        try:
+            task = Task.objects.get(id=task_id, assignee=user)
+        except Task.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Task not found.'
+            }, status=404)
+        
+        # Parse request data
+        data = json.loads(request.body)
+        new_status = data.get('status')
+        
+        # Validate status
+        valid_statuses = ['todo', 'in_progress', 'review', 'done', 'blocked']
+        if new_status not in valid_statuses:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid status.'
+            }, status=400)
+        
+        with transaction.atomic():
+            task.status = new_status
+            task.updated_by = user
+            task.save(update_fields=['status', 'updated_by', 'updated_at'])
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Task status updated to {new_status.replace("_", " ").title()}',
+            'new_status': new_status,
+            'status_display': task.get_status_display()
+        })
+    
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data.'
+        }, status=400)
+    except Exception as e:
+        print(f"Error updating task status: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["GET"])
+def task_details_api(request, task_id):
+    """Get detailed task information"""
+    try:
+        user = request.user
+        
+        try:
+            task = Task.objects.select_related(
+                'project',
+                'assignee',
+                'reporter',
+                'updated_by'
+            ).get(id=task_id, assignee=user)
+        except Task.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Task not found.'
+            }, status=404)
+        
+        return JsonResponse({
+            'success': True,
+            'task': {
+                'id': str(task.id),
+                'title': task.title,
+                'description': task.description or '',
+                'status': task.status,
+                'status_display': task.get_status_display(),
+                'priority': task.priority,
+                'priority_display': task.get_priority_display(),
+                'project': task.project.name if task.project else None,
+                'project_id': str(task.project.id) if task.project else None,
+                'due_date': task.due_date.strftime('%Y-%m-%d') if task.due_date else None,
+                'due_date_formatted': task.due_date.strftime('%b %d, %Y') if task.due_date else None,
+                'assignee': task.assignee.get_full_name() if task.assignee else None,
+                'assignee_email': task.assignee.email if task.assignee else None,
+                'reporter': task.reporter.get_full_name() if task.reporter else None,
+                'reporter_email': task.reporter.email if task.reporter else None,
+                'created_at': task.created_at.strftime('%b %d, %Y %I:%M %p'),
+                'updated_at': task.updated_at.strftime('%b %d, %Y %I:%M %p'),
+                'updated_by': task.updated_by.get_full_name() if task.updated_by else None,
+                'estimate_hours': float(task.estimate_hours) if task.estimate_hours else None,
+                'spent_seconds': task.spent_seconds or 0,
+                'spent_hours': round((task.spent_seconds or 0) / 3600, 2),
+                'is_completed': task.status == 'done',
+            }
+        })
+    
+    except Exception as e:
+        print(f"Error fetching task details: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def complete_task(request, task_id):
+    """Mark task as completed"""
+    try:
+        user = request.user
+        
+        try:
+            task = Task.objects.get(id=task_id, assignee=user)
+        except Task.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Task not found.'
+            }, status=404)
+        
+        if task.status == 'done':
+            return JsonResponse({
+                'success': False,
+                'error': 'Task is already completed.'
+            }, status=400)
+        
+        with transaction.atomic():
+            task.status = 'done'
+            task.updated_by = user
+            task.save(update_fields=['status', 'updated_by', 'updated_at'])
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Task marked as completed!',
+            'new_status': 'done',
+            'status_display': task.get_status_display()
+        })
+    
+    except Exception as e:
+        print(f"Error completing task: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def reopen_task(request, task_id):
+    """Reopen a completed task"""
+    try:
+        user = request.user
+        
+        try:
+            task = Task.objects.get(id=task_id, assignee=user)
+        except Task.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Task not found.'
+            }, status=404)
+        
+        if task.status != 'done':
+            return JsonResponse({
+                'success': False,
+                'error': 'Only completed tasks can be reopened.'
+            }, status=400)
+        
+        with transaction.atomic():
+            task.status = 'in_progress'
+            task.updated_by = user
+            task.save(update_fields=['status', 'updated_by', 'updated_at'])
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Task reopened successfully!',
+            'new_status': 'in_progress',
+            'status_display': task.get_status_display()
+        })
+    
+    except Exception as e:
+        print(f"Error reopening task: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)    
+    
 @login_required
 def my_attendance(request):
     """Attendance history view with proper filtering and leave support"""
@@ -419,11 +702,7 @@ def create_leave_request(request):
                 status='pending'
             )
 
-        return JsonResponse({
-            'success': True,
-            'message': 'Leave request submitted successfully!',
-            'leave_id': str(leave_request.id)
-        }, status=201)
+        return redirect('my_leaves')
 
     except Exception as e:
         print(f"Error creating leave: {str(e)}")
@@ -434,7 +713,7 @@ def create_leave_request(request):
 
 
 @login_required
-@require_http_methods(["PUT"])
+@require_http_methods(["POST"])
 def update_leave_request(request, leave_id):
     """Update an existing leave request"""
     try:
@@ -457,7 +736,12 @@ def update_leave_request(request, leave_id):
             }, status=400)
 
         # Parse request data
-        data = json.loads(request.body)
+        # Parse request data (support both JSON + form submit)
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+
 
         # Validate and update fields
         leave_type_id = data.get('leave_type')
@@ -558,24 +842,6 @@ def cancel_leave_request(request, leave_id):
             'success': False,
             'error': f'An error occurred: {str(e)}'
         }, status=500)
-
-
-# ==================== URL CONFIGURATION ====================
-# Add these to your urls.py:
-"""
-from django.urls import path
-from . import views
-
-urlpatterns = [
-    # Leave pages
-    path('leaves/', views.my_leaves, name='my_leaves'),
-    
-    # API endpoints
-    path('api/leaves/create/', views.create_leave_request, name='create_leave_request'),
-    path('api/leaves/<str:leave_id>/update/', views.update_leave_request, name='update_leave_request'),
-    path('api/leaves/<str:leave_id>/cancel/', views.cancel_leave_request, name='cancel_leave_request'),
-]
-"""
 
 
 @login_required

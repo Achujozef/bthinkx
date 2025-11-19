@@ -7,6 +7,12 @@ urlpatterns = [
 
     path('dashboard/', views.employee_dashboard, name='employee_dashboard'),
     path('tasks/', views.my_tasks, name='my_tasks'),
+    path('api/tasks/<str:task_id>/toggle/', views.update_task_status, name='toggle_task_status'),
+    path('api/tasks/<str:task_id>/update-status/', views.update_task_status, name='update_task_status'),
+    path('api/tasks/<str:task_id>/details/', views.task_details_api, name='task_details_api'),
+    path('api/tasks/<str:task_id>/complete/', views.complete_task, name='complete_task'),
+    path('api/tasks/<str:task_id>/reopen/', views.reopen_task, name='reopen_task'),
+
     path('attendance/', views.my_attendance, name='my_attendance'),
     path('leaves/', views.my_leaves, name='my_leaves'),
     path('api/leaves/create/', views.create_leave_request, name='create_leave_request'),

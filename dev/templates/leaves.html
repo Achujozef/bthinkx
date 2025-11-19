@@ -9,19 +9,27 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 32px;
+        margin-bottom: 40px;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 20px;
     }
 
     .leaves-title {
-        font-size: 32px;
+        font-size: 36px;
         font-weight: 800;
         font-family: 'Space Grotesk', sans-serif;
         background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        line-height: 1.2;
+    }
+
+    .leaves-subtitle {
+        color: var(--text-secondary);
+        margin-top: 8px;
+        font-size: 15px;
+        font-weight: 500;
     }
 
     .leaves-controls {
@@ -32,23 +40,28 @@
     }
 
     .btn-apply-leave {
-        padding: 12px 24px;
+        padding: 14px 28px;
         background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
         color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         font-weight: 600;
         cursor: pointer;
-        transition: var(--transition);
-        font-size: 14px;
+        transition: all 0.3s ease;
+        font-size: 15px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
     }
 
     .btn-apply-leave:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(139, 92, 246, 0.5);
+    }
+
+    .btn-apply-leave:active {
+        transform: translateY(-1px);
     }
 
     .filter-group {
@@ -58,200 +71,260 @@
     }
 
     .filter-select {
-        padding: 10px 16px;
+        padding: 12px 18px;
         background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 8px;
+        border: 2px solid var(--card-border);
+        border-radius: 10px;
         color: var(--text-primary);
         font-family: 'Inter', sans-serif;
         cursor: pointer;
-        transition: var(--transition);
+        transition: all 0.3s ease;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
+        min-width: 180px;
     }
 
     .filter-select:hover {
         border-color: var(--accent-purple);
-        background: var(--card-bg);
+        background: rgba(139, 92, 246, 0.05);
     }
 
     .filter-select:focus {
         outline: none;
         border-color: var(--accent-purple);
-        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
         background: var(--card-bg);
     }
 
     .filter-select option {
         background: var(--card-bg);
         color: var(--text-primary);
+        padding: 10px;
     }
 
     /* Summary Cards */
     .summary-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 16px;
-        margin-bottom: 32px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
     }
 
     .summary-card {
         background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 12px;
-        padding: 20px;
+        border: 2px solid var(--card-border);
+        border-radius: 16px;
+        padding: 24px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        transition: var(--transition);
+        gap: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
     .summary-card:hover {
         border-color: var(--accent-purple);
         background: rgba(139, 92, 246, 0.05);
-        transform: translateY(-2px);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 35px rgba(139, 92, 246, 0.15);
+    }
+
+    .summary-card:hover::before {
+        opacity: 1;
     }
 
     .summary-card-icon {
-        font-size: 28px;
+        font-size: 32px;
+        line-height: 1;
+        filter: grayscale(0.3);
+        transition: all 0.3s ease;
+    }
+
+    .summary-card:hover .summary-card-icon {
+        filter: grayscale(0);
+        transform: scale(1.1);
     }
 
     .summary-card-label {
-        font-size: 12px;
+        font-size: 13px;
         color: var(--text-secondary);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 600;
+        letter-spacing: 1px;
+        font-weight: 700;
     }
 
     .summary-card-value {
-        font-size: 28px;
-        font-weight: 700;
+        font-size: 32px;
+        font-weight: 800;
         background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        line-height: 1;
     }
 
     /* Leave Request Cards */
     .leaves-container {
         display: grid;
-        gap: 16px;
-        margin-bottom: 32px;
+        gap: 20px;
+        margin-bottom: 40px;
     }
 
     .leave-card {
         background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 12px;
-        padding: 24px;
+        border: 2px solid var(--card-border);
+        border-radius: 16px;
+        padding: 28px;
         display: grid;
         grid-template-columns: auto 1fr auto;
-        gap: 20px;
+        gap: 24px;
         align-items: flex-start;
-        transition: var(--transition);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .leave-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 5px;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
     .leave-card:hover {
         border-color: var(--accent-purple);
-        background: rgba(139, 92, 246, 0.05);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+        background: rgba(139, 92, 246, 0.03);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(139, 92, 246, 0.15);
+    }
+
+    .leave-card:hover::before {
+        opacity: 1;
     }
 
     .leave-card-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
+        width: 70px;
+        height: 70px;
+        border-radius: 16px;
         background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
+        font-size: 32px;
         flex-shrink: 0;
-        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .leave-card:hover .leave-card-icon {
+        transform: scale(1.05) rotate(5deg);
+        box-shadow: 0 12px 30px rgba(139, 92, 246, 0.35);
     }
 
     .leave-card-content {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 18px;
     }
 
     .leave-card-header {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
         flex-wrap: wrap;
     }
 
     .leave-card-title {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: 700;
         color: var(--text-primary);
         flex: 1;
+        line-height: 1.3;
     }
 
     .leave-type-badge {
-        padding: 6px 14px;
-        background: rgba(139, 92, 246, 0.1);
+        padding: 8px 16px;
+        background: rgba(139, 92, 246, 0.12);
         color: var(--accent-purple);
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        border: 2px solid rgba(139, 92, 246, 0.25);
+        letter-spacing: 0.3px;
     }
 
     .leave-days-badge {
-        padding: 6px 14px;
-        background: rgba(245, 158, 11, 0.1);
+        padding: 8px 16px;
+        background: rgba(245, 158, 11, 0.12);
         color: var(--accent-yellow);
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        border: 2px solid rgba(245, 158, 11, 0.25);
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
     .leave-status-badge {
-        padding: 6px 14px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
         text-transform: capitalize;
         display: inline-flex;
         align-items: center;
         gap: 6px;
         white-space: nowrap;
-        border: 1px solid;
+        border: 2px solid;
+        letter-spacing: 0.3px;
     }
 
     .leave-status-badge.pending {
-        background: rgba(245, 158, 11, 0.1);
+        background: rgba(245, 158, 11, 0.12);
         color: var(--accent-yellow);
         border-color: rgba(245, 158, 11, 0.3);
     }
 
     .leave-status-badge.approved {
-        background: rgba(16, 185, 129, 0.1);
+        background: rgba(16, 185, 129, 0.12);
         color: var(--accent-green);
         border-color: rgba(16, 185, 129, 0.3);
     }
 
     .leave-status-badge.rejected {
-        background: rgba(239, 68, 68, 0.1);
+        background: rgba(239, 68, 68, 0.12);
         color: var(--accent-red);
         border-color: rgba(239, 68, 68, 0.3);
     }
 
     .leave-status-badge.cancelled {
-        background: rgba(100, 116, 139, 0.1);
+        background: rgba(100, 116, 139, 0.12);
         color: var(--text-secondary);
         border-color: rgba(100, 116, 139, 0.3);
     }
 
     .leave-card-dates {
         display: flex;
-        gap: 24px;
+        gap: 28px;
         flex-wrap: wrap;
         font-size: 14px;
     }
@@ -259,81 +332,89 @@
     .leave-card-date-item {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
     .leave-card-date-icon {
         color: var(--accent-purple);
-        font-size: 16px;
+        font-size: 18px;
     }
 
     .leave-card-date-label {
         color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 600;
     }
 
     .leave-card-date-value {
         color: var(--text-primary);
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 14px;
     }
 
     .leave-card-reason {
         font-size: 14px;
         color: var(--text-secondary);
-        line-height: 1.6;
-        padding: 14px;
-        background: rgba(139, 92, 246, 0.05);
-        border-left: 3px solid var(--accent-purple);
-        border-radius: 6px;
+        line-height: 1.7;
+        padding: 16px;
+        background: rgba(139, 92, 246, 0.06);
+        border-left: 4px solid var(--accent-purple);
+        border-radius: 8px;
         word-break: break-word;
     }
 
     .leave-card-reason-label {
-        font-weight: 600;
+        font-weight: 700;
         color: var(--text-primary);
         display: block;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .leave-card-meta {
         display: flex;
-        gap: 24px;
+        gap: 28px;
         flex-wrap: wrap;
         font-size: 13px;
-        padding-top: 16px;
-        border-top: 1px solid var(--card-border);
+        padding-top: 18px;
+        border-top: 2px solid var(--card-border);
     }
 
     .leave-card-meta-item {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         color: var(--text-secondary);
+        font-weight: 500;
     }
 
     .leave-card-meta-icon {
         color: var(--accent-purple);
+        font-size: 16px;
     }
 
     .leave-card-actions {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
         align-items: flex-end;
     }
 
     .leave-action-btn {
-        padding: 10px 18px;
+        padding: 12px 20px;
         background: rgba(139, 92, 246, 0.1);
         color: var(--accent-purple);
-        border: 1px solid rgba(139, 92, 246, 0.3);
-        border-radius: 6px;
+        border: 2px solid rgba(139, 92, 246, 0.3);
+        border-radius: 8px;
         cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        transition: var(--transition);
+        font-size: 14px;
+        font-weight: 700;
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         text-decoration: none;
         white-space: nowrap;
     }
@@ -341,7 +422,12 @@
     .leave-action-btn:hover {
         background: rgba(139, 92, 246, 0.2);
         border-color: var(--accent-purple);
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.25);
+    }
+
+    .leave-action-btn:active {
+        transform: translateY(0);
     }
 
     .leave-action-btn.danger {
@@ -353,6 +439,7 @@
     .leave-action-btn.danger:hover {
         background: rgba(239, 68, 68, 0.2);
         border-color: var(--accent-red);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.25);
     }
 
     .leave-action-btn.success {
@@ -364,6 +451,7 @@
     .leave-action-btn.success:hover {
         background: rgba(16, 185, 129, 0.2);
         border-color: var(--accent-green);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
     }
 
     /* Modal */
@@ -375,8 +463,8 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
     }
 
     .modal.show {
@@ -393,20 +481,20 @@
 
     .modal-content {
         background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 16px;
-        padding: 32px;
-        max-width: 550px;
+        border: 2px solid var(--card-border);
+        border-radius: 20px;
+        padding: 36px;
+        max-width: 600px;
         width: 90%;
         max-height: 90vh;
         overflow-y: auto;
-        animation: slideUp 0.3s ease;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
     }
 
     @keyframes slideUp {
         from {
-            transform: translateY(50px);
+            transform: translateY(60px);
             opacity: 0;
         }
         to {
@@ -416,15 +504,15 @@
     }
 
     .modal-header {
-        margin-bottom: 24px;
+        margin-bottom: 28px;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
     .modal-title {
-        font-size: 22px;
-        font-weight: 700;
+        font-size: 26px;
+        font-weight: 800;
         background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -433,54 +521,60 @@
 
     .modal-close {
         background: rgba(139, 92, 246, 0.1);
-        border: none;
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
+        border: 2px solid rgba(139, 92, 246, 0.2);
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
         color: var(--accent-purple);
-        font-size: 24px;
+        font-size: 26px;
         cursor: pointer;
-        transition: var(--transition);
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-weight: 300;
     }
 
     .modal-close:hover {
         background: rgba(139, 92, 246, 0.2);
+        border-color: var(--accent-purple);
+        transform: rotate(90deg);
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
     }
 
     .form-label {
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 700;
         color: var(--text-primary);
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
+        letter-spacing: 0.3px;
     }
 
     .form-label-required {
         color: var(--accent-red);
+        font-size: 16px;
     }
 
     .form-input,
     .form-select,
     .form-textarea {
-        padding: 12px 14px;
+        padding: 14px 16px;
         background: var(--primary-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 8px;
+        border: 2px solid var(--card-border);
+        border-radius: 10px;
         color: var(--text-primary);
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        transition: var(--transition);
+        font-size: 15px;
+        transition: all 0.3s ease;
+        font-weight: 500;
     }
 
     .form-input:focus,
@@ -488,106 +582,117 @@
     .form-textarea:focus {
         outline: none;
         border-color: var(--accent-purple);
-        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        background: var(--card-bg);
     }
 
     .form-textarea {
         resize: vertical;
-        min-height: 100px;
+        min-height: 110px;
+        line-height: 1.6;
     }
 
     .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        gap: 20px;
     }
 
     .form-info {
-        padding: 12px;
-        background: rgba(59, 130, 246, 0.05);
-        border-left: 3px solid var(--accent-blue);
-        border-radius: 6px;
+        padding: 14px 16px;
+        background: rgba(59, 130, 246, 0.08);
+        border-left: 4px solid var(--accent-blue);
+        border-radius: 8px;
         font-size: 13px;
         color: var(--text-secondary);
-        margin-bottom: 16px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        line-height: 1.5;
     }
 
     .form-actions {
         display: flex;
-        gap: 12px;
+        gap: 14px;
         justify-content: flex-end;
-        margin-top: 28px;
-        padding-top: 24px;
-        border-top: 1px solid var(--card-border);
+        margin-top: 32px;
+        padding-top: 28px;
+        border-top: 2px solid var(--card-border);
     }
 
     .btn {
-        padding: 12px 24px;
+        padding: 14px 28px;
         border: none;
-        border-radius: 8px;
-        font-weight: 600;
+        border-radius: 10px;
+        font-weight: 700;
         cursor: pointer;
-        transition: var(--transition);
-        font-size: 14px;
+        transition: all 0.3s ease;
+        font-size: 15px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         justify-content: center;
+        letter-spacing: 0.3px;
     }
 
     .btn-primary {
         background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
         color: white;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
     }
 
     .btn-primary:disabled {
-        opacity: 0.6;
+        opacity: 0.5;
         cursor: not-allowed;
+        transform: none;
     }
 
     .btn-secondary {
         background: var(--card-bg);
-        border: 1px solid var(--card-border);
+        border: 2px solid var(--card-border);
         color: var(--text-primary);
     }
 
     .btn-secondary:hover {
         border-color: var(--accent-purple);
         background: rgba(139, 92, 246, 0.1);
+        transform: translateY(-2px);
     }
 
     .btn-danger {
-        background: rgba(239, 68, 68, 0.1);
+        background: rgba(239, 68, 68, 0.12);
         color: var(--accent-red);
-        border: 1px solid rgba(239, 68, 68, 0.3);
+        border: 2px solid rgba(239, 68, 68, 0.3);
     }
 
     .btn-danger:hover {
         background: rgba(239, 68, 68, 0.2);
         border-color: var(--accent-red);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
     }
 
     .alert {
-        padding: 12px 14px;
-        border-radius: 8px;
-        font-size: 13px;
-        margin-bottom: 16px;
-        border-left: 3px solid;
+        padding: 14px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        margin-bottom: 20px;
+        border-left: 4px solid;
+        font-weight: 600;
     }
 
     .alert-error {
-        background: rgba(239, 68, 68, 0.05);
+        background: rgba(239, 68, 68, 0.08);
         color: var(--accent-red);
         border-color: var(--accent-red);
     }
 
     .alert-success {
-        background: rgba(16, 185, 129, 0.05);
+        background: rgba(16, 185, 129, 0.08);
         color: var(--accent-green);
         border-color: var(--accent-green);
     }
@@ -595,36 +700,38 @@
     /* Empty State */
     .empty-state {
         text-align: center;
-        padding: 100px 20px;
+        padding: 120px 40px;
         background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 12px;
+        border: 2px dashed var(--card-border);
+        border-radius: 20px;
     }
 
     .empty-state-icon {
-        font-size: 80px;
-        margin-bottom: 16px;
-        opacity: 0.5;
+        font-size: 90px;
+        margin-bottom: 20px;
+        opacity: 0.4;
+        filter: grayscale(0.5);
     }
 
     .empty-state-title {
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 8px;
+        font-size: 26px;
+        font-weight: 800;
+        margin-bottom: 10px;
         color: var(--text-primary);
     }
 
     .empty-state-description {
         color: var(--text-secondary);
-        font-size: 14px;
-        margin-bottom: 28px;
+        font-size: 15px;
+        margin-bottom: 32px;
+        line-height: 1.6;
     }
 
     /* Responsive */
     @media (max-width: 1024px) {
         .leave-card {
             grid-template-columns: 1fr;
-            gap: 16px;
+            gap: 20px;
         }
 
         .leave-card-actions {
@@ -641,11 +748,11 @@
         .leaves-header {
             flex-direction: column;
             align-items: stretch;
-            gap: 12px;
+            gap: 16px;
         }
 
         .leaves-title {
-            font-size: 24px;
+            font-size: 28px;
         }
 
         .leaves-controls {
@@ -655,6 +762,7 @@
         .btn-apply-leave {
             width: 100%;
             justify-content: center;
+            padding: 16px;
         }
 
         .filter-group {
@@ -668,64 +776,69 @@
 
         .summary-cards {
             grid-template-columns: 1fr;
-            gap: 12px;
+            gap: 14px;
         }
 
         .summary-card {
-            padding: 16px;
+            padding: 20px;
         }
 
         .summary-card-value {
-            font-size: 24px;
+            font-size: 28px;
         }
 
         .leave-card {
-            gap: 12px;
-            padding: 16px;
+            gap: 16px;
+            padding: 20px;
         }
 
         .leave-card-icon {
-            width: 50px;
-            height: 50px;
-            font-size: 24px;
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
         }
 
         .leave-card-title {
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .leave-type-badge,
         .leave-days-badge,
         .leave-status-badge {
-            font-size: 11px;
-            padding: 4px 10px;
+            font-size: 12px;
+            padding: 6px 12px;
         }
 
         .leave-card-dates {
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
         .leave-card-meta {
             flex-direction: column;
-            gap: 12px;
-            padding-top: 12px;
+            gap: 14px;
+            padding-top: 14px;
         }
 
         .leave-card-actions {
             width: 100%;
             flex-direction: row;
-            gap: 8px;
+            gap: 10px;
         }
 
         .leave-action-btn {
             flex: 1;
             justify-content: center;
+            padding: 12px;
         }
 
         .modal-content {
-            padding: 24px;
+            padding: 28px;
             width: 95%;
+        }
+
+        .modal-title {
+            font-size: 22px;
         }
 
         .form-row {
@@ -734,23 +847,35 @@
 
         .form-actions {
             flex-direction: column-reverse;
-            gap: 10px;
+            gap: 12px;
         }
 
         .btn {
             width: 100%;
+        }
+
+        .empty-state {
+            padding: 80px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 70px;
+        }
+
+        .empty-state-title {
+            font-size: 22px;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="content-wrapper" style="padding: 32px 20px;">
+<div class="content-wrapper" style="padding: 40px 24px;">
     <!-- Page Header -->
     <div class="leaves-header">
         <div>
             <h1 class="leaves-title">Leave Requests</h1>
-            <p style="color: var(--text-secondary); margin-top: 8px;">
+            <p class="leaves-subtitle">
                 Manage and track your leave requests
             </p>
         </div>
@@ -791,7 +916,7 @@
     {% endif %}
 
     <!-- Filter -->
-    <div style="margin-bottom: 24px;">
+    <div style="margin-bottom: 28px;">
         <div class="filter-group">
             <select class="filter-select" id="statusFilter" onchange="filterLeaves()">
                 <option value="">Status: All</option>
@@ -807,7 +932,12 @@
     <div class="leaves-container">
         {% if leaves %}
             {% for leave in leaves %}
-            <div class="leave-card" data-status="{{ leave.status }}" data-leave-id="{{ leave.id }}">
+            <div class="leave-card" data-status="{{ leave.status }}" data-leave-id="{{ leave.id }}"
+                 data-leave-type="{{ leave.leave_type.id }}"
+                 data-start-date="{{ leave.start_date|date:'Y-m-d' }}"
+                 data-end-date="{{ leave.end_date|date:'Y-m-d' }}"
+                 data-days="{{ leave.days }}"
+                 data-reason="{{ leave.reason|default:'' }}">
                 <!-- Icon -->
                 <div class="leave-card-icon">
                     {% if leave.status == 'approved' %}
@@ -832,7 +962,7 @@
                                 Leave Request
                             {% endif %}
                         </div>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <span class="leave-days-badge">
                                 <i class="bi bi-calendar-day"></i> {{ leave.days|floatformat:1 }} days
                             </span>
@@ -934,7 +1064,7 @@
 
         <div id="leaveFormAlert"></div>
 
-        <form method="POST" action="{% url 'create_leave_request' %}" id="leaveForm">
+        <form method="POST" id="leaveForm">
             {% csrf_token %}
             <input type="hidden" id="leaveId" name="leave_id" value="">
 
@@ -996,7 +1126,9 @@
             <!-- Actions -->
             <div class="form-actions">
                 <button type="button" class="btn-secondary btn" onclick="closeLeaveModal()">Cancel</button>
-                <button type="submit" class="btn-primary btn" id="saveLeaveBtn">Submit</button>
+                <button type="submit" class="btn-primary btn" id="saveLeaveBtn">
+                    <i class="bi bi-check-circle"></i> Submit Request
+                </button>
             </div>
         </form>
     </div>
@@ -1004,19 +1136,23 @@
 
 <!-- Cancel Leave Modal -->
 <div class="modal" id="cancelModal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 480px;">
         <div class="modal-header">
             <h2 class="modal-title">Cancel Leave Request</h2>
             <button class="modal-close" onclick="closeCancelModal()">×</button>
         </div>
 
-        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 15px; line-height: 1.6;">
             Are you sure you want to cancel this leave request? This action cannot be undone.
         </p>
 
         <div class="form-actions">
-            <button class="btn-secondary btn" onclick="closeCancelModal()">No, Go Back</button>
-            <button class="btn-danger btn" id="confirmCancelBtn">Yes, Cancel</button>
+            <button class="btn-secondary btn" onclick="closeCancelModal()">
+                <i class="bi bi-x-circle"></i> No, Go Back
+            </button>
+            <button class="btn-danger btn" id="confirmCancelBtn">
+                <i class="bi bi-trash"></i> Yes, Cancel
+            </button>
         </div>
     </div>
 </div>
@@ -1029,12 +1165,14 @@
             <button class="modal-close" onclick="closeViewModal()">×</button>
         </div>
 
-        <div id="viewContent" style="font-size: 14px; color: var(--text-primary); line-height: 1.6;">
+        <div id="viewContent" style="font-size: 15px; color: var(--text-primary); line-height: 1.7;">
             <!-- Filled dynamically -->
         </div>
 
         <div class="form-actions">
-            <button class="btn-secondary btn" onclick="closeViewModal()">Close</button>
+            <button class="btn-secondary btn" onclick="closeViewModal()">
+                <i class="bi bi-x-circle"></i> Close
+            </button>
         </div>
     </div>
 </div>
@@ -1048,6 +1186,8 @@ function openLeaveModal() {
     document.getElementById("leaveForm").reset();
     document.getElementById("modalTitle").innerText = "Apply for Leave";
     document.getElementById("leaveId").value = "";
+    document.getElementById("saveLeaveBtn").innerHTML = '<i class="bi bi-check-circle"></i> Submit Request';
+    document.getElementById("leaveFormAlert").innerHTML = "";
 }
 
 function closeLeaveModal() {
@@ -1056,12 +1196,31 @@ function closeLeaveModal() {
 
 function openEditModal(id) {
     const card = document.querySelector(`[data-leave-id="${id}"]`);
-    const leaveType = card.querySelector('.leave-card-title').innerText.trim();
-    const start = card.querySelector('.leave-card-date-value').innerText.trim();
 
-    fetch(`/dev/api/leaves/${id}/update/`)
+    if (!card) {
+        console.error('Leave card not found');
+        return;
+    }
+
+    // Extract data from data attributes
+    const leaveTypeId = card.getAttribute('data-leave-type');
+    const startDate = card.getAttribute('data-start-date');
+    const endDate = card.getAttribute('data-end-date');
+    const days = card.getAttribute('data-days');
+    const reason = card.getAttribute('data-reason');
+
+    // Populate form fields
     document.getElementById("modalTitle").innerText = "Edit Leave Request";
     document.getElementById("leaveId").value = id;
+    document.getElementById("leaveType").value = leaveTypeId;
+    document.getElementById("startDate").value = startDate;
+    document.getElementById("endDate").value = endDate;
+    document.getElementById("days").value = days;
+    document.getElementById("reason").value = reason;
+    document.getElementById("saveLeaveBtn").innerHTML = '<i class="bi bi-check-circle"></i> Update Request';
+    document.getElementById("leaveForm").action = `/dev/api/leaves/${id}/update/`;
+    document.getElementById("leaveForm").setAttribute("data-edit", "true");
+    // Show modal
     document.getElementById("leaveModal").classList.add("show");
 }
 
@@ -1078,20 +1237,54 @@ function closeCancelModal() {
 
 function openViewModal(id) {
     const card = document.querySelector(`[data-leave-id="${id}"]`);
+    
+    if (!card) {
+        console.error('Leave card not found');
+        return;
+    }
+    
     const leaveType = card.querySelector('.leave-card-title').innerText;
-    const days = card.querySelector('.leave-days-badge').innerText;
-    const status = card.querySelector('.leave-status-badge').innerText;
-    const start = card.querySelector('.leave-card-dates .leave-card-date-item:nth-child(1) .leave-card-date-value').innerText;
-    const end = card.querySelector('.leave-card-dates .leave-card-date-item:nth-child(2) .leave-card-date-value').innerText;
-    const reason = card.querySelector('.leave-card-reason')?.innerText || "No reason provided";
+    const daysText = card.querySelector('.leave-days-badge').innerText;
+    const statusText = card.querySelector('.leave-status-badge').innerText;
+    const startDate = card.querySelector('.leave-card-dates .leave-card-date-item:nth-child(1) .leave-card-date-value').innerText;
+    const endDate = card.querySelector('.leave-card-dates .leave-card-date-item:nth-child(2) .leave-card-date-value').innerText;
+    const reasonElement = card.querySelector('.leave-card-reason');
+    const reason = reasonElement ? reasonElement.innerText.replace('Reason:', '').trim() : "No reason provided";
 
     document.getElementById("viewContent").innerHTML = `
-        <p><strong>Type:</strong> ${leaveType}</p>
-        <p><strong>Days:</strong> ${days}</p>
-        <p><strong>Status:</strong> ${status}</p>
-        <p><strong>From:</strong> ${start}</p>
-        <p><strong>To:</strong> ${end}</p>
-        <p><strong>Reason:</strong><br>${reason}</p>
+        <div style="display: grid; gap: 20px;">
+            <div style="padding: 16px; background: rgba(139, 92, 246, 0.06); border-left: 4px solid var(--accent-purple); border-radius: 8px;">
+                <div style="font-size: 13px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Leave Type</div>
+                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">${leaveType}</div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="padding: 16px; background: rgba(139, 92, 246, 0.06); border-radius: 8px;">
+                    <div style="font-size: 13px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Duration</div>
+                    <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${daysText}</div>
+                </div>
+                <div style="padding: 16px; background: rgba(139, 92, 246, 0.06); border-radius: 8px;">
+                    <div style="font-size: 13px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Status</div>
+                    <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${statusText}</div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="padding: 16px; background: rgba(139, 92, 246, 0.06); border-radius: 8px;">
+                    <div style="font-size: 13px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Start Date</div>
+                    <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${startDate}</div>
+                </div>
+                <div style="padding: 16px; background: rgba(139, 92, 246, 0.06); border-radius: 8px;">
+                    <div style="font-size: 13px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">End Date</div>
+                    <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${endDate}</div>
+                </div>
+            </div>
+            
+            <div style="padding: 16px; background: rgba(139, 92, 246, 0.06); border-left: 4px solid var(--accent-purple); border-radius: 8px;">
+                <div style="font-size: 13px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">Reason</div>
+                <div style="font-size: 15px; line-height: 1.7; color: var(--text-primary);">${reason}</div>
+            </div>
+        </div>
     `;
 
     document.getElementById("viewModal").classList.add("show");
@@ -1111,7 +1304,12 @@ function cancelLeave(id) {
     }).then(res => res.json()).then(data => {
         if (data.success) {
             location.reload();
+        } else {
+            alert('Failed to cancel leave request');
         }
+    }).catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while canceling the leave request');
     });
 }
 
@@ -1137,10 +1335,34 @@ window.onload = function() {
         if (card.dataset.status === "approved") approved++;
         if (card.dataset.status === "rejected") rejected++;
     });
-    document.getElementById("pendingCount").innerText = pending;
-    document.getElementById("approvedCount").innerText = approved;
-    document.getElementById("rejectedCount").innerText = rejected;
-    document.getElementById("totalCount").innerText = total;
+    
+    const pendingCount = document.getElementById("pendingCount");
+    const approvedCount = document.getElementById("approvedCount");
+    const rejectedCount = document.getElementById("rejectedCount");
+    const totalCount = document.getElementById("totalCount");
+    
+    if (pendingCount) pendingCount.innerText = pending;
+    if (approvedCount) approvedCount.innerText = approved;
+    if (rejectedCount) rejectedCount.innerText = rejected;
+    if (totalCount) totalCount.innerText = total;
 };
+
+/* =============== Close modals on outside click =============== */
+window.onclick = function(event) {
+    const leaveModal = document.getElementById('leaveModal');
+    const cancelModal = document.getElementById('cancelModal');
+    const viewModal = document.getElementById('viewModal');
+    
+    if (event.target === leaveModal) {
+        closeLeaveModal();
+    }
+    if (event.target === cancelModal) {
+        closeCancelModal();
+    }
+    if (event.target === viewModal) {
+        closeViewModal();
+    }
+};
+
 </script>
 {% endblock %}
