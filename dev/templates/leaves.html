@@ -1188,6 +1188,7 @@ function openLeaveModal() {
     document.getElementById("leaveId").value = "";
     document.getElementById("saveLeaveBtn").innerHTML = '<i class="bi bi-check-circle"></i> Submit Request';
     document.getElementById("leaveFormAlert").innerHTML = "";
+    document.getElementById("leaveForm").action ='/dev/api/leaves/create/';
 }
 
 function closeLeaveModal() {

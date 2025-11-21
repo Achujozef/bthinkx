@@ -6,6 +6,7 @@ urlpatterns = [
     path('logout/', views.employee_logout, name='logout'),
 
     path('dashboard/', views.employee_dashboard, name='employee_dashboard'),
+    
     path('tasks/', views.my_tasks, name='my_tasks'),
     path('api/tasks/<str:task_id>/toggle/', views.update_task_status, name='toggle_task_status'),
     path('api/tasks/<str:task_id>/update-status/', views.update_task_status, name='update_task_status'),
