@@ -5,530 +5,1103 @@
 
 {% block extra_css %}
 <style>
-    .chat-room-container {
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 80px);
-        background: var(--card-bg);
-    }
-    
-    .chat-room-header {
-        padding: 20px 30px;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--card-bg);
-    }
-    
-    .chat-room-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-    
-    .chat-room-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    
-    .chat-room-avatar-placeholder {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        color: white;
-    }
-    
-    .chat-room-details h2 {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 700;
-    }
-    
-    .chat-room-details p {
-        margin: 2px 0 0 0;
-        font-size: 13px;
-        color: var(--text-secondary);
-    }
-    
-    .chat-room-actions {
-        display: flex;
-        gap: 10px;
-    }
-    
-    .chat-messages-container {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px 30px;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .message-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+/* ========== CHAT LAYOUT ========== */
+.chat-wrapper {
+    display: grid;
+    height: calc(100vh - 80px);
+    background: var(--primary-bg);
+}
+
+/* ========== CHAT SIDEBAR ========== */
+.chat-sidebar {
+    background: var(--card-bg);
+    border-right: 1px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-sidebar-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.chat-search {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.chat-search input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.chat-search input:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+}
+
+.chat-search input::placeholder {
+    color: var(--text-muted);
+}
+
+.chat-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.chat-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--card-border);
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.chat-item:hover {
+    background: var(--hover-bg);
+}
+
+.chat-item.active {
+    background: rgba(139, 92, 246, 0.1);
+    border-left: 3px solid var(--accent-purple);
+}
+
+.chat-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.chat-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.chat-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.chat-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.chat-item-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+}
+
+.chat-item-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.chat-item-time.unread {
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+.chat-item-preview {
+    font-size: 14px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.unread-badge {
+    background: var(--accent-green);
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.chat-actions-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--card-border);
+    display: flex;
+    gap: 10px;
+}
+
+/* ========== CHAT ROOM MAIN ========== */
+.chat-room-main {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 80px);
+    background: var(--primary-bg);
+}
+
+.chat-room-header {
+    padding: 15px 24px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-room-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.chat-room-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-room-avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    font-size: 14px;
+}
+
+.chat-room-details h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.chat-room-details p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.chat-room-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ========== MESSAGES CONTAINER ========== */
+.chat-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--primary-bg);
+}
+
+.message-item {
+    display: flex;
+    gap: 10px;
+    max-width: 65%;
+    position: relative;
+}
+
+.message-item.own {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+.message-item.highlight {
+    animation: highlight 2s ease-out;
+}
+
+@keyframes highlight {
+    0%, 30% { background: rgba(139, 92, 246, 0.2); border-radius: 12px; }
+    100% { background: transparent; }
+}
+
+.message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    align-self: flex-end;
+}
+
+.message-avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    align-self: flex-end;
+}
+
+.message-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.message-sender {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--accent-purple);
+}
+
+.message-time {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.message-bubble {
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    word-wrap: break-word;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    cursor: pointer;
+    position: relative;
+}
+
+.message-item.own .message-bubble {
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    border: none;
+    color: white;
+}
+
+.message-edited {
+    font-size: 10px;
+    opacity: 0.7;
+    margin-left: 6px;
+}
+
+.message-status {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: flex-end;
+}
+
+.message-item.own .message-status {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Reply Preview */
+.reply-preview {
+    background: rgba(139, 92, 246, 0.1);
+    padding: 8px 12px;
+    border-left: 3px solid var(--accent-purple);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.reply-preview-sender {
+    font-weight: 600;
+    color: var(--accent-purple);
+    margin-bottom: 2px;
+}
+
+.reply-preview-content {
+    color: var(--text-secondary);
+}
+
+/* Attachments */
+.message-attachments {
+    margin-top: 8px;
+    max-width: 280px;
+}
+
+.attachment-image {
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.attachment-file {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.attachment-file:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.attachment-icon {
+    font-size: 24px;
+}
+
+.attachment-name {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.attachment-size {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* System Message */
+.system-message {
+    text-align: center;
+    padding: 8px 16px;
+    margin: 8px 0;
+}
+
+.system-message span {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Date Separator */
+.date-separator {
+    text-align: center;
+    padding: 16px 0;
+}
+
+.date-separator span {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Typing Indicator */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+    animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-4px); }
+}
+
+/* Blocked Banner */
+.blocked-banner {
+    padding: 12px 20px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--accent-red);
+    text-align: center;
+    font-size: 13px;
+}
+
+.blocked-banner a {
+    color: var(--accent-purple);
+    text-decoration: underline;
+    margin-left: 8px;
+}
+
+/* ========== INPUT AREA ========== */
+.chat-input-area {
+    padding: 16px 24px;
+    background: var(--card-bg);
+    border-top: 1px solid var(--card-border);
+}
+
+.reply-to-bar {
+    display: none;
+    padding: 10px 14px;
+    background: var(--primary-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.reply-to-bar.show { display: flex; }
+
+.reply-to-content {
+    flex: 1;
+}
+
+.reply-to-label {
+    font-size: 12px;
+    color: var(--accent-purple);
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.reply-to-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.message-type-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.message-type-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--card-border);
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.message-type-btn.active {
+    background: var(--accent-purple);
+    color: white;
+    border-color: var(--accent-purple);
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    resize: none;
+    max-height: 120px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+}
+
+.chat-input::placeholder {
+    color: var(--text-muted);
+}
+
+.chat-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Formal Compose */
+.formal-compose {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--primary-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+.formal-compose.active { display: flex; }
+
+.formal-compose label {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.formal-compose input,
+.formal-compose textarea,
+.formal-compose select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+}
+
+.formal-compose input:focus,
+.formal-compose textarea:focus,
+.formal-compose select:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+}
+
+/* ========== BUTTONS ========== */
+.icon-button {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.icon-button:hover {
+    color: var(--accent-purple);
+    background: var(--hover-bg);
+}
+
+.send-button {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.send-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.send-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-secondary {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent-purple);
+    background: rgba(139, 92, 246, 0.1);
+}
+
+/* ========== CONTEXT MENU ========== */
+.context-menu {
+    position: fixed;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 8px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: none;
+    min-width: 180px;
+}
+
+.context-menu.show { display: block; }
+
+.context-menu-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.context-menu-item:hover {
+    background: var(--hover-bg);
+}
+
+.context-menu-item.danger {
+    color: var(--accent-red);
+}
+
+/* ========== MODALS ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 450px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal h3 {
+    margin: 0 0 20px;
+    color: var(--text-primary);
+    font-size: 18px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+}
+
+.user-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+}
+
+.user-item {
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.user-item:hover {
+    background: var(--hover-bg);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* File Input */
+#fileInput { display: none; }
+
+/* ========== MOBILE RESPONSIVE ========== */
+@media (max-width: 1024px) {
+    .chat-wrapper {
+        grid-template-columns: 300px 1fr;
     }
     
     .message-item {
+        max-width: 75%;
+    }
+}
+
+@media (max-width: 768px) {
+    .chat-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .chat-sidebar {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 80px;
+        bottom: 0;
+        width: 85%;
+        max-width: 320px;
+        z-index: 1000;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .chat-sidebar.mobile-open {
         display: flex;
-        gap: 12px;
-        max-width: 70%;
     }
     
-    .message-item.own {
-        margin-left: auto;
-        flex-direction: row-reverse;
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 900;
     }
     
-    .message-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
-        flex-shrink: 0;
+    .mobile-overlay.show {
+        display: block;
     }
     
-    .message-avatar-placeholder {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        font-weight: 600;
-        color: white;
-        flex-shrink: 0;
+    .toggle-sidebar-btn {
+        display: flex !important;
     }
     
-    .message-content {
-        flex: 1;
-        min-width: 0;
+    .message-item {
+        max-width: 85%;
     }
     
-    .message-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 4px;
-    }
-    
-    .message-sender {
-        font-weight: 600;
-        font-size: 14px;
-        color: var(--text-primary);
-    }
-    
-    .message-time {
-        font-size: 12px;
-        color: var(--text-secondary);
-    }
-    
-    .message-bubble {
-        padding: 12px 16px;
-        border-radius: 12px;
-        background: var(--hover-bg);
-        word-wrap: break-word;
-        color: var(--text-primary);
-    }
-    
-    .message-item.own .message-bubble {
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: white;
-    }
-    
-    /* Formal Email Message Styling */
-    .message-formal {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 20px;
-        max-width: 80%;
-    }
-    
-    .message-formal-header {
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 15px;
-        margin-bottom: 15px;
-    }
-    
-    .message-formal-subject {
-        font-size: 18px;
-        font-weight: 700;
-        margin-bottom: 10px;
-        color: var(--text-primary);
-    }
-    
-    .message-formal-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        font-size: 13px;
-        color: var(--text-secondary);
-    }
-    
-    .message-formal-meta strong {
-        color: var(--text-primary);
-        font-weight: 600;
-    }
-    
-    .message-formal-body {
-        line-height: 1.6;
-        color: var(--text-primary);
-        white-space: pre-wrap;
-    }
-    
-    .typing-indicator {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 15px;
-        color: var(--text-secondary);
-        font-size: 13px;
-        font-style: italic;
-    }
-    
-    .typing-dots {
-        display: flex;
-        gap: 4px;
-    }
-    
-    .typing-dots span {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--text-secondary);
-        animation: typing 1.4s infinite;
-    }
-    
-    .typing-dots span:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-    
-    .typing-dots span:nth-child(3) {
-        animation-delay: 0.4s;
-    }
-    
-    @keyframes typing {
-        0%, 60%, 100% { opacity: 0.3; }
-        30% { opacity: 1; }
+    .chat-messages-container {
+        padding: 16px;
     }
     
     .chat-input-area {
-        padding: 20px 30px;
-        border-top: 1px solid var(--border-color);
-        background: var(--card-bg);
-    }
-    
-    .chat-input-container {
-        display: flex;
-        gap: 10px;
-        align-items: end;
+        padding: 12px 16px;
     }
     
     .message-type-toggle {
-        display: flex;
-        gap: 5px;
-        margin-bottom: 10px;
+        flex-wrap: wrap;
     }
-    
-    .message-type-btn {
-        padding: 6px 12px;
-        border: 1px solid var(--border-color);
-        background: var(--card-bg);
-        color: var(--text-primary);
-        border-radius: 6px;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .message-type-btn.active {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .chat-input {
-        flex: 1;
-        padding: 12px 16px;
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        background: var(--input-bg);
-        color: var(--text-primary);
-        font-size: 14px;
-        resize: none;
-        max-height: 120px;
-        font-family: inherit;
-    }
-    
-    /* Formal compose UI */
-    .formal-compose {
-        display: none;
-        flex-direction: column;
-        gap: 10px;
-        padding: 20px;
-        background: var(--hover-bg);
-        border-radius: 12px;
-        margin-bottom: 15px;
-    }
-    
-    .formal-compose.active {
-        display: flex;
-    }
-    
-    .formal-compose input,
-    .formal-compose textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        background: var(--input-bg);
-        color: var(--text-primary);
-        font-size: 14px;
-        font-family: inherit;
-    }
-    
-    .formal-compose label {
-        font-weight: 600;
-        font-size: 13px;
-        color: var(--text-primary);
-    }
-    
-    .send-button {
-        padding: 12px 24px;
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.2s;
-    }
-    
-    .send-button:hover {
-        transform: translateY(-2px);
-    }
-    
-    .send-button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-    }
-    
-    .icon-button {
-        padding: 10px;
-        background: transparent;
-        color: var(--text-secondary);
-        border: none;
-        cursor: pointer;
-        font-size: 18px;
-        transition: color 0.2s;
-    }
-    
-    .icon-button:hover {
-        color: var(--primary-color);
-    }
-    
-    .system-message {
-        text-align: center;
-        padding: 10px;
-        color: var(--text-secondary);
-        font-size: 13px;
-        font-style: italic;
-    }
-    
-    #loadMoreBtn {
-        margin: 0 auto 20px;
-        padding: 8px 20px;
-        background: var(--hover-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        color: var(--text-primary);
-        cursor: pointer;
-        font-size: 13px;
-    }
-    
-    #loadMoreBtn:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
+}
+
+/* Hide toggle on desktop */
+.toggle-sidebar-btn {
+    display: none;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="chat-room-container">
-    <div class="chat-room-header">
-        <div class="chat-room-info">
-            <a href="{% url 'chat_list' %}" class="icon-button">
-                <i class="bi bi-arrow-left"></i>
-            </a>
-            
-            {% if room.room_type == 'personal' and other_user %}
-                {% if other_user.avatar %}
-                    <img src="{{ other_user.avatar.url }}" alt="{{ other_user.get_full_name }}" class="chat-room-avatar">
+<div class="chat-wrapper">
+   
+    <!-- Sidebar -->
+    <div class="chat-sidebar" id="chatSidebar">
+        <div class="chat-sidebar-header">
+            <h2>Chats</h2>
+            <button class="btn-secondary" onclick="openNewChatModal()" title="New Chat">
+                <i class="bi bi-plus-lg"></i>
+            </button>
+        </div>
+        <div class="chat-search">
+            <input type="text" id="sidebarSearch" placeholder="Search or start new chat" oninput="filterSidebarChats()">
+        </div>
+        <div class="chat-list" id="chatList">
+            {% for data in room_data %}
+            <a href="{% url 'chat_room' data.room.id %}" class="chat-item {% if data.room.id == room.id %}active{% endif %}" data-name="{% if data.room.room_type == 'personal' and data.other_user %}{{ data.other_user.get_full_name|lower }}{% else %}{{ data.room.name|lower }}{% endif %}">
+                {% if data.room.room_type == 'personal' and data.other_user %}
+                    {% if data.other_user.avatar %}
+                        <img src="{{ data.other_user.avatar.url }}" class="chat-avatar">
+                    {% else %}
+                        <div class="chat-avatar-placeholder">{{ data.other_user.first_name.0|upper }}{{ data.other_user.last_name.0|upper }}</div>
+                    {% endif %}
                 {% else %}
-                    <div class="chat-room-avatar-placeholder">
-                        {{ other_user.first_name.0|upper }}{{ other_user.last_name.0|upper }}
+                    <div class="chat-avatar-placeholder"><i class="bi bi-people"></i></div>
+                {% endif %}
+                <div class="chat-item-content">
+                    <div class="chat-item-header">
+                        <span class="chat-item-name">{% if data.room.room_type == 'personal' and data.other_user %}{{ data.other_user.get_full_name }}{% else %}{{ data.room.name }}{% endif %}</span>
+                        {% if data.last_message %}<span class="chat-item-time {% if data.unread_count > 0 %}unread{% endif %}">{{ data.last_message.created_at|date:"d-m-Y" }}</span>{% endif %}
+                    </div>
+                    <div class="chat-item-preview">
+                        <span>{% if data.last_message %}{{ data.last_message.content|truncatewords:6 }}{% else %}No messages{% endif %}</span>
+                        {% if data.unread_count > 0 %}<span class="unread-badge">{{ data.unread_count }}</span>{% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div style="padding: 40px 20px; text-align: center; color: var(--text-secondary);">
+                <i class="bi bi-chat-text" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
+                <p>No conversations yet</p>
+                <button class="btn-primary" onclick="openNewChatModal()" style="margin-top: 16px;">Start a Chat</button>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="chat-actions-footer">
+            <button class="btn-primary" onclick="openNewChatModal()">
+                <i class="bi bi-chat-dots"></i> New Chat
+            </button>
+            <button class="btn-secondary" onclick="openGroupModal()">
+                <i class="bi bi-people"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Chat Room Main -->
+    <div class="chat-room-main">
+        <div class="chat-room-header">
+            <div class="chat-room-info">
+                <button class="icon-button toggle-sidebar-btn" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                {% if room.room_type == 'personal' and other_user %}
+                    {% if other_user.avatar %}
+                        <img src="{{ other_user.avatar.url }}" class="chat-room-avatar">
+                    {% else %}
+                        <div class="chat-room-avatar-placeholder">{{ other_user.first_name.0|upper }}{{ other_user.last_name.0|upper }}</div>
+                    {% endif %}
+                    <div class="chat-room-details">
+                        <h2>{{ other_user.get_full_name }}</h2>
+                        <p id="userStatus">{{ other_user.email }}</p>
+                    </div>
+                {% else %}
+                    <div class="chat-room-avatar-placeholder"><i class="bi bi-people"></i></div>
+                    <div class="chat-room-details">
+                        <h2>{{ room.name }}</h2>
+                        <p>{{ members.count }} members</p>
                     </div>
                 {% endif %}
-                <div class="chat-room-details">
-                    <h2>{{ other_user.get_full_name }}</h2>
-                    <p>{{ other_user.email }}</p>
-                </div>
-            {% else %}
-                <div class="chat-room-avatar-placeholder">
-                    <i class="bi bi-people"></i>
-                </div>
-                <div class="chat-room-details">
-                    <h2>{{ room.name }}</h2>
-                    <p>{{ members.count }} members</p>
-                </div>
-            {% endif %}
+            </div>
+            <div class="chat-room-actions">
+                <button class="icon-button" onclick="openSearchModal()" title="Search"><i class="bi bi-search"></i></button>
+                <button class="icon-button" onclick="openOptionsModal()" title="Options"><i class="bi bi-three-dots-vertical"></i></button>
+            </div>
         </div>
-        
-        <div class="chat-room-actions">
-            <button class="icon-button" title="Search">
-                <i class="bi bi-search"></i>
-            </button>
-            <button class="icon-button" title="More">
-                <i class="bi bi-three-dots-vertical"></i>
-            </button>
+
+        {% if blocked_by_other %}
+        <div class="blocked-banner">You cannot send messages to this conversation.</div>
+        {% elif is_blocked %}
+        <div class="blocked-banner">You have blocked this user.<a href="#" onclick="toggleBlock(); return false;">Unblock</a></div>
+        {% endif %}
+
+        <div class="chat-messages-container" id="messagesContainer">
+            <div id="loadMoreContainer" style="text-align:center; padding:12px; display:none;">
+
+                <button class="btn-secondary" onclick="loadMoreMessages()">Load older messages</button>
+            </div>
+            {% for message in messages %}
+                {% include "partials/message_item.html" with message=message user=user %}
+            {% endfor %}
+            <div id="typingIndicator"></div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="reply-to-bar" id="replyBar">
+                <div>
+                    <div class="reply-to-label">Replying to <span id="replyToName"></span></div>
+                    <div class="reply-to-text" id="replyToContent"></div>
+                </div>
+                <button class="icon-button" onclick="cancelReply()"><i class="bi bi-x"></i></button>
+            </div>
+
+            {% if room.room_type == 'personal' %}
+            <div class="message-type-toggle">
+                <button class="message-type-btn active" data-type="casual" onclick="setMsgType('casual')"><i class="bi bi-chat"></i> Casual</button>
+                <button class="message-type-btn" data-type="formal" onclick="setMsgType('formal')"><i class="bi bi-envelope"></i> Formal</button>
+            </div>
+            <div class="formal-compose" id="formalCompose">
+                <div><label>Subject</label><input type="text" id="formalSubject" placeholder="Subject"></div>
+                <div><label>To</label><select id="formalTo" multiple>{% for m in members %}{% if m.user != user %}<option value="{{ m.user.id }}">{{ m.user.get_full_name }}</option>{% endif %}{% endfor %}</select></div>
+                <div><label>CC</label><select id="formalCc" multiple>{% for m in members %}{% if m.user != user %}<option value="{{ m.user.id }}">{{ m.user.get_full_name }}</option>{% endif %}{% endfor %}</select></div>
+                <div><label>Message</label><textarea id="formalBody" rows="4" placeholder="Compose message..."></textarea></div>
+            </div>
+            {% endif %}
+
+            <div class="chat-input-container">
+                <input type="file" id="fileInput" multiple>
+                <button class="icon-button" onclick="document.getElementById('fileInput').click()" title="Attach"><i class="bi bi-paperclip"></i></button>
+                <textarea id="messageInput" class="chat-input" placeholder="Type a message..." rows="1" {% if blocked_by_other or is_blocked %}disabled{% endif %}></textarea>
+                <button class="send-button" id="sendBtn" onclick="sendMessage()" {% if blocked_by_other or is_blocked %}disabled{% endif %}><i class="bi bi-send"></i></button>
+            </div>
         </div>
     </div>
-    
-    <div class="chat-messages-container" id="messagesContainer">
-        <button id="loadMoreBtn" style="display: none;">Load More</button>
-        
-        {% for message in messages %}
-            {% if message.message_type == 'system' %}
-                <div class="system-message">
-                    {{ message.content }}
-                </div>
-            {% elif message.message_type == 'formal' %}
-                <div class="message-item {% if message.sender == user %}own{% endif %}">
-                    {% if message.sender != user %}
-                        {% if message.sender.avatar %}
-                            <img src="{{ message.sender.avatar.url }}" class="message-avatar">
-                        {% else %}
-                            <div class="message-avatar-placeholder">
-                                {{ message.sender.first_name.0|upper }}{{ message.sender.last_name.0|upper }}
-                            </div>
-                        {% endif %}
-                    {% endif %}
-                    
-                    <div class="message-formal" data-message-id="{{ message.id }}">
-                        <div class="message-formal-header">
-                            <div class="message-formal-subject">{{ message.subject }}</div>
-                            <div class="message-formal-meta">
-                                <div><strong>From:</strong> {{ message.sender.get_full_name }}</div>
-                                {% if message.to_users.all %}
-                                <div><strong>To:</strong> {% for u in message.to_users.all %}{{ u.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
-                                {% endif %}
-                                {% if message.cc_users.all %}
-                                <div><strong>CC:</strong> {% for u in message.cc_users.all %}{{ u.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
-                                {% endif %}
-                                <div><strong>Date:</strong> {{ message.created_at|date:"M d, Y h:i A" }}</div>
-                            </div>
-                        </div>
-                        <div class="message-formal-body">{{ message.content }}</div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="message-item {% if message.sender == user %}own{% endif %}" data-message-id="{{ message.id }}">
-                    {% if message.sender != user %}
-                        {% if message.sender.avatar %}
-                            <img src="{{ message.sender.avatar.url }}" class="message-avatar">
-                        {% else %}
-                            <div class="message-avatar-placeholder">
-                                {{ message.sender.first_name.0|upper }}{{ message.sender.last_name.0|upper }}
-                            </div>
-                        {% endif %}
-                    {% endif %}
-                    
-                    <div class="message-content">
-                        {% if message.sender != user %}
-                        <div class="message-header">
-                            <span class="message-sender">{{ message.sender.get_full_name }}</span>
-                            <span class="message-time">{{ message.created_at|date:"h:i A" }}</span>
-                        </div>
-                        {% endif %}
-                        <div class="message-bubble">{{ message.content }}</div>
-                        {% if message.sender == user %}
-                        <div class="message-time" style="text-align: right; margin-top: 4px;">{{ message.created_at|date:"h:i A" }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
-        
-        <div id="typingIndicatorContainer"></div>
+</div>
+
+<!-- Context Menu -->
+<div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" onclick="replyToSelected()"><i class="bi bi-reply"></i> Reply</div>
+    <div class="context-menu-item" onclick="copyMessage()"><i class="bi bi-clipboard"></i> Copy</div>
+    <div class="context-menu-item own-only" onclick="editMessage()"><i class="bi bi-pencil"></i> Edit</div>
+    <div class="context-menu-item danger" onclick="deleteMessage()"><i class="bi bi-trash"></i> Delete</div>
+</div>
+
+<!-- New Chat Modal -->
+<div class="modal-overlay" id="newChatModal">
+    <div class="modal">
+        <h3>Start New Chat</h3>
+        <div class="form-group">
+            <label>Search Users</label>
+            <input type="text" id="userSearchInput" placeholder="Name or email..." oninput="searchUsers()">
+        </div>
+        <div class="user-list" id="userResults"></div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('newChatModal')">Cancel</button>
+        </div>
     </div>
-    
-    <div class="chat-input-area">
-        <div class="message-type-toggle">
-            <button class="message-type-btn active" data-type="casual" onclick="setMessageType('casual')">
-                <i class="bi bi-chat"></i> Casual
-            </button>
-            <button class="message-type-btn" data-type="formal" onclick="setMessageType('formal')">
-                <i class="bi bi-envelope"></i> Formal
-            </button>
+</div>
+
+<!-- Search Modal -->
+<div class="modal-overlay" id="searchModal">
+    <div class="modal">
+        <h3>Search Messages</h3>
+        <div class="form-group">
+            <input type="text" id="msgSearchInput" placeholder="Search..." oninput="searchInChat()">
         </div>
-        
-        <div class="formal-compose" id="formalCompose">
-            <div>
-                <label>Subject</label>
-                <input type="text" id="formalSubject" placeholder="Email subject">
-            </div>
-            <div>
-                <label>To</label>
-                <select id="formalTo" multiple style="height: 60px;">
-                    {% for member in members %}
-                        {% if member.user != user %}
-                        <option value="{{ member.user.id }}">{{ member.user.get_full_name }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label>CC (Optional)</label>
-                <select id="formalCc" multiple style="height: 60px;">
-                    {% for member in members %}
-                        {% if member.user != user %}
-                        <option value="{{ member.user.id }}">{{ member.user.get_full_name }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label>Message</label>
-                <textarea id="formalBody" rows="6" placeholder="Compose your message..."></textarea>
-            </div>
+        <div class="user-list" id="msgSearchResults"></div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('searchModal')">Close</button>
         </div>
-        
-        <div class="chat-input-container">
-            <button class="icon-button" title="Attach file">
-                <i class="bi bi-paperclip"></i>
-            </button>
-            <textarea 
-                id="messageInput" 
-                class="chat-input" 
-                placeholder="Type a message..." 
-                rows="1"></textarea>
-            <button class="send-button" id="sendButton" onclick="sendMessage()">
-                <i class="bi bi-send"></i>
-            </button>
+    </div>
+</div>
+
+<!-- Options Modal -->
+<div class="modal-overlay" id="optionsModal">
+    <div class="modal">
+        <h3>Chat Options</h3>
+        <div class="context-menu-item" onclick="toggleMute()"><i class="bi bi-bell-slash"></i> <span id="muteText">Mute</span></div>
+        <div class="context-menu-item" onclick="togglePin()"><i class="bi bi-pin"></i> <span id="pinText">Pin</span></div>
+        {% if room.room_type == 'personal' %}
+        <div class="context-menu-item danger" onclick="toggleBlock()"><i class="bi bi-slash-circle"></i> <span id="blockText">{% if is_blocked %}Unblock{% else %}Block{% endif %}</span></div>
+        {% else %}
+        <div class="context-menu-item" onclick="viewMembers()"><i class="bi bi-people"></i> View Members</div>
+        <div class="context-menu-item danger" onclick="leaveGroup()"><i class="bi bi-box-arrow-left"></i> Leave Group</div>
+        {% endif %}
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('optionsModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <h3>Edit Message</h3>
+        <div class="form-group">
+            <textarea id="editContent" rows="4" style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--input-bg);color:var(--text-primary);"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+            <button class="btn-primary" style="width:auto;" onclick="saveEdit()">Save</button>
         </div>
     </div>
 </div>
@@ -536,242 +1109,420 @@
 
 {% block extra_js %}
 <script>
-    const roomId = '{{ room.id }}';
-    const userId = '{{ user.id }}';
-    const roomMembers = {{ room_members_json|safe }};
-    let currentMessageType = 'casual';
-    let socket = null;
-    let isTyping = false;
-    let typingTimeout = null;
-    let oldestMessageId = '{{ messages.0.id }}' || null;
-    
-    // WebSocket connection
-    function connectWebSocket() {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws/chat/${roomId}/`;
-        
-        socket = new WebSocket(wsUrl);
-        
-        socket.onopen = function(e) {
-            console.log('WebSocket connected');
-        };
-        
-        socket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            handleWebSocketMessage(data);
-        };
-        
-        socket.onclose = function(e) {
-            console.log('WebSocket closed, reconnecting...');
-            setTimeout(connectWebSocket, 3000);
-        };
-        
-        socket.onerror = function(e) {
-            console.error('WebSocket error:', e);
-        };
-    }
-    
-    function handleWebSocketMessage(data) {
-        switch(data.type) {
-            case 'chat_message':
-                appendMessage(data.message);
-                break;
-            case 'typing_indicator':
-                updateTypingIndicator(data.user_name, data.is_typing);
-                break;
-            case 'message_read_receipt':
-                // Handle read receipts if needed
-                break;
-        }
-    }
-    
-    function appendMessage(message) {
-        const container = document.getElementById('messagesContainer');
-        const isOwn = message.sender.id === userId;
-        
-        let html = '';
-        
-        if (message.message_type === 'formal') {
-            html = `
-                <div class="message-item ${isOwn ? 'own' : ''}" data-message-id="${message.id}">
-                    ${!isOwn ? renderAvatar(message.sender) : ''}
-                    <div class="message-formal">
-                        <div class="message-formal-header">
-                            <div class="message-formal-subject">${message.subject}</div>
-                            <div class="message-formal-meta">
-                                <div><strong>From:</strong> ${message.sender.name}</div>
-                                ${message.to_users ? `<div><strong>To:</strong> ${message.to_users.map(u => u.name).join(', ')}</div>` : ''}
-                                ${message.cc_users && message.cc_users.length ? `<div><strong>CC:</strong> ${message.cc_users.map(u => u.name).join(', ')}</div>` : ''}
-                                <div><strong>Date:</strong> ${new Date(message.created_at).toLocaleString()}</div>
-                            </div>
-                        </div>
-                        <div class="message-formal-body">${escapeHtml(message.content)}</div>
-                    </div>
-                </div>
-            `;
-        } else if (message.message_type === 'system') {
-            html = `<div class="system-message">${escapeHtml(message.content)}</div>`;
-        } else {
-            html = `
-                <div class="message-item ${isOwn ? 'own' : ''}" data-message-id="${message.id}">
-                    ${!isOwn ? renderAvatar(message.sender) : ''}
-                    <div class="message-content">
-                        ${!isOwn ? `
-                            <div class="message-header">
-                                <span class="message-sender">${message.sender.name}</span>
-                                <span class="message-time">${new Date(message.created_at).toLocaleTimeString()}</span>
-                            </div>
-                        ` : ''}
-                        <div class="message-bubble">${escapeHtml(message.content)}</div>
-                        ${isOwn ? `<div class="message-time" style="text-align: right; margin-top: 4px;">${new Date(message.created_at).toLocaleTimeString()}</div>` : ''}
-                    </div>
-                </div>
-            `;
-        }
-        
-        container.insertAdjacentHTML('beforeend', html);
-        scrollToBottom();
-    }
-    
-    function renderAvatar(sender) {
-        if (sender.avatar) {
-            return `<img src="${sender.avatar}" class="message-avatar">`;
-        }
-        const initials = sender.name.split(' ').map(n => n[0]).join('').toUpperCase();
-        return `<div class="message-avatar-placeholder">${initials}</div>`;
-    }
-    
-    function sendMessage() {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            alert('Connection lost. Reconnecting...');
-            return;
-        }
-        
-        let content, messageData;
-        
-        if (currentMessageType === 'formal') {
-            const subject = document.getElementById('formalSubject').value.trim();
-            const body = document.getElementById('formalBody').value.trim();
-            const toSelect = document.getElementById('formalTo');
-            const ccSelect = document.getElementById('formalCc');
-            
-            const toUsers = Array.from(toSelect.selectedOptions).map(o => o.value);
-            const ccUsers = Array.from(ccSelect.selectedOptions).map(o => o.value);
-            
-            if (!subject || !body) {
-                alert('Please fill in subject and message');
-                return;
-            }
-            
-            messageData = {
-                type: 'chat_message',
-                message_type: 'formal',
-                content: body,
-                subject: subject,
-                to_users: toUsers,
-                cc_users: ccUsers
-            };
-            
-            // Clear form
-            document.getElementById('formalSubject').value = '';
-            document.getElementById('formalBody').value = '';
-            toSelect.selectedIndex = -1;
-            ccSelect.selectedIndex = -1;
-            
-        } else {
-            content = document.getElementById('messageInput').value.trim();
-            
-            if (!content) return;
-            
-            messageData = {
-                type: 'chat_message',
-                message_type: currentMessageType,
-                content: content
-            };
-            
-            document.getElementById('messageInput').value = '';
-        }
-        
-        socket.send(JSON.stringify(messageData));
-        stopTyping();
-    }
-    
-    function setMessageType(type) {
-        currentMessageType = type;
-        document.querySelectorAll('.message-type-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.type === type);
-        });
-        
-        const formalCompose = document.getElementById('formalCompose');
-        const messageInput = document.getElementById('messageInput');
-        
-        if (type === 'formal') {
-            formalCompose.classList.add('active');
-            messageInput.style.display = 'none';
-        } else {
-            formalCompose.classList.remove('active');
-            messageInput.style.display = 'block';
-        }
-    }
-    
-    function startTyping() {
-        if (!isTyping && socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ type: 'typing_start' }));
-            isTyping = true;
-        }
-        
-        clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(stopTyping, 3000);
-    }
-    
-    function stopTyping() {
-        if (isTyping && socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ type: 'typing_stop' }));
-            isTyping = false;
-        }
-    }
-    
-    function updateTypingIndicator(userName, isTyping) {
-        const container = document.getElementById('typingIndicatorContainer');
-        
-        if (isTyping) {
-            container.innerHTML = `
-                <div class="typing-indicator">
-                    <span>${userName} is typing</span>
-                    <div class="typing-dots">
-                        <span></span><span></span><span></span>
-                    </div>
-                </div>
-            `;
-        } else {
-            container.innerHTML = '';
-        }
-        
-        scrollToBottom();
-    }
-    
-    function scrollToBottom() {
-        const container = document.getElementById('messagesContainer');
-        container.scrollTop = container.scrollHeight;
-    }
-    
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
-    // Event listeners
-    document.getElementById('messageInput').addEventListener('input', startTyping);
-    document.getElementById('messageInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-    
-    // Initialize
-    connectWebSocket();
+const ROOM_ID = '{{ room.id }}';
+const USER_ID = '{{ user.id }}';
+const ROOM_TYPE = '{{ room.room_type }}';
+const CSRF = '{{ csrf_token }}';
+{% if room.room_type == 'personal' and other_user %}const OTHER_USER_ID = '{{ other_user.id }}';{% endif %}
+
+let socket = null, msgType = 'casual', replyTo = null, selectedMsg = null;
+let isTyping = false, typingTimer = null, lastTap = 0;
+
+// ========== INIT ==========
+document.addEventListener('DOMContentLoaded', () => {
+    initWebSocket();
     scrollToBottom();
+    setupListeners();
+    checkMobile();
+});
+
+function setupListeners() {
+    const input = document.getElementById('messageInput');
+    input?.addEventListener('input', handleTyping);
+    input?.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+    document.getElementById('fileInput')?.addEventListener('change', handleFileUpload);
+    document.addEventListener('click', () => closeContextMenu());
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+        m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+    });
+}
+
+function checkMobile() {
+    if (window.innerWidth <= 768) {
+        document.querySelector('.toggle-sidebar-btn').style.display = 'block';
+    }
+}
+
+// ========== WEBSOCKET ==========
+function initWebSocket() {
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    socket = new WebSocket(`${proto}//${location.host}/ws/chat/${ROOM_ID}/`);
+    socket.onopen = () => console.log('WS connected');
+    socket.onmessage = e => handleWsMessage(JSON.parse(e.data));
+    socket.onclose = () => setTimeout(initWebSocket, 3000);
+    socket.onerror = err => console.error('WS error:', err);
+}
+
+function handleWsMessage(data) {
+    const handlers = {
+        'chat_message': () => appendMessage(data.message),
+        'chat.message': () => appendMessage(data.message),
+        'message_edited': () => updateMessage(data.message),
+        'message.edited': () => updateMessage(data.message),
+        'message_deleted': () => removeMessage(data.message_id),
+        'message.deleted': () => removeMessage(data.message_id),
+        'typing_indicator': () => showTyping(data.user_name, data.is_typing),
+        'typing.indicator': () => showTyping(data.user_name, data.is_typing),
+    };
+    (handlers[data.type] || (() => {}))();
+}
+
+// ========== MESSAGES ==========
+function appendMessage(msg) {
+    const container = document.getElementById('messagesContainer');
+    const typing = document.getElementById('typingIndicator');
+    const isOwn = msg.sender?.id === USER_ID;
+    const initials = msg.sender?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?';
+    
+    let replyHtml = '';
+    if (msg.reply_to) {
+        replyHtml = `<div class="reply-preview" onclick="scrollToMsg('${msg.reply_to.id}')">
+            <div class="reply-preview-sender">${esc(msg.reply_to.sender?.name || 'Unknown')}</div>
+            <div class="reply-preview-content">${esc(msg.reply_to.content?.substring(0, 50) || '')}</div>
+        </div>`;
+    }
+    
+    let attachHtml = '';
+    if (msg.attachments?.length) {
+        attachHtml = '<div class="message-attachments">' + msg.attachments.map(a => 
+            a.file_type === 'image' 
+                ? `<img src="${a.file_url}" class="attachment-image" onclick="window.open('${a.file_url}')">`
+                : `<div class="attachment-file" onclick="window.open('${a.file_url}')">
+                    <i class="bi bi-file-earmark attachment-icon"></i>
+                    <div><div class="attachment-name">${esc(a.file_name)}</div><div class="attachment-size">${formatSize(a.file_size)}</div></div>
+                   </div>`
+        ).join('') + '</div>';
+    }
+    
+    const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    const html = msg.message_type === 'system' 
+        ? `<div class="system-message">${esc(msg.content)}</div>`
+        : `<div class="message-item ${isOwn ? 'own' : ''}" data-id="${msg.id}" data-sender="${esc(msg.sender?.name || '')}" data-content="${esc(msg.content)}" oncontextmenu="showContext(event, this)" ondblclick="setReply(this)">
+            ${!isOwn ? (msg.sender?.avatar ? `<img src="${msg.sender.avatar}" class="message-avatar">` : `<div class="message-avatar-placeholder">${initials}</div>`) : ''}
+            <div class="message-content">
+                ${replyHtml}
+                ${!isOwn ? `<div class="message-header"><span class="message-sender">${esc(msg.sender?.name)}</span><span class="message-time">${time}</span></div>` : ''}
+                <div class="message-bubble">${esc(msg.content)}${msg.is_edited ? '<span class="message-edited">(edited)</span>' : ''}</div>
+                ${attachHtml}
+                ${isOwn ? `<div class="message-status"><span class="message-time">${time}</span><i class="bi bi-check-all"></i></div>` : ''}
+            </div>
+        </div>`;
+    
+    typing.insertAdjacentHTML('beforebegin', html);
+    scrollToBottom();
+}
+
+function updateMessage(msg) {
+    const el = document.querySelector(`[data-id="${msg.id}"]`);
+    if (el) {
+        el.dataset.content = msg.content;
+        const bubble = el.querySelector('.message-bubble');
+        if (bubble) bubble.innerHTML = esc(msg.content) + '<span class="message-edited">(edited)</span>';
+    }
+}
+
+function removeMessage(msgId) {
+    document.querySelector(`[data-id="${msgId}"]`)?.remove();
+}
+
+function scrollToMsg(msgId) {
+    const el = document.querySelector(`[data-id="${msgId}"]`);
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('highlight');
+        setTimeout(() => el.classList.remove('highlight'), 2000);
+    }
+}
+
+function scrollToBottom() {
+    const c = document.getElementById('messagesContainer');
+    if (c) c.scrollTop = c.scrollHeight;
+}
+
+// ========== SEND MESSAGE ==========
+function sendMessage() {
+    if (!socket || socket.readyState !== WebSocket.OPEN) return alert('Reconnecting...');
+    
+    let data;
+    if (msgType === 'formal' && ROOM_TYPE === 'personal') {
+        const subj = document.getElementById('formalSubject')?.value.trim();
+        const body = document.getElementById('formalBody')?.value.trim();
+        if (!subj || !body) return alert('Fill subject and message');
+        const toSel = document.getElementById('formalTo');
+        const ccSel = document.getElementById('formalCc');
+        data = {
+            type: 'chat_message', message_type: 'formal', content: body, subject: subj,
+            to_users: Array.from(toSel?.selectedOptions || []).map(o => o.value),
+            cc_users: Array.from(ccSel?.selectedOptions || []).map(o => o.value)
+        };
+        document.getElementById('formalSubject').value = '';
+        document.getElementById('formalBody').value = '';
+    } else {
+        const content = document.getElementById('messageInput')?.value.trim();
+        if (!content) return;
+        data = { type: 'chat_message', message_type: 'casual', content, reply_to: replyTo?.id || null };
+        document.getElementById('messageInput').value = '';
+        cancelReply();
+    }
+    socket.send(JSON.stringify(data));
+    stopTyping();
+}
+
+// ========== FILE UPLOAD ==========
+function handleFileUpload(e) {
+    const files = e.target.files;
+    if (!files.length) return;
+    
+    const form = new FormData();
+    const content = document.getElementById('messageInput')?.value.trim() || '';
+    form.append('content', content);
+    if (replyTo) form.append('reply_to', replyTo.id);
+    Array.from(files).forEach(f => form.append('file', f));
+    
+    fetch(`/chat/room/${ROOM_ID}/upload/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF },
+        body: form
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            document.getElementById('messageInput').value = '';
+            cancelReply();
+        } else alert(d.error || 'Upload failed');
+    })
+    .catch(() => alert('Upload failed'));
+    
+    e.target.value = '';
+}
+
+// ========== TYPING ==========
+function handleTyping() {
+    if (!isTyping && socket?.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: 'typing_start' }));
+        isTyping = true;
+    }
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(stopTyping, 3000);
+}
+
+function stopTyping() {
+    if (isTyping && socket?.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: 'typing_stop' }));
+        isTyping = false;
+    }
+}
+
+function showTyping(name, typing) {
+    const el = document.getElementById('typingIndicator');
+    el.innerHTML = typing ? `<div class="typing-indicator"><span>${esc(name)} is typing</span><div class="typing-dots"><span></span><span></span><span></span></div></div>` : '';
+    scrollToBottom();
+}
+
+// ========== REPLY ==========
+function setReply(el) {
+    replyTo = { id: el.dataset.id, sender: el.dataset.sender, content: el.dataset.content };
+    document.getElementById('replyToName').textContent = replyTo.sender;
+    document.getElementById('replyToContent').textContent = replyTo.content.substring(0, 50) + (replyTo.content.length > 50 ? '...' : '');
+    document.getElementById('replyBar').classList.add('show');
+    document.getElementById('messageInput')?.focus();
+}
+
+function cancelReply() {
+    replyTo = null;
+    document.getElementById('replyBar').classList.remove('show');
+}
+
+function replyToSelected() {
+    if (selectedMsg) setReply(selectedMsg);
+    closeContextMenu();
+}
+
+// ========== CONTEXT MENU ==========
+function showContext(e, el) {
+    e.preventDefault();
+    e.stopPropagation();
+    selectedMsg = el;
+    const menu = document.getElementById('contextMenu');
+    const isOwn = el.classList.contains('own');
+    menu.querySelectorAll('.own-only').forEach(i => i.style.display = isOwn ? 'flex' : 'none');
+    menu.style.left = e.pageX + 'px';
+    menu.style.top = e.pageY + 'px';
+    menu.classList.add('show');
+}
+
+function closeContextMenu() {
+    document.getElementById('contextMenu')?.classList.remove('show');
+}
+
+function copyMessage() {
+    if (selectedMsg) navigator.clipboard.writeText(selectedMsg.dataset.content);
+    closeContextMenu();
+}
+
+function editMessage() {
+    if (!selectedMsg) return;
+    document.getElementById('editContent').value = selectedMsg.dataset.content;
+    document.getElementById('editModal').classList.add('active');
+    closeContextMenu();
+}
+
+function saveEdit() {
+    if (!selectedMsg) return;
+    const content = document.getElementById('editContent').value.trim();
+    if (!content) return alert('Content required');
+    
+    fetch(`/chat/message/${selectedMsg.dataset.id}/edit/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) closeModal('editModal');
+        else alert(d.error || 'Edit failed');
+    });
+}
+
+function deleteMessage() {
+    if (!selectedMsg || !confirm('Delete this message?')) return;
+    fetch(`/chat/message/${selectedMsg.dataset.id}/delete/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF }
+    }).then(r => r.json()).then(d => {
+        if (!d.success) alert(d.error || 'Delete failed');
+    });
+    closeContextMenu();
+}
+
+// ========== MESSAGE TYPE ==========
+function setMsgType(type) {
+    msgType = type;
+    document.querySelectorAll('.message-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+    document.getElementById('formalCompose')?.classList.toggle('active', type === 'formal');
+    document.querySelector('.chat-input-container').style.display = type === 'formal' ? 'none' : 'flex';
+}
+
+// ========== SEARCH ==========
+function openSearchModal() { document.getElementById('searchModal').classList.add('active'); }
+
+let searchTimer;
+function searchInChat() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+        const q = document.getElementById('msgSearchInput').value.trim();
+        if (q.length < 2) { document.getElementById('msgSearchResults').innerHTML = ''; return; }
+        fetch(`/chat/room/${ROOM_ID}/search/?q=${encodeURIComponent(q)}`)
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('msgSearchResults').innerHTML = d.results?.length
+                    ? d.results.map(m => `<div class="user-item" onclick="scrollToMsg('${m.id}');closeModal('searchModal')"><div><strong>${esc(m.sender_name)}</strong><div style="font-size:12px;color:var(--text-secondary)">${esc(m.content)}</div></div></div>`).join('')
+                    : '<div style="padding:20px;text-align:center;color:var(--text-secondary)">No results</div>';
+            });
+    }, 300);
+}
+
+// ========== NEW CHAT ==========
+function openNewChatModal() {
+    document.getElementById('newChatModal').classList.add('active');
+    loadAllUsers();
+}
+
+function loadAllUsers() {
+    fetch('/chat/search-users/?q=').then(r => r.json()).then(d => renderUsers(d.users));
+}
+
+function searchUsers() {
+    const q = document.getElementById('userSearchInput').value.trim();
+    fetch(`/chat/search-users/?q=${encodeURIComponent(q)}`).then(r => r.json()).then(d => renderUsers(d.users));
+}
+
+function renderUsers(users) {
+    document.getElementById('userResults').innerHTML = users.map(u => `
+        <div class="user-item" onclick="startChat('${u.id}')">
+            ${u.avatar ? `<img src="${u.avatar}" class="chat-avatar" style="width:32px;height:32px">` : `<div class="chat-avatar-placeholder" style="width:32px;height:32px;font-size:11px">${u.name.split(' ').map(n=>n[0]).join('').toUpperCase()}</div>`}
+            <div><div style="font-weight:600">${esc(u.name)}</div><div style="font-size:12px;color:var(--text-secondary)">${esc(u.email)}</div></div>
+        </div>
+    `).join('') || '<div style="padding:20px;text-align:center">No users found</div>';
+}
+
+function startChat(userId) { location.href = `/chat/start/${userId}/`; }
+
+// ========== OPTIONS ==========
+function openOptionsModal() { document.getElementById('optionsModal').classList.add('active'); }
+
+function toggleMute() {
+    fetch(`/chat/room/${ROOM_ID}/mute/`, { method: 'POST', headers: { 'X-CSRFToken': CSRF } })
+        .then(r => r.json()).then(d => {
+            if (d.success) document.getElementById('muteText').textContent = d.is_muted ? 'Unmute' : 'Mute';
+        });
+}
+
+function togglePin() {
+    fetch(`/chat/room/${ROOM_ID}/pin/`, { method: 'POST', headers: { 'X-CSRFToken': CSRF } })
+        .then(r => r.json()).then(d => {
+            if (d.success) document.getElementById('pinText').textContent = d.is_pinned ? 'Unpin' : 'Pin';
+        });
+}
+
+function toggleBlock() {
+    {% if room.room_type == 'personal' and other_user %}
+    fetch(`/chat/block/${OTHER_USER_ID}/`, { method: 'POST', headers: { 'X-CSRFToken': CSRF } })
+        .then(r => r.json()).then(d => {
+            if (d.success) location.reload();
+        });
+    {% endif %}
+}
+
+function leaveGroup() {
+    if (!confirm('Leave this group?')) return;
+    fetch(`/chat/room/${ROOM_ID}/leave/`, { method: 'POST', headers: { 'X-CSRFToken': CSRF } })
+        .then(r => r.json()).then(d => { if (d.success) location.href = '/chat/'; });
+}
+
+function viewMembers() { alert('Members view - implement as needed'); closeModal('optionsModal'); }
+
+// ========== SIDEBAR ==========
+function toggleSidebar() {
+    document.getElementById('chatSidebar').classList.toggle('mobile-open');
+    document.getElementById('mobileOverlay').classList.toggle('show');
+}
+function closeSidebar() {
+    document.getElementById('chatSidebar').classList.remove('mobile-open');
+    document.getElementById('mobileOverlay').classList.remove('show');
+}
+function filterSidebarChats() {
+    const q = document.getElementById('sidebarSearch').value.toLowerCase();
+    document.querySelectorAll('.chat-item').forEach(i => {
+        i.style.display = i.dataset.name?.includes(q) ? 'flex' : 'none';
+    });
+}
+
+// ========== LOAD MORE ==========
+function loadMoreMessages() {
+    const first = document.querySelector('.message-item');
+    if (!first) return;
+    fetch(`/chat/room/${ROOM_ID}/messages/?before=${first.dataset.id}`)
+        .then(r => r.json()).then(d => {
+            d.messages?.forEach(m => {
+                const container = document.getElementById('loadMoreContainer');
+                container.insertAdjacentHTML('afterend', buildMsgHtml(m));
+            });
+            document.getElementById('loadMoreContainer').style.display = d.has_more ? 'block' : 'none';
+        });
+}
+
+// ========== MODALS ==========
+function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+
+// ========== UTILS ==========
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function formatSize(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+    return (b/1048576).toFixed(1) + ' MB';
+}
 </script>
 {% endblock %}

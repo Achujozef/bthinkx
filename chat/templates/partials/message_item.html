@@ -1,0 +1,93 @@
+{% comment %}
+Template partial for rendering a single message
+Usage: {% include "partials/message_item.html" with message=message user=user %}
+{% endcomment %}
+
+{% if message.message_type == 'system' %}
+<div class="system-message">{{ message.content }}</div>
+
+{% elif message.message_type == 'formal' %}
+<div class="message-item {% if message.sender == user %}own{% endif %}" data-id="{{ message.id }}">
+    <div class="message-formal" style="background:var(--card-bg);border:1px solid var(--border-color);border-radius:12px;padding:16px;width:100%;max-width:none;">
+        <div style="border-bottom:1px solid var(--border-color);padding-bottom:12px;margin-bottom:12px;">
+            <div style="font-size:16px;font-weight:700;margin-bottom:8px;">{{ message.subject }}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">
+                <div><strong>From:</strong> {{ message.sender.get_full_name }}</div>
+                {% if message.to_users.all %}
+                <div><strong>To:</strong> {% for u in message.to_users.all %}{{ u.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+                {% endif %}
+                {% if message.cc_users.all %}
+                <div><strong>CC:</strong> {% for u in message.cc_users.all %}{{ u.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+                {% endif %}
+                <div><strong>Date:</strong> {{ message.created_at|date:"M d, Y h:i A" }}</div>
+            </div>
+        </div>
+        <div style="line-height:1.6;white-space:pre-wrap;">{{ message.content }}</div>
+    </div>
+</div>
+
+{% else %}
+<div class="message-item {% if message.sender == user %}own{% endif %}" 
+     data-id="{{ message.id }}" 
+     data-sender="{{ message.sender.get_full_name }}" 
+     data-content="{{ message.content }}"
+     oncontextmenu="showContext(event, this)" 
+     ondblclick="setReply(this)">
+    
+    {% if message.sender != user %}
+        {% if message.sender.avatar %}
+            <img src="{{ message.sender.avatar.url }}" class="message-avatar">
+        {% else %}
+            <div class="message-avatar-placeholder">
+                {{ message.sender.first_name.0|upper }}{{ message.sender.last_name.0|upper }}
+            </div>
+        {% endif %}
+    {% endif %}
+    
+    <div class="message-content">
+        {% if message.reply_to %}
+        <div class="reply-preview" onclick="scrollToMsg('{{ message.reply_to.id }}')">
+            <div class="reply-preview-sender">{{ message.reply_to.sender.get_full_name }}</div>
+            <div class="reply-preview-content">{{ message.reply_to.content|truncatewords:10 }}</div>
+        </div>
+        {% endif %}
+        
+        {% if message.sender != user %}
+        <div class="message-header">
+            <span class="message-sender">{{ message.sender.get_full_name }}</span>
+            <span class="message-time">{{ message.created_at|date:"h:i A" }}</span>
+        </div>
+        {% endif %}
+        
+        <div class="message-bubble">
+            {{ message.content }}
+            {% if message.is_edited %}<span class="message-edited">(edited)</span>{% endif %}
+        </div>
+        
+        {% if message.attachments.all %}
+        <div class="message-attachments">
+            {% for att in message.attachments.all %}
+                {% if att.file_type == 'image' %}
+                    <img src="{{ att.file.url }}" class="attachment-image" onclick="window.open('{{ att.file.url }}', '_blank')">
+                {% else %}
+                    <div class="attachment-file" onclick="window.open('{{ att.file.url }}', '_blank')">
+                        <i class="bi bi-file-earmark attachment-icon"></i>
+                        <div>
+                            <div class="attachment-name">{{ att.file_name }}</div>
+                            <div class="attachment-size">{{ att.file_size|filesizeformat }}</div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if message.sender == user %}
+        <div class="message-status">
+            <span class="message-time">{{ message.created_at|date:"h:i A" }}</span>
+            <i class="bi bi-check-all"></i>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
