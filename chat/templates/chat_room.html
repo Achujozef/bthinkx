@@ -1,0 +1,777 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if room.room_type == 'personal' and other_user %}{{ other_user.get_full_name }}{% else %}{{ room.name }}{% endif %} - Chat{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-room-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 80px);
+        background: var(--card-bg);
+    }
+    
+    .chat-room-header {
+        padding: 20px 30px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--card-bg);
+    }
+    
+    .chat-room-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .chat-room-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .chat-room-avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .chat-room-details h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+    }
+    
+    .chat-room-details p {
+        margin: 2px 0 0 0;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    
+    .chat-room-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .chat-messages-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .message-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .message-item {
+        display: flex;
+        gap: 12px;
+        max-width: 70%;
+    }
+    
+    .message-item.own {
+        margin-left: auto;
+        flex-direction: row-reverse;
+    }
+    
+    .message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    
+    .message-avatar-placeholder {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: white;
+        flex-shrink: 0;
+    }
+    
+    .message-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .message-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+    
+    .message-sender {
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--text-primary);
+    }
+    
+    .message-time {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    
+    .message-bubble {
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: var(--hover-bg);
+        word-wrap: break-word;
+        color: var(--text-primary);
+    }
+    
+    .message-item.own .message-bubble {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        color: white;
+    }
+    
+    /* Formal Email Message Styling */
+    .message-formal {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        max-width: 80%;
+    }
+    
+    .message-formal-header {
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .message-formal-subject {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    
+    .message-formal-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    
+    .message-formal-meta strong {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .message-formal-body {
+        line-height: 1.6;
+        color: var(--text-primary);
+        white-space: pre-wrap;
+    }
+    
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 15px;
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-style: italic;
+    }
+    
+    .typing-dots {
+        display: flex;
+        gap: 4px;
+    }
+    
+    .typing-dots span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--text-secondary);
+        animation: typing 1.4s infinite;
+    }
+    
+    .typing-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes typing {
+        0%, 60%, 100% { opacity: 0.3; }
+        30% { opacity: 1; }
+    }
+    
+    .chat-input-area {
+        padding: 20px 30px;
+        border-top: 1px solid var(--border-color);
+        background: var(--card-bg);
+    }
+    
+    .chat-input-container {
+        display: flex;
+        gap: 10px;
+        align-items: end;
+    }
+    
+    .message-type-toggle {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .message-type-btn {
+        padding: 6px 12px;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        color: var(--text-primary);
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .message-type-btn.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .chat-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--input-bg);
+        color: var(--text-primary);
+        font-size: 14px;
+        resize: none;
+        max-height: 120px;
+        font-family: inherit;
+    }
+    
+    /* Formal compose UI */
+    .formal-compose {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px;
+        background: var(--hover-bg);
+        border-radius: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .formal-compose.active {
+        display: flex;
+    }
+    
+    .formal-compose input,
+    .formal-compose textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: inherit;
+    }
+    
+    .formal-compose label {
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--text-primary);
+    }
+    
+    .send-button {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .send-button:hover {
+        transform: translateY(-2px);
+    }
+    
+    .send-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .icon-button {
+        padding: 10px;
+        background: transparent;
+        color: var(--text-secondary);
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        transition: color 0.2s;
+    }
+    
+    .icon-button:hover {
+        color: var(--primary-color);
+    }
+    
+    .system-message {
+        text-align: center;
+        padding: 10px;
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-style: italic;
+    }
+    
+    #loadMoreBtn {
+        margin: 0 auto 20px;
+        padding: 8px 20px;
+        background: var(--hover-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        cursor: pointer;
+        font-size: 13px;
+    }
+    
+    #loadMoreBtn:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-room-container">
+    <div class="chat-room-header">
+        <div class="chat-room-info">
+            <a href="{% url 'chat_list' %}" class="icon-button">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            
+            {% if room.room_type == 'personal' and other_user %}
+                {% if other_user.avatar %}
+                    <img src="{{ other_user.avatar.url }}" alt="{{ other_user.get_full_name }}" class="chat-room-avatar">
+                {% else %}
+                    <div class="chat-room-avatar-placeholder">
+                        {{ other_user.first_name.0|upper }}{{ other_user.last_name.0|upper }}
+                    </div>
+                {% endif %}
+                <div class="chat-room-details">
+                    <h2>{{ other_user.get_full_name }}</h2>
+                    <p>{{ other_user.email }}</p>
+                </div>
+            {% else %}
+                <div class="chat-room-avatar-placeholder">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="chat-room-details">
+                    <h2>{{ room.name }}</h2>
+                    <p>{{ members.count }} members</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="chat-room-actions">
+            <button class="icon-button" title="Search">
+                <i class="bi bi-search"></i>
+            </button>
+            <button class="icon-button" title="More">
+                <i class="bi bi-three-dots-vertical"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="chat-messages-container" id="messagesContainer">
+        <button id="loadMoreBtn" style="display: none;">Load More</button>
+        
+        {% for message in messages %}
+            {% if message.message_type == 'system' %}
+                <div class="system-message">
+                    {{ message.content }}
+                </div>
+            {% elif message.message_type == 'formal' %}
+                <div class="message-item {% if message.sender == user %}own{% endif %}">
+                    {% if message.sender != user %}
+                        {% if message.sender.avatar %}
+                            <img src="{{ message.sender.avatar.url }}" class="message-avatar">
+                        {% else %}
+                            <div class="message-avatar-placeholder">
+                                {{ message.sender.first_name.0|upper }}{{ message.sender.last_name.0|upper }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <div class="message-formal" data-message-id="{{ message.id }}">
+                        <div class="message-formal-header">
+                            <div class="message-formal-subject">{{ message.subject }}</div>
+                            <div class="message-formal-meta">
+                                <div><strong>From:</strong> {{ message.sender.get_full_name }}</div>
+                                {% if message.to_users.all %}
+                                <div><strong>To:</strong> {% for u in message.to_users.all %}{{ u.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+                                {% endif %}
+                                {% if message.cc_users.all %}
+                                <div><strong>CC:</strong> {% for u in message.cc_users.all %}{{ u.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+                                {% endif %}
+                                <div><strong>Date:</strong> {{ message.created_at|date:"M d, Y h:i A" }}</div>
+                            </div>
+                        </div>
+                        <div class="message-formal-body">{{ message.content }}</div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="message-item {% if message.sender == user %}own{% endif %}" data-message-id="{{ message.id }}">
+                    {% if message.sender != user %}
+                        {% if message.sender.avatar %}
+                            <img src="{{ message.sender.avatar.url }}" class="message-avatar">
+                        {% else %}
+                            <div class="message-avatar-placeholder">
+                                {{ message.sender.first_name.0|upper }}{{ message.sender.last_name.0|upper }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <div class="message-content">
+                        {% if message.sender != user %}
+                        <div class="message-header">
+                            <span class="message-sender">{{ message.sender.get_full_name }}</span>
+                            <span class="message-time">{{ message.created_at|date:"h:i A" }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="message-bubble">{{ message.content }}</div>
+                        {% if message.sender == user %}
+                        <div class="message-time" style="text-align: right; margin-top: 4px;">{{ message.created_at|date:"h:i A" }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        
+        <div id="typingIndicatorContainer"></div>
+    </div>
+    
+    <div class="chat-input-area">
+        <div class="message-type-toggle">
+            <button class="message-type-btn active" data-type="casual" onclick="setMessageType('casual')">
+                <i class="bi bi-chat"></i> Casual
+            </button>
+            <button class="message-type-btn" data-type="formal" onclick="setMessageType('formal')">
+                <i class="bi bi-envelope"></i> Formal
+            </button>
+        </div>
+        
+        <div class="formal-compose" id="formalCompose">
+            <div>
+                <label>Subject</label>
+                <input type="text" id="formalSubject" placeholder="Email subject">
+            </div>
+            <div>
+                <label>To</label>
+                <select id="formalTo" multiple style="height: 60px;">
+                    {% for member in members %}
+                        {% if member.user != user %}
+                        <option value="{{ member.user.id }}">{{ member.user.get_full_name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>CC (Optional)</label>
+                <select id="formalCc" multiple style="height: 60px;">
+                    {% for member in members %}
+                        {% if member.user != user %}
+                        <option value="{{ member.user.id }}">{{ member.user.get_full_name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Message</label>
+                <textarea id="formalBody" rows="6" placeholder="Compose your message..."></textarea>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <button class="icon-button" title="Attach file">
+                <i class="bi bi-paperclip"></i>
+            </button>
+            <textarea 
+                id="messageInput" 
+                class="chat-input" 
+                placeholder="Type a message..." 
+                rows="1"></textarea>
+            <button class="send-button" id="sendButton" onclick="sendMessage()">
+                <i class="bi bi-send"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const roomId = '{{ room.id }}';
+    const userId = '{{ user.id }}';
+    const roomMembers = {{ room_members_json|safe }};
+    let currentMessageType = 'casual';
+    let socket = null;
+    let isTyping = false;
+    let typingTimeout = null;
+    let oldestMessageId = '{{ messages.0.id }}' || null;
+    
+    // WebSocket connection
+    function connectWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/chat/${roomId}/`;
+        
+        socket = new WebSocket(wsUrl);
+        
+        socket.onopen = function(e) {
+            console.log('WebSocket connected');
+        };
+        
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            handleWebSocketMessage(data);
+        };
+        
+        socket.onclose = function(e) {
+            console.log('WebSocket closed, reconnecting...');
+            setTimeout(connectWebSocket, 3000);
+        };
+        
+        socket.onerror = function(e) {
+            console.error('WebSocket error:', e);
+        };
+    }
+    
+    function handleWebSocketMessage(data) {
+        switch(data.type) {
+            case 'chat_message':
+                appendMessage(data.message);
+                break;
+            case 'typing_indicator':
+                updateTypingIndicator(data.user_name, data.is_typing);
+                break;
+            case 'message_read_receipt':
+                // Handle read receipts if needed
+                break;
+        }
+    }
+    
+    function appendMessage(message) {
+        const container = document.getElementById('messagesContainer');
+        const isOwn = message.sender.id === userId;
+        
+        let html = '';
+        
+        if (message.message_type === 'formal') {
+            html = `
+                <div class="message-item ${isOwn ? 'own' : ''}" data-message-id="${message.id}">
+                    ${!isOwn ? renderAvatar(message.sender) : ''}
+                    <div class="message-formal">
+                        <div class="message-formal-header">
+                            <div class="message-formal-subject">${message.subject}</div>
+                            <div class="message-formal-meta">
+                                <div><strong>From:</strong> ${message.sender.name}</div>
+                                ${message.to_users ? `<div><strong>To:</strong> ${message.to_users.map(u => u.name).join(', ')}</div>` : ''}
+                                ${message.cc_users && message.cc_users.length ? `<div><strong>CC:</strong> ${message.cc_users.map(u => u.name).join(', ')}</div>` : ''}
+                                <div><strong>Date:</strong> ${new Date(message.created_at).toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="message-formal-body">${escapeHtml(message.content)}</div>
+                    </div>
+                </div>
+            `;
+        } else if (message.message_type === 'system') {
+            html = `<div class="system-message">${escapeHtml(message.content)}</div>`;
+        } else {
+            html = `
+                <div class="message-item ${isOwn ? 'own' : ''}" data-message-id="${message.id}">
+                    ${!isOwn ? renderAvatar(message.sender) : ''}
+                    <div class="message-content">
+                        ${!isOwn ? `
+                            <div class="message-header">
+                                <span class="message-sender">${message.sender.name}</span>
+                                <span class="message-time">${new Date(message.created_at).toLocaleTimeString()}</span>
+                            </div>
+                        ` : ''}
+                        <div class="message-bubble">${escapeHtml(message.content)}</div>
+                        ${isOwn ? `<div class="message-time" style="text-align: right; margin-top: 4px;">${new Date(message.created_at).toLocaleTimeString()}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        container.insertAdjacentHTML('beforeend', html);
+        scrollToBottom();
+    }
+    
+    function renderAvatar(sender) {
+        if (sender.avatar) {
+            return `<img src="${sender.avatar}" class="message-avatar">`;
+        }
+        const initials = sender.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        return `<div class="message-avatar-placeholder">${initials}</div>`;
+    }
+    
+    function sendMessage() {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            alert('Connection lost. Reconnecting...');
+            return;
+        }
+        
+        let content, messageData;
+        
+        if (currentMessageType === 'formal') {
+            const subject = document.getElementById('formalSubject').value.trim();
+            const body = document.getElementById('formalBody').value.trim();
+            const toSelect = document.getElementById('formalTo');
+            const ccSelect = document.getElementById('formalCc');
+            
+            const toUsers = Array.from(toSelect.selectedOptions).map(o => o.value);
+            const ccUsers = Array.from(ccSelect.selectedOptions).map(o => o.value);
+            
+            if (!subject || !body) {
+                alert('Please fill in subject and message');
+                return;
+            }
+            
+            messageData = {
+                type: 'chat_message',
+                message_type: 'formal',
+                content: body,
+                subject: subject,
+                to_users: toUsers,
+                cc_users: ccUsers
+            };
+            
+            // Clear form
+            document.getElementById('formalSubject').value = '';
+            document.getElementById('formalBody').value = '';
+            toSelect.selectedIndex = -1;
+            ccSelect.selectedIndex = -1;
+            
+        } else {
+            content = document.getElementById('messageInput').value.trim();
+            
+            if (!content) return;
+            
+            messageData = {
+                type: 'chat_message',
+                message_type: currentMessageType,
+                content: content
+            };
+            
+            document.getElementById('messageInput').value = '';
+        }
+        
+        socket.send(JSON.stringify(messageData));
+        stopTyping();
+    }
+    
+    function setMessageType(type) {
+        currentMessageType = type;
+        document.querySelectorAll('.message-type-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === type);
+        });
+        
+        const formalCompose = document.getElementById('formalCompose');
+        const messageInput = document.getElementById('messageInput');
+        
+        if (type === 'formal') {
+            formalCompose.classList.add('active');
+            messageInput.style.display = 'none';
+        } else {
+            formalCompose.classList.remove('active');
+            messageInput.style.display = 'block';
+        }
+    }
+    
+    function startTyping() {
+        if (!isTyping && socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'typing_start' }));
+            isTyping = true;
+        }
+        
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(stopTyping, 3000);
+    }
+    
+    function stopTyping() {
+        if (isTyping && socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'typing_stop' }));
+            isTyping = false;
+        }
+    }
+    
+    function updateTypingIndicator(userName, isTyping) {
+        const container = document.getElementById('typingIndicatorContainer');
+        
+        if (isTyping) {
+            container.innerHTML = `
+                <div class="typing-indicator">
+                    <span>${userName} is typing</span>
+                    <div class="typing-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+        } else {
+            container.innerHTML = '';
+        }
+        
+        scrollToBottom();
+    }
+    
+    function scrollToBottom() {
+        const container = document.getElementById('messagesContainer');
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Event listeners
+    document.getElementById('messageInput').addEventListener('input', startTyping);
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    
+    // Initialize
+    connectWebSocket();
+    scrollToBottom();
+</script>
+{% endblock %}

@@ -1,0 +1,551 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chats - BThinkX{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        height: calc(100vh - 80px);
+        gap: 0;
+    }
+    
+    .chat-sidebar {
+        background: var(--card-bg);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .chat-sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .chat-sidebar-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+    }
+    
+    .chat-search {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .chat-search input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+    
+    .chat-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+    
+    .chat-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        gap: 12px;
+        align-items: start;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .chat-item:hover {
+        background: var(--hover-bg);
+    }
+    
+    .chat-item.active {
+        background: var(--primary-color);
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+    }
+    
+    .chat-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    
+    .chat-avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+        flex-shrink: 0;
+    }
+    
+    .chat-item-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .chat-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+    
+    .chat-item-name {
+        font-weight: 600;
+        font-size: 15px;
+        color: var(--text-primary);
+    }
+    
+    .chat-item-time {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    
+    .chat-item-preview {
+        font-size: 14px;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .chat-item-preview.unread {
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+    
+    .unread-badge {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+    }
+    
+    .chat-actions {
+        padding: 15px 20px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 10px;
+    }
+    
+    .chat-empty {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .chat-empty i {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+        background: var(--card-bg);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-secondary:hover {
+        background: var(--hover-bg);
+    }
+    
+    /* Modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    
+    .modal-overlay.active {
+        display: flex;
+    }
+    
+    .modal {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .modal h3 {
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+    
+    .user-select-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px;
+    }
+    
+    .user-select-item {
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+    
+    .user-select-item:hover {
+        background: var(--hover-bg);
+    }
+    
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .chat-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .chat-empty {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-sidebar">
+        <div class="chat-sidebar-header">
+            <h2>Chats</h2>
+            <button class="btn-secondary" onclick="openNewChatModal()">
+                <i class="bi bi-plus-lg"></i>
+            </button>
+        </div>
+        
+        <div class="chat-search">
+            <input type="text" id="chatSearchInput" placeholder="Search conversations...">
+        </div>
+        
+        <div class="chat-list" id="chatList">
+            {% for data in room_data %}
+            <a href="{% url 'chat_room' data.room.id %}" class="chat-item">
+                {% if data.room.room_type == 'personal' and data.other_user %}
+                    {% if data.other_user.avatar %}
+                        <img src="{{ data.other_user.avatar.url }}" alt="{{ data.other_user.get_full_name }}" class="chat-avatar">
+                    {% else %}
+                        <div class="chat-avatar-placeholder">
+                            {{ data.other_user.first_name.0|upper }}{{ data.other_user.last_name.0|upper }}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="chat-avatar-placeholder">
+                        <i class="bi bi-people"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="chat-item-content">
+                    <div class="chat-item-header">
+                        <span class="chat-item-name">
+                            {% if data.room.room_type == 'personal' and data.other_user %}
+                                {{ data.other_user.get_full_name }}
+                            {% else %}
+                                {{ data.room.name }}
+                            {% endif %}
+                        </span>
+                        {% if data.last_message %}
+                        <span class="chat-item-time">{{ data.last_message.created_at|timesince }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="chat-item-preview {% if data.unread_count > 0 %}unread{% endif %}">
+                        {% if data.last_message %}
+                            {{ data.last_message.content|truncatewords:8 }}
+                        {% else %}
+                            No messages yet
+                        {% endif %}
+                        {% if data.unread_count > 0 %}
+                            <span class="unread-badge">{{ data.unread_count }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div style="padding: 40px 20px; text-align: center; color: var(--text-secondary);">
+                <p>No conversations yet</p>
+                <button class="btn-primary" onclick="openNewChatModal()" style="margin-top: 15px;">
+                    Start a Chat
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="chat-actions">
+            <button class="btn-primary" onclick="openNewChatModal()" style="flex: 1;">
+                <i class="bi bi-chat-dots"></i> New Chat
+            </button>
+            <button class="btn-secondary" onclick="openGroupModal()">
+                <i class="bi bi-people"></i> New Group
+            </button>
+        </div>
+    </div>
+    
+    <div class="chat-empty">
+        <i class="bi bi-chat-text"></i>
+        <h3>Select a conversation</h3>
+        <p>Choose a chat from the list to start messaging</p>
+    </div>
+</div>
+
+<!-- New Chat Modal -->
+<div class="modal-overlay" id="newChatModal">
+    <div class="modal">
+        <h3>Start New Chat</h3>
+        <div class="form-group">
+            <label>Search Users</label>
+            <input type="text" id="userSearchInput" placeholder="Type name or email...">
+        </div>
+        <div class="user-select-list" id="userSearchResults">
+            {% for user in active_users %}
+            <div class="user-select-item" onclick="startPersonalChat('{{ user.id }}')">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" class="chat-avatar" style="width: 32px; height: 32px;">
+                {% else %}
+                    <div class="chat-avatar-placeholder" style="width: 32px; height: 32px; font-size: 12px;">
+                        {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+                    </div>
+                {% endif %}
+                <div>
+                    <div style="font-weight: 600;">{{ user.get_full_name }}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">{{ user.email }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('newChatModal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- New Group Modal -->
+<div class="modal-overlay" id="newGroupModal">
+    <div class="modal">
+        <h3>Create Group Chat</h3>
+        <form id="createGroupForm" onsubmit="createGroup(event)">
+            <div class="form-group">
+                <label>Group Name</label>
+                <input type="text" name="name" required placeholder="Enter group name">
+            </div>
+            <div class="form-group">
+                <label>Description (Optional)</label>
+                <textarea name="description" rows="3" placeholder="What's this group about?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Add Members</label>
+                <input type="text" id="groupMemberSearch" placeholder="Search users...">
+                <div class="user-select-list" id="groupMemberResults" style="margin-top: 10px;">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('newGroupModal')">Cancel</button>
+                <button type="submit" class="btn-primary">Create Group</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let selectedMembers = new Set();
+    
+    function openNewChatModal() {
+        document.getElementById('newChatModal').classList.add('active');
+    }
+    
+    function openGroupModal() {
+        document.getElementById('newGroupModal').classList.add('active');
+        loadUsers();
+    }
+    
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+    
+    function startPersonalChat(userId) {
+        window.location.href = `/chat/start/${userId}/`;
+    }
+    
+    // Search users in new chat modal
+    document.getElementById('userSearchInput')?.addEventListener('input', async (e) => {
+        const query = e.target.value;
+        if (query.length < 2) return;
+        
+        const response = await fetch(`/chat/search-users/?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        const resultsDiv = document.getElementById('userSearchResults');
+        resultsDiv.innerHTML = data.users.map(user => `
+            <div class="user-select-item" onclick="startPersonalChat('${user.id}')">
+                ${user.avatar ? 
+                    `<img src="${user.avatar}" class="chat-avatar" style="width: 32px; height: 32px;">` :
+                    `<div class="chat-avatar-placeholder" style="width: 32px; height: 32px; font-size: 12px;">
+                        ${user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </div>`
+                }
+                <div>
+                    <div style="font-weight: 600;">${user.name}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">${user.email}</div>
+                </div>
+            </div>
+        `).join('');
+    });
+    
+    async function loadUsers() {
+        const response = await fetch('/chat/search-users/?q=');
+        const data = await response.json();
+        renderGroupMembers(data.users);
+    }
+    
+    function renderGroupMembers(users) {
+        const resultsDiv = document.getElementById('groupMemberResults');
+        resultsDiv.innerHTML = users.map(user => `
+            <div class="user-select-item" onclick="toggleMember('${user.id}', '${user.name}')">
+                <input type="checkbox" id="member-${user.id}" ${selectedMembers.has(user.id) ? 'checked' : ''}>
+                ${user.avatar ? 
+                    `<img src="${user.avatar}" class="chat-avatar" style="width: 32px; height: 32px;">` :
+                    `<div class="chat-avatar-placeholder" style="width: 32px; height: 32px; font-size: 12px;">
+                        ${user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </div>`
+                }
+                <div>
+                    <div style="font-weight: 600;">${user.name}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">${user.email}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function toggleMember(userId, userName) {
+        const checkbox = document.getElementById(`member-${userId}`);
+        if (selectedMembers.has(userId)) {
+            selectedMembers.delete(userId);
+            checkbox.checked = false;
+        } else {
+            selectedMembers.add(userId);
+            checkbox.checked = true;
+        }
+    }
+    
+    async function createGroup(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        selectedMembers.forEach(id => formData.append('members[]', id));
+        
+        const response = await fetch('/chat/create-group/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.location.href = data.redirect_url;
+        }
+    }
+    
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+    });
+</script>
+{% endblock %}
