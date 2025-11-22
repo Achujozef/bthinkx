@@ -101,9 +101,9 @@
                     <a href="{% url 'profile' %}" class="dropdown-item">
                         <i class="bi bi-person"></i> My Profile
                     </a>
-                    <a href="{% url 'settings' %}" class="dropdown-item">
+                    {% comment %} <a href="{% url 'settings' %}" class="dropdown-item disabled">
                         <i class="bi bi-gear"></i> Settings
-                    </a>
+                    </a> {% endcomment %}
                     <div class="dropdown-divider"></div>
                     <a href="{% url 'logout' %}" class="dropdown-item">
                         <i class="bi bi-box-arrow-right"></i> Logout
