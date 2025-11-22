@@ -3,3 +3,12 @@ Pillow
 gunicorn
 oauth2client
 gspread
+channels==4.0.0
+channels-redis==4.1.0
+daphne==4.0.0
+redis==5.0.1
+psycopg2-binary==2.9.9
+Pillow==10.1.0
+python-dotenv==1.0.0
+gunicorn==21.2.0
+uvicorn[standard]==0.25.0
