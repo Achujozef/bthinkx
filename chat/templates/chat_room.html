@@ -5,45 +5,55 @@
 
 {% block extra_css %}
 <style>
-/* ========== CHAT LAYOUT ========== */
+/* ========== CHAT LAYOUT (RESPECTS BASE SIDEBAR) ========== */
 .chat-wrapper {
     display: grid;
-    height: calc(100vh - 80px);
+    grid-template-columns: 320px 1fr; /* UNCOMMENTED - Shows sidebar + main chat */
+    height: calc(100vh - var(--topnav-height));
+    position: fixed;
+    top: var(--topnav-height);
+    left: var(--sidebar-width);
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
     background: var(--primary-bg);
 }
 
-/* ========== CHAT SIDEBAR ========== */
+/* ========== CHAT SIDEBAR (LIST) ========== */
 .chat-sidebar {
     background: var(--card-bg);
     border-right: 1px solid var(--card-border);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    height: 100%;
 }
 
 .chat-sidebar-header {
-    padding: 20px;
+    padding: 16px;
     border-bottom: 1px solid var(--card-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .chat-sidebar-header h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--text-primary);
 }
 
 .chat-search {
-    padding: 15px 20px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--card-border);
+    flex-shrink: 0;
 }
 
 .chat-search input {
     width: 100%;
-    padding: 10px 15px;
+    padding: 8px 12px;
     border: 1px solid var(--card-border);
     border-radius: 8px;
     background: var(--primary-bg);
@@ -56,17 +66,24 @@
     border-color: var(--accent-purple);
 }
 
-.chat-search input::placeholder {
-    color: var(--text-muted);
-}
-
 .chat-list {
     flex: 1;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-border) transparent;
+}
+
+.chat-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-list::-webkit-scrollbar-thumb {
+    background: var(--card-border);
+    border-radius: 3px;
 }
 
 .chat-item {
-    padding: 15px 20px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--card-border);
     cursor: pointer;
     transition: background 0.2s;
@@ -78,7 +95,7 @@
 }
 
 .chat-item:hover {
-    background: var(--hover-bg);
+    background: rgba(139, 92, 246, 0.05);
 }
 
 .chat-item.active {
@@ -87,25 +104,25 @@
 }
 
 .chat-avatar {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
 }
 
 .chat-avatar-placeholder {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
     color: white;
     flex-shrink: 0;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .chat-item-content {
@@ -122,85 +139,85 @@
 
 .chat-item-name {
     font-weight: 600;
-    font-size: 15px;
+    font-size: 14px;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .chat-item-time {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-secondary);
-}
-
-.chat-item-time.unread {
-    color: var(--accent-green);
-    font-weight: 600;
+    flex-shrink: 0;
 }
 
 .chat-item-preview {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .unread-badge {
-    background: var(--accent-green);
+    background: var(--accent-purple);
     color: white;
     border-radius: 12px;
-    padding: 2px 8px;
-    font-size: 12px;
+    padding: 2px 6px;
+    font-size: 11px;
     font-weight: 600;
-    min-width: 20px;
+    min-width: 18px;
     text-align: center;
     flex-shrink: 0;
 }
 
 .chat-actions-footer {
-    padding: 15px 20px;
+    padding: 12px 16px;
     border-top: 1px solid var(--card-border);
-    display: flex;
-    gap: 10px;
+    flex-shrink: 0;
 }
 
 /* ========== CHAT ROOM MAIN ========== */
 .chat-room-main {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 80px);
+    height: 100%;
     background: var(--primary-bg);
+    overflow: hidden;
 }
 
 .chat-room-header {
-    padding: 15px 24px;
+    padding: 12px 20px;
     background: var(--card-bg);
     border-bottom: 1px solid var(--card-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .chat-room-info {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .chat-room-avatar {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
 }
 
 .chat-room-avatar-placeholder {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -224,23 +241,33 @@
 
 .chat-room-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 /* ========== MESSAGES CONTAINER ========== */
 .chat-messages-container {
     flex: 1;
     overflow-y: auto;
-    padding: 20px 24px;
+    padding: 16px 20px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    background: var(--primary-bg);
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-border) transparent;
+}
+
+.chat-messages-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb {
+    background: var(--card-border);
+    border-radius: 3px;
 }
 
 .message-item {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     max-width: 65%;
     position: relative;
 }
@@ -255,13 +282,13 @@
 }
 
 @keyframes highlight {
-    0%, 30% { background: rgba(139, 92, 246, 0.2); border-radius: 12px; }
+    0%, 30% { background: rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 8px; margin: -8px; }
     100% { background: transparent; }
 }
 
 .message-avatar {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
@@ -269,10 +296,10 @@
 }
 
 .message-avatar-placeholder {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -291,23 +318,23 @@
 .message-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
+    gap: 6px;
+    margin-bottom: 2px;
 }
 
 .message-sender {
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--accent-purple);
 }
 
 .message-time {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-muted);
 }
 
 .message-bubble {
-    padding: 10px 14px;
+    padding: 8px 12px;
     border-radius: 12px;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -320,21 +347,22 @@
 }
 
 .message-item.own .message-bubble {
-    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
     border: none;
     color: white;
 }
 
 .message-edited {
     font-size: 10px;
-    opacity: 0.7;
-    margin-left: 6px;
+    opacity: 0.6;
+    margin-left: 4px;
+    font-style: italic;
 }
 
 .message-status {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-muted);
-    margin-top: 4px;
+    margin-top: 2px;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -345,31 +373,54 @@
     color: rgba(255, 255, 255, 0.7);
 }
 
+.message-status .bi-check-all {
+    font-size: 14px;
+}
+
+.message-status .bi-check-all.read {
+    color: #3b82f6;
+}
+
 /* Reply Preview */
 .reply-preview {
     background: rgba(139, 92, 246, 0.1);
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-left: 3px solid var(--accent-purple);
     border-radius: 4px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-size: 12px;
     cursor: pointer;
+}
+
+.message-item.own .reply-preview {
+    background: rgba(255, 255, 255, 0.2);
+    border-left-color: rgba(255, 255, 255, 0.7);
 }
 
 .reply-preview-sender {
     font-weight: 600;
     color: var(--accent-purple);
     margin-bottom: 2px;
+    font-size: 11px;
+}
+
+.message-item.own .reply-preview-sender {
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .reply-preview-content {
     color: var(--text-secondary);
+    font-size: 11px;
+}
+
+.message-item.own .reply-preview-content {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* Attachments */
 .message-attachments {
-    margin-top: 8px;
-    max-width: 280px;
+    margin-top: 6px;
+    max-width: 260px;
 }
 
 .attachment-image {
@@ -381,59 +432,52 @@
 .attachment-file {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    gap: 8px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
     cursor: pointer;
 }
 
+.message-item.own .attachment-file {
+    background: rgba(255, 255, 255, 0.2);
+}
+
 .attachment-file:hover {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.message-item.own .attachment-file:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .attachment-icon {
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .attachment-name {
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .attachment-size {
-    font-size: 11px;
-    color: var(--text-secondary);
+    font-size: 10px;
+    opacity: 0.7;
 }
 
 /* System Message */
 .system-message {
     text-align: center;
     padding: 8px 16px;
-    margin: 8px 0;
+    margin: 8px auto;
 }
 
 .system-message span {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
-/* Date Separator */
-.date-separator {
-    text-align: center;
-    padding: 16px 0;
-}
-
-.date-separator span {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 11px;
     color: var(--text-secondary);
 }
 
@@ -441,20 +485,20 @@
 .typing-indicator {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
+    gap: 6px;
+    padding: 8px 12px;
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .typing-dots {
     display: flex;
-    gap: 4px;
+    gap: 3px;
 }
 
 .typing-dots span {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background: var(--text-secondary);
     animation: typing 1.4s infinite;
@@ -465,39 +509,35 @@
 
 @keyframes typing {
     0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-    30% { opacity: 1; transform: translateY(-4px); }
+    30% { opacity: 1; transform: translateY(-3px); }
 }
 
 /* Blocked Banner */
 .blocked-banner {
-    padding: 12px 20px;
+    padding: 10px 16px;
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
     color: var(--accent-red);
     text-align: center;
-    font-size: 13px;
-}
-
-.blocked-banner a {
-    color: var(--accent-purple);
-    text-decoration: underline;
-    margin-left: 8px;
+    font-size: 12px;
+    flex-shrink: 0;
 }
 
 /* ========== INPUT AREA ========== */
 .chat-input-area {
-    padding: 16px 24px;
+    padding: 12px 20px;
     background: var(--card-bg);
     border-top: 1px solid var(--card-border);
+    flex-shrink: 0;
 }
 
 .reply-to-bar {
     display: none;
-    padding: 10px 14px;
+    padding: 8px 12px;
     background: var(--primary-bg);
     border: 1px solid var(--card-border);
     border-radius: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     align-items: center;
     justify-content: space-between;
 }
@@ -506,33 +546,138 @@
 
 .reply-to-content {
     flex: 1;
+    min-width: 0;
 }
 
 .reply-to-label {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--accent-purple);
     font-weight: 600;
     margin-bottom: 2px;
 }
 
 .reply-to-text {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* File Preview */
+.file-preview-area {
+    display: none;
+    padding: 8px 12px;
+    background: var(--primary-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.file-preview-area.show { display: flex; }
+
+.file-preview-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    max-width: 200px;
+}
+
+.file-preview-item.uploading {
+    opacity: 0.7;
+}
+
+.file-preview-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.file-preview-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    background: var(--accent-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.file-preview-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-preview-name {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-preview-size {
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+.file-preview-progress {
+    width: 100%;
+    height: 3px;
+    background: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.file-preview-progress-bar {
+    height: 100%;
+    background: var(--accent-purple);
+    transition: width 0.3s;
+}
+
+.file-preview-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent-red);
+    color: white;
+    border: 2px solid var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
 }
 
 .message-type-toggle {
     display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
+    gap: 6px;
+    margin-bottom: 10px;
 }
 
 .message-type-btn {
-    padding: 8px 16px;
+    padding: 6px 14px;
     border: 1px solid var(--card-border);
     background: var(--primary-bg);
     color: var(--text-primary);
     border-radius: 6px;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
@@ -548,20 +693,20 @@
 
 .chat-input-container {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: flex-end;
 }
 
 .chat-input {
     flex: 1;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1px solid var(--card-border);
     border-radius: 10px;
     background: var(--primary-bg);
     color: var(--text-primary);
     font-size: 14px;
     resize: none;
-    max-height: 120px;
+    max-height: 100px;
     font-family: 'Inter', sans-serif;
     line-height: 1.5;
 }
@@ -569,10 +714,6 @@
 .chat-input:focus {
     outline: none;
     border-color: var(--accent-purple);
-}
-
-.chat-input::placeholder {
-    color: var(--text-muted);
 }
 
 .chat-input:disabled {
@@ -584,19 +725,19 @@
 .formal-compose {
     display: none;
     flex-direction: column;
-    gap: 12px;
-    padding: 16px;
+    gap: 10px;
+    padding: 14px;
     background: var(--primary-bg);
     border: 1px solid var(--card-border);
     border-radius: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .formal-compose.active { display: flex; }
 
 .formal-compose label {
     font-weight: 600;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-secondary);
     margin-bottom: 4px;
 }
@@ -605,26 +746,18 @@
 .formal-compose textarea,
 .formal-compose select {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border: 1px solid var(--card-border);
     border-radius: 6px;
     background: var(--card-bg);
     color: var(--text-primary);
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
+    font-size: 13px;
 }
 
-.formal-compose input:focus,
-.formal-compose textarea:focus,
-.formal-compose select:focus {
-    outline: none;
-    border-color: var(--accent-purple);
-}
-
-/* ========== BUTTONS ========== */
+/* Buttons */
 .icon-button {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -635,30 +768,33 @@
     font-size: 18px;
     border-radius: 8px;
     transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .icon-button:hover {
     color: var(--accent-purple);
-    background: var(--hover-bg);
+    background: rgba(139, 92, 246, 0.1);
 }
 
 .send-button {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    font-size: 14px;
+    flex-shrink: 0;
 }
 
 .send-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
 .send-button:disabled {
@@ -668,73 +804,62 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
-    flex: 1;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    width: 100%;
+    font-size: 13px;
 }
 
 .btn-secondary {
     background: var(--card-bg);
     color: var(--text-primary);
     border: 1px solid var(--card-border);
-    padding: 10px 16px;
+    padding: 8px 16px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    font-size: 13px;
 }
 
-.btn-secondary:hover {
-    border-color: var(--accent-purple);
-    background: rgba(139, 92, 246, 0.1);
-}
-
-/* ========== CONTEXT MENU ========== */
+/* Context Menu */
 .context-menu {
     position: fixed;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 8px;
-    padding: 8px 0;
+    padding: 6px 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     z-index: 1000;
     display: none;
-    min-width: 180px;
+    min-width: 160px;
 }
 
 .context-menu.show { display: block; }
 
 .context-menu-item {
-    padding: 10px 16px;
+    padding: 8px 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 10px;
     color: var(--text-primary);
-    font-size: 14px;
-    transition: background 0.2s;
+    font-size: 13px;
 }
 
 .context-menu-item:hover {
-    background: var(--hover-bg);
+    background: rgba(139, 92, 246, 0.1);
 }
 
 .context-menu-item.danger {
     color: var(--accent-red);
 }
 
-/* ========== MODALS ========== */
+/* Modals */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -754,89 +879,81 @@
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 12px;
-    padding: 24px;
-    max-width: 450px;
+    padding: 20px;
+    max-width: 420px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
 }
 
 .modal h3 {
-    margin: 0 0 20px;
-    color: var(--text-primary);
-    font-size: 18px;
+    margin: 0 0 16px;
+    font-size: 16px;
 }
 
 .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-weight: 600;
-    color: var(--text-primary);
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .form-group input {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border: 1px solid var(--card-border);
-    border-radius: 8px;
+    border-radius: 6px;
     background: var(--primary-bg);
-    color: var(--text-primary);
-    font-size: 14px;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: var(--accent-purple);
+    font-size: 13px;
 }
 
 .user-list {
-    max-height: 200px;
+    max-height: 180px;
     overflow-y: auto;
     border: 1px solid var(--card-border);
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
 .user-item {
-    padding: 10px 12px;
+    padding: 8px 10px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     cursor: pointer;
-    transition: background 0.2s;
 }
 
 .user-item:hover {
-    background: var(--hover-bg);
+    background: rgba(139, 92, 246, 0.1);
 }
 
 .modal-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: flex-end;
-    margin-top: 20px;
+    margin-top: 16px;
 }
 
-/* File Input */
 #fileInput { display: none; }
 
-/* ========== MOBILE RESPONSIVE ========== */
+/* Mobile Toggle Button */
+#toggleSidebarBtn {
+    display: none;
+}
+
+/* Mobile */
 @media (max-width: 1024px) {
     .chat-wrapper {
-        grid-template-columns: 300px 1fr;
-    }
-    
-    .message-item {
-        max-width: 75%;
+        grid-template-columns: 280px 1fr;
     }
 }
 
 @media (max-width: 768px) {
     .chat-wrapper {
+        left: 0;
         grid-template-columns: 1fr;
     }
     
@@ -844,12 +961,11 @@
         display: none;
         position: fixed;
         left: 0;
-        top: 80px;
+        top: var(--topnav-height);
         bottom: 0;
         width: 85%;
-        max-width: 320px;
+        max-width: 300px;
         z-index: 1000;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
     }
     
     .chat-sidebar.mobile-open {
@@ -859,7 +975,7 @@
     .mobile-overlay {
         display: none;
         position: fixed;
-        top: 80px;
+        top: var(--topnav-height);
         left: 0;
         right: 0;
         bottom: 0;
@@ -871,49 +987,35 @@
         display: block;
     }
     
-    .toggle-sidebar-btn {
-        display: flex !important;
-    }
-    
     .message-item {
         max-width: 85%;
     }
     
-    .chat-messages-container {
-        padding: 16px;
+    #toggleSidebarBtn {
+        display: flex !important;
     }
-    
-    .chat-input-area {
-        padding: 12px 16px;
-    }
-    
-    .message-type-toggle {
-        flex-wrap: wrap;
-    }
-}
-
-/* Hide toggle on desktop */
-.toggle-sidebar-btn {
-    display: none;
 }
 </style>
 {% endblock %}
 
 {% block content %}
+    <!-- Chat List Sidebar -->
+    
 <div class="chat-wrapper">
-   
-    <!-- Sidebar -->
-    <div class="chat-sidebar" id="chatSidebar">
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()">
+        <div class="chat-sidebar" id="chatSidebar">
         <div class="chat-sidebar-header">
             <h2>Chats</h2>
-            <button class="btn-secondary" onclick="openNewChatModal()" title="New Chat">
+            <button class="btn-secondary" onclick="openNewChatModal()" title="New Chat" style="padding: 6px 10px;">
                 <i class="bi bi-plus-lg"></i>
             </button>
         </div>
         <div class="chat-search">
-            <input type="text" id="sidebarSearch" placeholder="Search or start new chat" oninput="filterSidebarChats()">
+            <input type="text" id="sidebarSearch" placeholder="Search chats" oninput="filterChats()">
         </div>
-        <div class="chat-list" id="chatList">
+        <div class="chat-list">
             {% for data in room_data %}
             <a href="{% url 'chat_room' data.room.id %}" class="chat-item {% if data.room.id == room.id %}active{% endif %}" data-name="{% if data.room.room_type == 'personal' and data.other_user %}{{ data.other_user.get_full_name|lower }}{% else %}{{ data.room.name|lower }}{% endif %}">
                 {% if data.room.room_type == 'personal' and data.other_user %}
@@ -928,40 +1030,34 @@
                 <div class="chat-item-content">
                     <div class="chat-item-header">
                         <span class="chat-item-name">{% if data.room.room_type == 'personal' and data.other_user %}{{ data.other_user.get_full_name }}{% else %}{{ data.room.name }}{% endif %}</span>
-                        {% if data.last_message %}<span class="chat-item-time {% if data.unread_count > 0 %}unread{% endif %}">{{ data.last_message.created_at|date:"d-m-Y" }}</span>{% endif %}
+                        {% if data.last_message %}<span class="chat-item-time">{{ data.last_message.created_at|timesince }}</span>{% endif %}
                     </div>
                     <div class="chat-item-preview">
-                        <span>{% if data.last_message %}{{ data.last_message.content|truncatewords:6 }}{% else %}No messages{% endif %}</span>
+                        {% if data.last_message %}{{ data.last_message.content|truncatewords:5 }}{% else %}No messages{% endif %}
                         {% if data.unread_count > 0 %}<span class="unread-badge">{{ data.unread_count }}</span>{% endif %}
                     </div>
                 </div>
             </a>
             {% empty %}
-            <div style="padding: 40px 20px; text-align: center; color: var(--text-secondary);">
-                <i class="bi bi-chat-text" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
-                <p>No conversations yet</p>
-                <button class="btn-primary" onclick="openNewChatModal()" style="margin-top: 16px;">Start a Chat</button>
+            <div style="padding: 30px 16px; text-align: center; color: var(--text-secondary);">
+                <i class="bi bi-chat-text" style="font-size: 40px; opacity: 0.3; display: block; margin-bottom: 12px;"></i>
+                <p style="font-size: 13px;">No conversations yet</p>
             </div>
             {% endfor %}
         </div>
         <div class="chat-actions-footer">
             <button class="btn-primary" onclick="openNewChatModal()">
-                <i class="bi bi-chat-dots"></i> New Chat
-            </button>
-            <button class="btn-secondary" onclick="openGroupModal()">
-                <i class="bi bi-people"></i>
+                <i class="bi bi-plus-circle"></i> New Chat
             </button>
         </div>
     </div>
-
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+    </div>
 
     <!-- Chat Room Main -->
     <div class="chat-room-main">
         <div class="chat-room-header">
             <div class="chat-room-info">
-                <button class="icon-button toggle-sidebar-btn" onclick="toggleSidebar()">
+                <button class="icon-button" onclick="toggleSidebar()" id="toggleSidebarBtn">
                     <i class="bi bi-list"></i>
                 </button>
                 {% if room.room_type == 'personal' and other_user %}
@@ -991,39 +1087,127 @@
         {% if blocked_by_other %}
         <div class="blocked-banner">You cannot send messages to this conversation.</div>
         {% elif is_blocked %}
-        <div class="blocked-banner">You have blocked this user.<a href="#" onclick="toggleBlock(); return false;">Unblock</a></div>
+        <div class="blocked-banner">You have blocked this user. <a href="#" onclick="toggleBlock(); return false;" style="color: var(--accent-purple); text-decoration: underline;">Unblock</a></div>
         {% endif %}
 
         <div class="chat-messages-container" id="messagesContainer">
-            <div id="loadMoreContainer" style="text-align:center; padding:12px; display:none;">
-
-                <button class="btn-secondary" onclick="loadMoreMessages()">Load older messages</button>
-            </div>
             {% for message in messages %}
-                {% include "partials/message_item.html" with message=message user=user %}
+                {% if message.message_type == 'system' %}
+                    <div class="system-message"><span>{{ message.content }}</span></div>
+                {% else %}
+                    {% with sender_id=message.sender.id|stringformat:"s" user_id=user.id|stringformat:"s" %}
+                    {% if sender_id == user_id %}
+                        {% with is_own=True %}
+                        <div class="message-item own" data-id="{{ message.id }}" data-sender="{{ message.sender.get_full_name }}" data-content="{{ message.content }}" oncontextmenu="showContext(event, this)" ondblclick="setReply(this)">
+                            <div class="message-content">
+                                {% if message.reply_to %}
+                                <div class="reply-preview" onclick="scrollToMsg('{{ message.reply_to.id }}')">
+                                    <div class="reply-preview-sender">{{ message.reply_to.sender.get_full_name }}</div>
+                                    <div class="reply-preview-content">{{ message.reply_to.content|truncatewords:8 }}</div>
+                                </div>
+                                {% endif %}
+                                <div class="message-bubble">
+                                    {{ message.content }}
+                                    {% if message.is_edited %}<span class="message-edited">(edited)</span>{% endif %}
+                                </div>
+                                {% if message.attachments.all %}
+                                <div class="message-attachments">
+                                    {% for att in message.attachments.all %}
+                                        {% if att.file_type == 'image' %}
+                                            <img src="{{ att.file.url }}" class="attachment-image" onclick="window.open('{{ att.file.url }}')">
+                                        {% else %}
+                                            <div class="attachment-file" onclick="window.open('{{ att.file.url }}')">
+                                                <i class="bi bi-file-earmark attachment-icon"></i>
+                                                <div>
+                                                    <div class="attachment-name">{{ att.file_name }}</div>
+                                                    <div class="attachment-size">{{ att.file_size|filesizeformat }}</div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="message-status">
+                                    <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
+                                    <i class="bi bi-check-all {% if message.meta.all %}read{% endif %}" title="{% if message.meta.all %}Read{% else %}Delivered{% endif %}"></i>
+                                </div>
+                            </div>
+                        </div>
+                        {% endwith %}
+                    {% else %}
+                        <div class="message-item" data-id="{{ message.id }}" data-sender="{{ message.sender.get_full_name }}" data-content="{{ message.content }}" oncontextmenu="showContext(event, this)" ondblclick="setReply(this)">
+                            {% if message.sender.avatar %}
+                                <img src="{{ message.sender.avatar.url }}" class="message-avatar">
+                            {% else %}
+                                <div class="message-avatar-placeholder">{{ message.sender.first_name.0|upper }}{{ message.sender.last_name.0|upper }}</div>
+                            {% endif %}
+                            <div class="message-content">
+                                {% if message.reply_to %}
+                                <div class="reply-preview" onclick="scrollToMsg('{{ message.reply_to.id }}')">
+                                    <div class="reply-preview-sender">{{ message.reply_to.sender.get_full_name }}</div>
+                                    <div class="reply-preview-content">{{ message.reply_to.content|truncatewords:8 }}</div>
+                                </div>
+                                {% endif %}
+                                <div class="message-header">
+                                    <span class="message-sender">{{ message.sender.get_full_name }}</span>
+                                    <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
+                                </div>
+                                <div class="message-bubble">
+                                    {{ message.content }}
+                                    {% if message.is_edited %}<span class="message-edited">(edited)</span>{% endif %}
+                                </div>
+                                {% if message.attachments.all %}
+                                <div class="message-attachments">
+                                    {% for att in message.attachments.all %}
+                                        {% if att.file_type == 'image' %}
+                                            <img src="{{ att.file.url }}" class="attachment-image" onclick="window.open('{{ att.file.url }}')">
+                                        {% else %}
+                                            <div class="attachment-file" onclick="window.open('{{ att.file.url }}')">
+                                                <i class="bi bi-file-earmark attachment-icon"></i>
+                                                <div>
+                                                    <div class="attachment-name">{{ att.file_name }}</div>
+                                                    <div class="attachment-size">{{ att.file_size|filesizeformat }}</div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                {% endif %}
             {% endfor %}
             <div id="typingIndicator"></div>
         </div>
 
         <div class="chat-input-area">
             <div class="reply-to-bar" id="replyBar">
-                <div>
+                <div class="reply-to-content">
                     <div class="reply-to-label">Replying to <span id="replyToName"></span></div>
                     <div class="reply-to-text" id="replyToContent"></div>
                 </div>
                 <button class="icon-button" onclick="cancelReply()"><i class="bi bi-x"></i></button>
             </div>
 
+            <div class="file-preview-area" id="filePreviewArea"></div>
+
             {% if room.room_type == 'personal' %}
             <div class="message-type-toggle">
-                <button class="message-type-btn active" data-type="casual" onclick="setMsgType('casual')"><i class="bi bi-chat"></i> Casual</button>
-                <button class="message-type-btn" data-type="formal" onclick="setMsgType('formal')"><i class="bi bi-envelope"></i> Formal</button>
+                <button class="message-type-btn active" data-type="casual" onclick="setMsgType('casual')">
+                    <i class="bi bi-chat"></i> Casual
+                </button>
+                <button class="message-type-btn" data-type="formal" onclick="setMsgType('formal')">
+                    <i class="bi bi-envelope"></i> Formal
+                </button>
             </div>
             <div class="formal-compose" id="formalCompose">
                 <div><label>Subject</label><input type="text" id="formalSubject" placeholder="Subject"></div>
-                <div><label>To</label><select id="formalTo" multiple>{% for m in members %}{% if m.user != user %}<option value="{{ m.user.id }}">{{ m.user.get_full_name }}</option>{% endif %}{% endfor %}</select></div>
-                <div><label>CC</label><select id="formalCc" multiple>{% for m in members %}{% if m.user != user %}<option value="{{ m.user.id }}">{{ m.user.get_full_name }}</option>{% endif %}{% endfor %}</select></div>
+                <div><label>To</label><select id="formalTo" multiple style="height: 50px;">{% for m in members %}{% if m.user != user %}<option value="{{ m.user.id }}">{{ m.user.get_full_name }}</option>{% endif %}{% endfor %}</select></div>
+                <div><label>CC</label><select id="formalCc" multiple style="height: 50px;">{% for m in members %}{% if m.user != user %}<option value="{{ m.user.id }}">{{ m.user.get_full_name }}</option>{% endif %}{% endfor %}</select></div>
                 <div><label>Message</label><textarea id="formalBody" rows="4" placeholder="Compose message..."></textarea></div>
+                <button class="send-button" onclick="sendMessage()"><i class="bi bi-send"></i> Send</button>
             </div>
             {% endif %}
 
@@ -1040,12 +1224,12 @@
 <!-- Context Menu -->
 <div class="context-menu" id="contextMenu">
     <div class="context-menu-item" onclick="replyToSelected()"><i class="bi bi-reply"></i> Reply</div>
-    <div class="context-menu-item" onclick="copyMessage()"><i class="bi bi-clipboard"></i> Copy</div>
-    <div class="context-menu-item own-only" onclick="editMessage()"><i class="bi bi-pencil"></i> Edit</div>
-    <div class="context-menu-item danger" onclick="deleteMessage()"><i class="bi bi-trash"></i> Delete</div>
+    <div class="context-menu-item" onclick="copyMsg()"><i class="bi bi-clipboard"></i> Copy</div>
+    <div class="context-menu-item own-only" onclick="editMsg()"><i class="bi bi-pencil"></i> Edit</div>
+    {% comment %} <div class="context-menu-item danger" onclick="deleteMsg()"><i class="bi bi-trash"></i> Delete</div> {% endcomment %}
 </div>
 
-<!-- New Chat Modal -->
+<!-- Modals -->
 <div class="modal-overlay" id="newChatModal">
     <div class="modal">
         <h3>Start New Chat</h3>
@@ -1060,7 +1244,6 @@
     </div>
 </div>
 
-<!-- Search Modal -->
 <div class="modal-overlay" id="searchModal">
     <div class="modal">
         <h3>Search Messages</h3>
@@ -1074,17 +1257,15 @@
     </div>
 </div>
 
-<!-- Options Modal -->
 <div class="modal-overlay" id="optionsModal">
     <div class="modal">
         <h3>Chat Options</h3>
         <div class="context-menu-item" onclick="toggleMute()"><i class="bi bi-bell-slash"></i> <span id="muteText">Mute</span></div>
-        <div class="context-menu-item" onclick="togglePin()"><i class="bi bi-pin"></i> <span id="pinText">Pin</span></div>
         {% if room.room_type == 'personal' %}
         <div class="context-menu-item danger" onclick="toggleBlock()"><i class="bi bi-slash-circle"></i> <span id="blockText">{% if is_blocked %}Unblock{% else %}Block{% endif %}</span></div>
         {% else %}
-        <div class="context-menu-item" onclick="viewMembers()"><i class="bi bi-people"></i> View Members</div>
-        <div class="context-menu-item danger" onclick="leaveGroup()"><i class="bi bi-box-arrow-left"></i> Leave Group</div>
+        <div class="context-menu-item" onclick="viewMembers()"><i class="bi bi-people"></i> Members</div>
+        <div class="context-menu-item danger" onclick="leaveGroup()"><i class="bi bi-box-arrow-left"></i> Leave</div>
         {% endif %}
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeModal('optionsModal')">Close</button>
@@ -1092,16 +1273,15 @@
     </div>
 </div>
 
-<!-- Edit Modal -->
 <div class="modal-overlay" id="editModal">
     <div class="modal">
         <h3>Edit Message</h3>
         <div class="form-group">
-            <textarea id="editContent" rows="4" style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--input-bg);color:var(--text-primary);"></textarea>
+            <textarea id="editContent" rows="4" style="width:100%;padding:10px;border:1px solid var(--card-border);border-radius:6px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;"></textarea>
         </div>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
-            <button class="btn-primary" style="width:auto;" onclick="saveEdit()">Save</button>
+            <button class="btn-primary" style="width:auto;padding:8px 20px;" onclick="saveEdit()">Save</button>
         </div>
     </div>
 </div>
@@ -1115,62 +1295,73 @@ const ROOM_TYPE = '{{ room.room_type }}';
 const CSRF = '{{ csrf_token }}';
 {% if room.room_type == 'personal' and other_user %}const OTHER_USER_ID = '{{ other_user.id }}';{% endif %}
 
-let socket = null, msgType = 'casual', replyTo = null, selectedMsg = null;
-let isTyping = false, typingTimer = null, lastTap = 0;
+let socket = null, msgType = 'casual', replyTo = null, selectedMsg = null, selectedFiles = [];
+let isTyping = false, typingTimer = null;
 
-// ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
-    initWebSocket();
+    initWS();
     scrollToBottom();
     setupListeners();
-    checkMobile();
+    
+    if (window.innerWidth <= 768) {
+        document.getElementById('toggleSidebarBtn').style.display = 'flex';
+    }
+    
+    window.addEventListener('resize', () => {
+        if (window.innerWidth <= 768) {
+            document.getElementById('toggleSidebarBtn').style.display = 'flex';
+        } else {
+            document.getElementById('toggleSidebarBtn').style.display = 'none';
+            closeSidebar();
+        }
+    });
 });
 
 function setupListeners() {
     const input = document.getElementById('messageInput');
-    input?.addEventListener('input', handleTyping);
+    input?.addEventListener('input', () => {
+        handleTyping();
+        autoResize(input);
+    });
     input?.addEventListener('keydown', e => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
-    document.getElementById('fileInput')?.addEventListener('change', handleFileUpload);
+    document.getElementById('fileInput')?.addEventListener('change', handleFileSelect);
     document.addEventListener('click', () => closeContextMenu());
     document.querySelectorAll('.modal-overlay').forEach(m => {
         m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
     });
 }
 
-function checkMobile() {
-    if (window.innerWidth <= 768) {
-        document.querySelector('.toggle-sidebar-btn').style.display = 'block';
-    }
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
 
-// ========== WEBSOCKET ==========
-function initWebSocket() {
+function initWS() {
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
     socket = new WebSocket(`${proto}//${location.host}/ws/chat/${ROOM_ID}/`);
     socket.onopen = () => console.log('WS connected');
-    socket.onmessage = e => handleWsMessage(JSON.parse(e.data));
-    socket.onclose = () => setTimeout(initWebSocket, 3000);
+    socket.onmessage = e => handleWsMsg(JSON.parse(e.data));
+    socket.onclose = () => setTimeout(initWS, 3000);
     socket.onerror = err => console.error('WS error:', err);
 }
 
-function handleWsMessage(data) {
+function handleWsMsg(data) {
     const handlers = {
-        'chat_message': () => appendMessage(data.message),
-        'chat.message': () => appendMessage(data.message),
-        'message_edited': () => updateMessage(data.message),
-        'message.edited': () => updateMessage(data.message),
-        'message_deleted': () => removeMessage(data.message_id),
-        'message.deleted': () => removeMessage(data.message_id),
+        'chat_message': () => appendMsg(data.message),
+        'chat.message': () => appendMsg(data.message),
+        'message_edited': () => updateMsg(data.message),
+        'message.edited': () => updateMsg(data.message),
+        'message_deleted': () => removeMsg(data.message_id),
+        'message.deleted': () => removeMsg(data.message_id),
         'typing_indicator': () => showTyping(data.user_name, data.is_typing),
         'typing.indicator': () => showTyping(data.user_name, data.is_typing),
     };
     (handlers[data.type] || (() => {}))();
 }
 
-// ========== MESSAGES ==========
-function appendMessage(msg) {
+function appendMsg(msg) {
     const container = document.getElementById('messagesContainer');
     const typing = document.getElementById('typingIndicator');
     const isOwn = msg.sender?.id === USER_ID;
@@ -1179,8 +1370,8 @@ function appendMessage(msg) {
     let replyHtml = '';
     if (msg.reply_to) {
         replyHtml = `<div class="reply-preview" onclick="scrollToMsg('${msg.reply_to.id}')">
-            <div class="reply-preview-sender">${esc(msg.reply_to.sender?.name || 'Unknown')}</div>
-            <div class="reply-preview-content">${esc(msg.reply_to.content?.substring(0, 50) || '')}</div>
+            <div class="reply-preview-sender">${esc(msg.reply_to.sender_name || 'Unknown')}</div>
+            <div class="reply-preview-content">${esc((msg.reply_to.content || '').substring(0, 50))}</div>
         </div>`;
     }
     
@@ -1198,7 +1389,7 @@ function appendMessage(msg) {
     
     const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
     const html = msg.message_type === 'system' 
-        ? `<div class="system-message">${esc(msg.content)}</div>`
+        ? `<div class="system-message"><span>${esc(msg.content)}</span></div>`
         : `<div class="message-item ${isOwn ? 'own' : ''}" data-id="${msg.id}" data-sender="${esc(msg.sender?.name || '')}" data-content="${esc(msg.content)}" oncontextmenu="showContext(event, this)" ondblclick="setReply(this)">
             ${!isOwn ? (msg.sender?.avatar ? `<img src="${msg.sender.avatar}" class="message-avatar">` : `<div class="message-avatar-placeholder">${initials}</div>`) : ''}
             <div class="message-content">
@@ -1206,7 +1397,7 @@ function appendMessage(msg) {
                 ${!isOwn ? `<div class="message-header"><span class="message-sender">${esc(msg.sender?.name)}</span><span class="message-time">${time}</span></div>` : ''}
                 <div class="message-bubble">${esc(msg.content)}${msg.is_edited ? '<span class="message-edited">(edited)</span>' : ''}</div>
                 ${attachHtml}
-                ${isOwn ? `<div class="message-status"><span class="message-time">${time}</span><i class="bi bi-check-all"></i></div>` : ''}
+                ${isOwn ? `<div class="message-status"><span class="message-time">${time}</span><i class="bi bi-check-all" title="Delivered"></i></div>` : ''}
             </div>
         </div>`;
     
@@ -1214,7 +1405,7 @@ function appendMessage(msg) {
     scrollToBottom();
 }
 
-function updateMessage(msg) {
+function updateMsg(msg) {
     const el = document.querySelector(`[data-id="${msg.id}"]`);
     if (el) {
         el.dataset.content = msg.content;
@@ -1223,8 +1414,13 @@ function updateMessage(msg) {
     }
 }
 
-function removeMessage(msgId) {
-    document.querySelector(`[data-id="${msgId}"]`)?.remove();
+function removeMsg(msgId) {
+    const el = document.querySelector(`[data-id="${msgId}"]`);
+    if (el) {
+        el.style.transition = 'opacity 0.3s';
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 300);
+    }
 }
 
 function scrollToMsg(msgId) {
@@ -1238,12 +1434,16 @@ function scrollToMsg(msgId) {
 
 function scrollToBottom() {
     const c = document.getElementById('messagesContainer');
-    if (c) c.scrollTop = c.scrollHeight;
+    if (c) setTimeout(() => c.scrollTop = c.scrollHeight, 100);
 }
 
-// ========== SEND MESSAGE ==========
-function sendMessage() {
+async function sendMessage() {
     if (!socket || socket.readyState !== WebSocket.OPEN) return alert('Reconnecting...');
+    
+    if (selectedFiles.length > 0) {
+        await uploadFiles();
+        return;
+    }
     
     let data;
     if (msgType === 'formal' && ROOM_TYPE === 'personal') {
@@ -1264,41 +1464,129 @@ function sendMessage() {
         if (!content) return;
         data = { type: 'chat_message', message_type: 'casual', content, reply_to: replyTo?.id || null };
         document.getElementById('messageInput').value = '';
+        document.getElementById('messageInput').style.height = 'auto';
         cancelReply();
     }
     socket.send(JSON.stringify(data));
     stopTyping();
 }
 
-// ========== FILE UPLOAD ==========
-function handleFileUpload(e) {
-    const files = e.target.files;
+function handleFileSelect(e) {
+    const files = Array.from(e.target.files);
     if (!files.length) return;
     
-    const form = new FormData();
-    const content = document.getElementById('messageInput')?.value.trim() || '';
-    form.append('content', content);
-    if (replyTo) form.append('reply_to', replyTo.id);
-    Array.from(files).forEach(f => form.append('file', f));
-    
-    fetch(`/chat/room/${ROOM_ID}/upload/`, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': CSRF },
-        body: form
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.success) {
-            document.getElementById('messageInput').value = '';
-            cancelReply();
-        } else alert(d.error || 'Upload failed');
-    })
-    .catch(() => alert('Upload failed'));
-    
+    selectedFiles = [...selectedFiles, ...files];
+    renderFilePreview();
     e.target.value = '';
 }
 
-// ========== TYPING ==========
+function renderFilePreview() {
+    const container = document.getElementById('filePreviewArea');
+    
+    if (selectedFiles.length === 0) {
+        container.classList.remove('show');
+        container.innerHTML = '';
+        return;
+    }
+    
+    container.classList.add('show');
+    container.innerHTML = selectedFiles.map((file, idx) => {
+        const isImage = file.type.startsWith('image/');
+        return `
+            <div class="file-preview-item ${file.uploading ? 'uploading' : ''}" data-idx="${idx}">
+                ${isImage && file.preview ? `<img src="${file.preview}" class="file-preview-thumb">` : `<div class="file-preview-icon"><i class="bi bi-file-earmark"></i></div>`}
+                <div class="file-preview-info">
+                    <div class="file-preview-name">${esc(file.name)}</div>
+                    <div class="file-preview-size">${formatSize(file.size)}</div>
+                    ${file.uploading ? `<div class="file-preview-progress"><div class="file-preview-progress-bar" style="width: ${file.progress || 0}%"></div></div>` : ''}
+                </div>
+                <div class="file-preview-remove" onclick="removeFile(${idx})"><i class="bi bi-x"></i></div>
+            </div>
+        `;
+    }).join('');
+    
+    selectedFiles.forEach((file, idx) => {
+        if (file.type.startsWith('image/') && !file.preview) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                file.preview = e.target.result;
+                renderFilePreview();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function removeFile(idx) {
+    selectedFiles.splice(idx, 1);
+    renderFilePreview();
+}
+
+async function uploadFiles() {
+    const content = document.getElementById('messageInput')?.value.trim() || '';
+    
+    for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        file.uploading = true;
+        file.progress = 0;
+        renderFilePreview();
+        
+        try {
+            await uploadSingleFile(file, content, i === 0 ? replyTo?.id : null, progress => {
+                file.progress = progress;
+                renderFilePreview();
+            });
+        } catch (err) {
+            console.error('Upload failed:', err);
+            alert(`Failed to upload ${file.name}`);
+        }
+    }
+    
+    selectedFiles = [];
+    renderFilePreview();
+    document.getElementById('messageInput').value = '';
+    document.getElementById('messageInput').style.height = 'auto';
+    cancelReply();
+}
+
+function uploadSingleFile(file, content, replyToId, onProgress) {
+    return new Promise((resolve, reject) => {
+        const form = new FormData();
+        form.append('file', file);
+        form.append('content', content);
+        if (replyToId) form.append('reply_to', replyToId);
+        
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', e => {
+            if (e.lengthComputable) {
+                const progress = Math.round((e.loaded / e.total) * 100);
+                onProgress(progress);
+            }
+        });
+        
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) resolve(response);
+                    else reject(new Error('Upload failed'));
+                } catch (e) {
+                    reject(e);
+                }
+            } else {
+                reject(new Error('Upload failed'));
+            }
+        });
+        
+        xhr.addEventListener('error', () => reject(new Error('Network error')));
+        
+        xhr.open('POST', `/chat/room/${ROOM_ID}/upload/`);
+        xhr.setRequestHeader('X-CSRFToken', CSRF);
+        xhr.send(form);
+    });
+}
+
 function handleTyping() {
     if (!isTyping && socket?.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: 'typing_start' }));
@@ -1318,10 +1606,8 @@ function stopTyping() {
 function showTyping(name, typing) {
     const el = document.getElementById('typingIndicator');
     el.innerHTML = typing ? `<div class="typing-indicator"><span>${esc(name)} is typing</span><div class="typing-dots"><span></span><span></span><span></span></div></div>` : '';
-    scrollToBottom();
 }
 
-// ========== REPLY ==========
 function setReply(el) {
     replyTo = { id: el.dataset.id, sender: el.dataset.sender, content: el.dataset.content };
     document.getElementById('replyToName').textContent = replyTo.sender;
@@ -1340,7 +1626,6 @@ function replyToSelected() {
     closeContextMenu();
 }
 
-// ========== CONTEXT MENU ==========
 function showContext(e, el) {
     e.preventDefault();
     e.stopPropagation();
@@ -1357,12 +1642,12 @@ function closeContextMenu() {
     document.getElementById('contextMenu')?.classList.remove('show');
 }
 
-function copyMessage() {
+function copyMsg() {
     if (selectedMsg) navigator.clipboard.writeText(selectedMsg.dataset.content);
     closeContextMenu();
 }
 
-function editMessage() {
+function editMsg() {
     if (!selectedMsg) return;
     document.getElementById('editContent').value = selectedMsg.dataset.content;
     document.getElementById('editModal').classList.add('active');
@@ -1386,7 +1671,7 @@ function saveEdit() {
     });
 }
 
-function deleteMessage() {
+function deleteMsg() {
     if (!selectedMsg || !confirm('Delete this message?')) return;
     fetch(`/chat/message/${selectedMsg.dataset.id}/delete/`, {
         method: 'POST',
@@ -1397,7 +1682,6 @@ function deleteMessage() {
     closeContextMenu();
 }
 
-// ========== MESSAGE TYPE ==========
 function setMsgType(type) {
     msgType = type;
     document.querySelectorAll('.message-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
@@ -1405,124 +1689,150 @@ function setMsgType(type) {
     document.querySelector('.chat-input-container').style.display = type === 'formal' ? 'none' : 'flex';
 }
 
-// ========== SEARCH ==========
 function openSearchModal() { document.getElementById('searchModal').classList.add('active'); }
-
-let searchTimer;
-function searchInChat() {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-        const q = document.getElementById('msgSearchInput').value.trim();
-        if (q.length < 2) { document.getElementById('msgSearchResults').innerHTML = ''; return; }
-        fetch(`/chat/room/${ROOM_ID}/search/?q=${encodeURIComponent(q)}`)
-            .then(r => r.json())
-            .then(d => {
-                document.getElementById('msgSearchResults').innerHTML = d.results?.length
-                    ? d.results.map(m => `<div class="user-item" onclick="scrollToMsg('${m.id}');closeModal('searchModal')"><div><strong>${esc(m.sender_name)}</strong><div style="font-size:12px;color:var(--text-secondary)">${esc(m.content)}</div></div></div>`).join('')
-                    : '<div style="padding:20px;text-align:center;color:var(--text-secondary)">No results</div>';
-            });
-    }, 300);
-}
-
-// ========== NEW CHAT ==========
-function openNewChatModal() {
-    document.getElementById('newChatModal').classList.add('active');
-    loadAllUsers();
-}
-
-function loadAllUsers() {
-    fetch('/chat/search-users/?q=').then(r => r.json()).then(d => renderUsers(d.users));
-}
-
-function searchUsers() {
-    const q = document.getElementById('userSearchInput').value.trim();
-    fetch(`/chat/search-users/?q=${encodeURIComponent(q)}`).then(r => r.json()).then(d => renderUsers(d.users));
-}
-
-function renderUsers(users) {
-    document.getElementById('userResults').innerHTML = users.map(u => `
-        <div class="user-item" onclick="startChat('${u.id}')">
-            ${u.avatar ? `<img src="${u.avatar}" class="chat-avatar" style="width:32px;height:32px">` : `<div class="chat-avatar-placeholder" style="width:32px;height:32px;font-size:11px">${u.name.split(' ').map(n=>n[0]).join('').toUpperCase()}</div>`}
-            <div><div style="font-weight:600">${esc(u.name)}</div><div style="font-size:12px;color:var(--text-secondary)">${esc(u.email)}</div></div>
-        </div>
-    `).join('') || '<div style="padding:20px;text-align:center">No users found</div>';
-}
-
-function startChat(userId) { location.href = `/chat/start/${userId}/`; }
-
-// ========== OPTIONS ==========
+function openNewChatModal() { document.getElementById('newChatModal').classList.add('active'); }
 function openOptionsModal() { document.getElementById('optionsModal').classList.add('active'); }
+function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
 
-function toggleMute() {
-    fetch(`/chat/room/${ROOM_ID}/mute/`, { method: 'POST', headers: { 'X-CSRFToken': CSRF } })
-        .then(r => r.json()).then(d => {
-            if (d.success) document.getElementById('muteText').textContent = d.is_muted ? 'Unmute' : 'Mute';
-        });
-}
-
-function togglePin() {
-    fetch(`/chat/room/${ROOM_ID}/pin/`, { method: 'POST', headers: { 'X-CSRFToken': CSRF } })
-        .then(r => r.json()).then(d => {
-            if (d.success) document.getElementById('pinText').textContent = d.is_pinned ? 'Unpin' : 'Pin';
-        });
-}
-
-function toggleBlock() {
-    {% if room.room_type == 'personal' and other_user %}
-    fetch(`/chat/block/${OTHER_USER_ID}/`, { method: 'POST', headers: { 'X-CSRFToken': CSRF } })
-        .then(r => r.json()).then(d => {
-            if (d.success) location.reload();
-        });
-    {% endif %}
-}
-
-function leaveGroup() {
-    if (!confirm('Leave this group?')) return;
-    fetch(`/chat/room/${ROOM_ID}/leave/`, { method: 'POST', headers: { 'X-CSRFToken': CSRF } })
-        .then(r => r.json()).then(d => { if (d.success) location.href = '/chat/'; });
-}
-
-function viewMembers() { alert('Members view - implement as needed'); closeModal('optionsModal'); }
-
-// ========== SIDEBAR ==========
 function toggleSidebar() {
     document.getElementById('chatSidebar').classList.toggle('mobile-open');
     document.getElementById('mobileOverlay').classList.toggle('show');
 }
+
 function closeSidebar() {
     document.getElementById('chatSidebar').classList.remove('mobile-open');
     document.getElementById('mobileOverlay').classList.remove('show');
 }
-function filterSidebarChats() {
-    const q = document.getElementById('sidebarSearch').value.toLowerCase();
-    document.querySelectorAll('.chat-item').forEach(i => {
-        i.style.display = i.dataset.name?.includes(q) ? 'flex' : 'none';
+
+function filterChats() {
+    const query = document.getElementById('sidebarSearch').value.toLowerCase();
+    document.querySelectorAll('.chat-item').forEach(item => {
+        const name = item.dataset.name || '';
+        item.style.display = name.includes(query) ? 'flex' : 'none';
     });
 }
 
-// ========== LOAD MORE ==========
-function loadMoreMessages() {
-    const first = document.querySelector('.message-item');
-    if (!first) return;
-    fetch(`/chat/room/${ROOM_ID}/messages/?before=${first.dataset.id}`)
-        .then(r => r.json()).then(d => {
-            d.messages?.forEach(m => {
-                const container = document.getElementById('loadMoreContainer');
-                container.insertAdjacentHTML('afterend', buildMsgHtml(m));
-            });
-            document.getElementById('loadMoreContainer').style.display = d.has_more ? 'block' : 'none';
-        });
+function searchUsers() {
+    const query = document.getElementById('userSearchInput').value.trim();
+    if (query.length < 2) {
+        document.getElementById('userResults').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 12px;">Type at least 2 characters</div>';
+        return;
+    }
+    
+    fetch(`/chat/search-users/?q=${encodeURIComponent(query)}`)
+        .then(r => r.json())
+        .then(data => {
+            const results = document.getElementById('userResults');
+            if (data.users.length === 0) {
+                results.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 12px;">No users found</div>';
+                return;
+            }
+            results.innerHTML = data.users.map(u => `
+                <div class="user-item" onclick="startChat('${u.id}')">
+                    ${u.avatar ? `<img src="${u.avatar}" class="chat-avatar" style="width: 32px; height: 32px;">` : `<div class="chat-avatar-placeholder" style="width: 32px; height: 32px; font-size: 12px;">${u.name.split(' ').map(n => n[0]).join('').toUpperCase()}</div>`}
+                    <div>
+                        <div style="font-weight: 600; font-size: 13px;">${esc(u.name)}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">${esc(u.email)}</div>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(err => console.error('Search failed:', err));
 }
 
-// ========== MODALS ==========
-function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+function startChat(userId) {
+    window.location.href = `/chat/start/${userId}/`;
+}
 
-// ========== UTILS ==========
-function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-function formatSize(b) {
-    if (b < 1024) return b + ' B';
-    if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
-    return (b/1048576).toFixed(1) + ' MB';
+function searchInChat() {
+    const query = document.getElementById('msgSearchInput').value.trim();
+    if (query.length < 2) {
+        document.getElementById('msgSearchResults').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 12px;">Type at least 2 characters</div>';
+        return;
+    }
+    
+    fetch(`/chat/room/${ROOM_ID}/search/?q=${encodeURIComponent(query)}`)
+        .then(r => r.json())
+        .then(data => {
+            const results = document.getElementById('msgSearchResults');
+            if (data.results.length === 0) {
+                results.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 12px;">No messages found</div>';
+                return;
+            }
+            results.innerHTML = data.results.map(m => `
+                <div class="user-item" onclick="scrollToMsg('${m.id}'); closeModal('searchModal');">
+                    <div>
+                        <div style="font-weight: 600; font-size: 13px;">${esc(m.sender_name)}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">${esc(m.content)}</div>
+                        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">${new Date(m.created_at).toLocaleString()}</div>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(err => console.error('Search failed:', err));
+}
+
+function toggleMute() {
+    fetch(`/chat/room/${ROOM_ID}/mute/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            document.getElementById('muteText').textContent = d.is_muted ? 'Unmute' : 'Mute';
+            alert(d.is_muted ? 'Chat muted' : 'Chat unmuted');
+        }
+    });
+}
+
+function toggleBlock() {
+    if (typeof OTHER_USER_ID === 'undefined') return;
+    
+    fetch(`/chat/block/${OTHER_USER_ID}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            document.getElementById('blockText').textContent = d.is_blocked ? 'Unblock' : 'Block';
+            location.reload();
+        }
+    });
+}
+
+function viewMembers() {
+    alert('Members list feature coming soon!');
+    closeModal('optionsModal');
+}
+
+function leaveGroup() {
+    if (!confirm('Are you sure you want to leave this group?')) return;
+    
+    fetch(`/chat/room/${ROOM_ID}/leave/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            window.location.href = '/chat/';
+        }
+    });
+}
+
+function esc(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 </script>
 {% endblock %}

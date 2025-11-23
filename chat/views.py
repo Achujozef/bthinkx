@@ -31,18 +31,13 @@ def get_csrf_token(request):
     return get_token(request)
 
 
-def broadcast_to_room(room_id, event_type, data):
+def broadcast_to_room(room_id, type, data):
     """Broadcast message to WebSocket room"""
-    try:
-        channel_layer = get_channel_layer()
-        if channel_layer:
-            async_to_sync(channel_layer.group_send)(
-                f'chat_{room_id}',
-                {'type': event_type, **data}
-            )
-    except Exception as e:
-        logger.error(f"WebSocket broadcast error: {e}")
-
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f'chat_{room_id}',
+        {'type': type, **data}
+    )
 
 def message_to_json(message):
     """Convert message to JSON-serializable dict"""
@@ -96,27 +91,40 @@ def check_user_blocked(user1, user2):
 
 
 def get_room_context_data(user, rooms):
-    """Build room data for sidebar"""
+    """Build context data for room list"""
     room_data = []
     for room in rooms:
-        try:
-            membership = room.memberships.filter(user=user).first()
-            last_message = room.get_last_message()
-            unread_count = room.get_unread_count(user)
-            other_user = room.get_other_user(user) if room.room_type == 'personal' else None
-            
-            room_data.append({
-                'room': room,
-                'membership': membership,
-                'last_message': last_message,
-                'unread_count': unread_count,
-                'other_user': other_user,
-            })
-        except Exception as e:
-            logger.error(f"Error building room data: {e}")
+        membership = room.memberships.filter(user=user).first()
+        if not membership:
             continue
+            
+        last_message = room.messages.filter(is_deleted=False).order_by('-created_at').first()
+        
+        # Calculate unread count
+        if membership:
+            unread_count = room.messages.filter(
+                created_at__gt=membership.last_read_at,
+                is_deleted=False
+            ).exclude(sender=user).count()
+        else:
+            unread_count = 0
+        
+        # Get other user for personal chats
+        other_user = None
+        if room.room_type == 'personal':
+            other_membership = room.memberships.exclude(user=user).first()
+            if other_membership:
+                other_user = other_membership.user
+        
+        room_data.append({
+            'room': room,
+            'membership': membership,
+            'last_message': last_message,
+            'unread_count': unread_count,
+            'other_user': other_user
+        })
+    
     return room_data
-
 
 # ============ MAIN VIEWS ============
 
@@ -130,6 +138,7 @@ def chat_list(request):
     
     room_data = get_room_context_data(user, rooms)
     return render(request, 'chat_list.html', {'room_data': room_data})
+
 
 
 @login_required
@@ -176,12 +185,6 @@ def chat_room(request, room_id):
     ).order_by('-last_message_time')
     room_data = get_room_context_data(user, user_rooms)
     
-    # Build members JSON for JS
-    members_json = json.dumps([
-        {'id': str(m.user.id), 'name': m.user.get_full_name()}
-        for m in members
-    ])
-    
     context = {
         'room': room,
         'room_data': room_data,
@@ -192,77 +195,48 @@ def chat_room(request, room_id):
         'user': user,
         'is_blocked': is_blocked,
         'blocked_by_other': blocked_by_other,
-        'room_members_json': members_json,
         'is_admin': room.admins.filter(id=user.id).exists(),
     }
     return render(request, 'chat_room.html', context)
 
 
 # ============ CHAT CREATION ============
-
 @login_required
 @require_http_methods(["POST"])
 def create_group_chat(request):
     """Create a new group chat"""
     user = request.user
+    name = request.POST.get('name', '').strip()
+    description = request.POST.get('description', '')
+    member_ids = request.POST.getlist('members[]')
     
-    try:
-        # Handle both form data and JSON
-        if request.content_type == 'application/json':
-            data = json.loads(request.body)
-            name = data.get('name', '').strip()
-            description = data.get('description', '')
-            member_ids = data.get('members', [])
-        else:
-            name = request.POST.get('name', '').strip()
-            description = request.POST.get('description', '')
-            member_ids = request.POST.getlist('members[]') or request.POST.getlist('members')
-        
-        if not name:
-            return JsonResponse({'error': 'Group name is required'}, status=400)
-        
-        # Create room
-        room = ChatRoom.objects.create(
-            name=name,
-            description=description,
-            room_type='group',
-            created_by=user
-        )
-        room.admins.add(user)
-        
-        # Add creator as member
-        ChatRoomMembership.objects.create(room=room, user=user)
-        
-        # Add other members
-        if member_ids:
-            members = User.objects.filter(id__in=member_ids).exclude(id=user.id)
-            for member in members:
-                ChatRoomMembership.objects.create(room=room, user=member)
-        
-        # Create system message
-        Message.objects.create(
-            room=room,
-            sender=None,
-            content=f'{user.get_full_name()} created this group',
-            message_type='system'
-        )
-        
-        return JsonResponse({
-            'success': True,
-            'room_id': str(room.id),
-            'redirect_url': f'/chat/room/{room.id}/'
-        })
-        
-    except Exception as e:
-        logger.error(f"Error creating group chat: {e}")
-        return JsonResponse({'error': 'Failed to create group'}, status=500)
-
+    if not name:
+        return JsonResponse({'error': 'Group name is required'}, status=400)
+    
+    room = ChatRoom.objects.create(
+        name=name,
+        description=description,
+        room_type='group',
+        created_by=user
+    )
+    room.admins.add(user)
+    ChatRoomMembership.objects.create(room=room, user=user)
+    
+    if member_ids:
+        members = User.objects.filter(id__in=member_ids)
+        for member in members:
+            ChatRoomMembership.objects.create(room=room, user=member)
+    
+    return JsonResponse({
+        'success': True,
+        'room_id': str(room.id),
+        'redirect_url': f'/chat/room/{room.id}/'
+    })
 
 @login_required
 def start_personal_chat(request, user_id):
-    """Start or continue personal chat with user"""
+    """Start or continue personal chat"""
     other_user = get_object_or_404(User, id=user_id)
-    
     if other_user == request.user:
         return redirect('chat_list')
     
@@ -271,10 +245,9 @@ def start_personal_chat(request, user_id):
         return HttpResponseForbidden("You have blocked this user.")
     if BlockedUser.objects.filter(blocker=other_user, blocked=request.user).exists():
         return HttpResponseForbidden("This user has blocked you.")
-    
+        
     room = ChatRoom.objects.get_or_create_personal_room(request.user, other_user)
     return redirect('chat_room', room_id=room.id)
-
 
 # ============ MESSAGE OPERATIONS ============
 
@@ -343,64 +316,55 @@ def send_message(request, room_id):
         logger.error(f"Error sending message: {e}")
         return JsonResponse({'error': 'Failed to send message'}, status=500)
 
-
 @login_required
 @require_http_methods(["POST"])
 def upload_attachment(request, room_id):
     """Handle file upload with optional text content"""
     room = get_object_or_404(ChatRoom, id=room_id)
-    
     if not ChatRoomMembership.objects.filter(room=room, user=request.user).exists():
         return JsonResponse({'error': 'Access denied'}, status=403)
-    
-    # Check blocking
-    if room.room_type == 'personal':
-        other_user = room.get_other_user(request.user)
-        if other_user and check_user_blocked(request.user, other_user):
-            return JsonResponse({'error': 'Cannot send - user blocked'}, status=403)
-    
+
     content = request.POST.get('content', '').strip()
     reply_to_id = request.POST.get('reply_to')
-    files = request.FILES.getlist('file') or request.FILES.getlist('files')
     
+    files = request.FILES.getlist('file')
     if not files and not content:
         return JsonResponse({'error': 'No content or file provided'}, status=400)
-    
-    # Resolve reply
+
+    # Resolve Reply
     reply_to = None
     if reply_to_id:
-        reply_to = Message.objects.filter(id=reply_to_id, room=room).first()
-    
-    # Create message
+        try:
+            reply_to = Message.objects.get(id=reply_to_id, room=room)
+        except Message.DoesNotExist:
+            pass
+
+    # Create Message
     message = Message.objects.create(
         room=room,
         sender=request.user,
-        content=content if content else '',
+        content=content if content else 'Sent a file',
         message_type='text',
         reply_to=reply_to
     )
-    
-    # Process files
-    MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
-    
+
+    attachments_data = []
     for file in files:
-        if file.size > MAX_FILE_SIZE:
+        if file.size > 50 * 1024 * 1024:  # 50MB limit
             continue
-        
-        mime_type = file.content_type or 'application/octet-stream'
+            
+        mime_type = file.content_type
         file_type = 'other'
-        
-        if mime_type.startswith('image/'):
+        if mime_type.startswith('image/'): 
             file_type = 'image'
-        elif mime_type.startswith('video/'):
+        elif mime_type.startswith('video/'): 
             file_type = 'video'
-        elif mime_type.startswith('audio/'):
+        elif mime_type.startswith('audio/'): 
             file_type = 'audio'
-        elif mime_type in ['application/pdf', 'application/msword',
-                          'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
+        elif mime_type in ['application/pdf', 'application/msword']: 
             file_type = 'document'
         
-        Attachment.objects.create(
+        attachment = Attachment.objects.create(
             message=message,
             file=file,
             file_name=file.name,
@@ -408,61 +372,78 @@ def upload_attachment(request, room_id):
             file_type=file_type,
             mime_type=mime_type
         )
-    
-    # Update content if only files
-    if not content and files:
-        file_count = len(files)
-        message.content = f'Sent {file_count} file{"s" if file_count > 1 else ""}'
-        message.save(update_fields=['content'])
-    
-    # Broadcast
-    msg_json = message_to_json(message)
-    broadcast_to_room(room.id, 'chat.message', {'message': msg_json})
-    
-    return JsonResponse({'success': True, 'message': msg_json})
+        attachments_data.append({
+            'id': str(attachment.id),
+            'file_name': attachment.file_name,
+            'file_url': attachment.file.url,
+            'file_size': attachment.file_size,
+            'file_type': attachment.file_type
+        })
 
+    # Broadcast to WebSocket
+    msg_json = {
+        'id': str(message.id),
+        'sender': {
+            'id': str(request.user.id),
+            'name': request.user.get_full_name(),
+            'avatar': request.user.avatar.url if request.user.avatar else None
+        },
+        'content': message.content,
+        'message_type': 'text',
+        'created_at': message.created_at.isoformat(),
+        'is_edited': False,
+        'attachments': attachments_data,
+        'reply_to': {
+            'id': str(reply_to.id),
+            'sender_name': reply_to.sender.get_full_name(),
+            'content': reply_to.content
+        } if reply_to else None
+    }
+    
+    broadcast_to_room(room.id, 'chat_message', {'message': msg_json})
+
+    return JsonResponse({'success': True, 'message': msg_json})
 
 @login_required
 @require_http_methods(["POST"])
 def edit_message(request, message_id):
-    """Edit an existing message"""
+    """Edit message"""
     try:
         data = json.loads(request.body)
         new_content = data.get('content', '').strip()
-    except json.JSONDecodeError:
+    except:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    
+        
     if not new_content:
-        return JsonResponse({'error': 'Content cannot be empty'}, status=400)
-    
+        return JsonResponse({'error': 'Empty content'}, status=400)
+        
     message = get_object_or_404(Message, id=message_id)
-    
-    # Only sender can edit
     if message.sender != request.user:
         return JsonResponse({'error': 'Permission denied'}, status=403)
-    
-    # Check edit window (24 hours)
-    time_diff = (timezone.now() - message.created_at).total_seconds()
-    if time_diff > 86400:
-        return JsonResponse({'error': 'Edit period expired (24 hours)'}, status=403)
-    
-    # Update message
+        
+    if (timezone.now() - message.created_at).total_seconds() > 86400:
+        return JsonResponse({'error': 'Edit period expired'}, status=403)
+        
     message.content = new_content
     message.is_edited = True
     message.edited_at = timezone.now()
     message.save(update_fields=['content', 'is_edited', 'edited_at'])
     
     # Broadcast edit
-    msg_json = message_to_json(message)
-    broadcast_to_room(message.room.id, 'message.edited', {'message': msg_json})
+    msg_data = {
+        'id': str(message.id),
+        'content': message.content,
+        'is_edited': True
+    }
+    broadcast_to_room(message.room.id, 'message_edited', {'message': msg_data})
     
-    return JsonResponse({'success': True, 'message': msg_json})
+    return JsonResponse({'success': True, 'message': msg_data})
 
 
 @login_required
 @require_http_methods(["POST"])
 def delete_message(request, message_id):
-    """Delete a message (soft delete)"""
+    """Delete message"""
     message = get_object_or_404(Message, id=message_id)
     
     is_sender = message.sender == request.user
@@ -475,69 +456,64 @@ def delete_message(request, message_id):
     message.save(update_fields=['is_deleted'])
     
     # Broadcast deletion
-    broadcast_to_room(message.room.id, 'message.deleted', {'message_id': str(message.id)})
+    broadcast_to_room(message.room.id, 'message_deleted', {'message_id': str(message.id)})
     
     return JsonResponse({'success': True})
 
 
-# ============ SEARCH ============
 
+
+# ============ SEARCH ============
 @login_required
 def search_users(request):
-    """Search users for starting chats or adding to groups"""
+    """Search users for chat"""
     query = request.GET.get('q', '').strip()
     
-    users = User.objects.exclude(id=request.user.id).filter(is_active=True)
-    
-    if len(query) >= 2:
-        users = users.filter(
+    if len(query) < 2:
+        users = User.objects.exclude(id=request.user.id).filter(is_active=True)[:20]
+    else:
+        users = User.objects.filter(
             Q(first_name__icontains=query) |
             Q(last_name__icontains=query) |
             Q(email__icontains=query)
-        )
-    
-    users = users[:20]
+        ).exclude(id=request.user.id)[:10]
     
     return JsonResponse({
         'users': [
             {
                 'id': str(u.id),
-                'name': u.get_full_name() or u.email,
+                'name': u.get_full_name(),
                 'email': u.email,
-                'avatar': u.avatar.url if hasattr(u, 'avatar') and u.avatar else None
+                'avatar': u.avatar.url if u.avatar else None
             }
             for u in users
         ]
     })
-
-
 @login_required
 def search_messages(request, room_id):
-    """Search messages within a chat room"""
+    """Search messages in room"""
     room = get_object_or_404(ChatRoom, id=room_id)
-    
     if not ChatRoomMembership.objects.filter(room=room, user=request.user).exists():
         return JsonResponse({'error': 'Access denied'}, status=403)
     
     query = request.GET.get('q', '').strip()
-    
-    if len(query) < 2:
+    if len(query) < 2: 
         return JsonResponse({'results': []})
     
     messages = Message.objects.filter(
-        room=room,
-        content__icontains=query,
+        room=room, 
+        content__icontains=query, 
         is_deleted=False
     ).select_related('sender').order_by('-created_at')[:20]
     
     return JsonResponse({
         'results': [
             {
-                'id': str(m.id),
-                'sender_name': m.sender.get_full_name() if m.sender else 'System',
-                'content': m.content[:100],
+                'id': str(m.id), 
+                'sender_name': m.sender.get_full_name() if m.sender else 'System', 
+                'content': m.content[:100], 
                 'created_at': m.created_at.isoformat()
-            }
+            } 
             for m in messages
         ]
     })
@@ -611,20 +587,11 @@ def remove_member_from_group(request, room_id):
 @login_required
 @require_http_methods(["POST"])
 def leave_group(request, room_id):
-    """Leave a group chat"""
+    """Leave group"""
     room = get_object_or_404(ChatRoom, id=room_id, room_type='group')
-    
-    # Check if user is only admin
-    is_admin = room.admins.filter(id=request.user.id).exists()
-    if is_admin and room.admins.count() == 1:
-        # Transfer admin to another member
-        other_member = room.memberships.exclude(user=request.user).first()
-        if other_member:
-            room.admins.add(other_member.user)
-    
     ChatRoomMembership.objects.filter(room=room, user=request.user).delete()
-    room.admins.remove(request.user)
     
+    # Send system message
     Message.objects.create(
         room=room,
         sender=None,
@@ -632,7 +599,7 @@ def leave_group(request, room_id):
         message_type='system'
     )
     
-    return JsonResponse({'success': True, 'redirect_url': '/chat/'})
+    return JsonResponse({'success': True})
 
 
 # ============ CHAT SETTINGS ============
@@ -640,19 +607,12 @@ def leave_group(request, room_id):
 @login_required
 @require_http_methods(["POST"])
 def mute_chat(request, room_id):
-    """Toggle mute status for chat"""
+    """Mute/unmute chat"""
     room = get_object_or_404(ChatRoom, id=room_id)
-    membership = get_object_or_404(ChatRoomMembership, room=room, user=request.user)
-    
-    membership.is_muted = not membership.is_muted
-    membership.save(update_fields=['is_muted'])
-    
-    return JsonResponse({
-        'success': True,
-        'is_muted': membership.is_muted,
-        'message': 'Chat muted' if membership.is_muted else 'Chat unmuted'
-    })
-
+    m = ChatRoomMembership.objects.get(room=room, user=request.user)
+    m.is_muted = not m.is_muted
+    m.save(update_fields=['is_muted'])
+    return JsonResponse({'success': True, 'is_muted': m.is_muted})
 
 @login_required
 @require_http_methods(["POST"])
@@ -685,36 +645,28 @@ def clear_chat(request, room_id):
 
 
 # ============ BLOCKING ============
-
 @login_required
 @require_http_methods(["POST"])
 def block_user(request, user_id):
-    """Block or unblock a user"""
+    """Block/unblock user"""
     other_user = get_object_or_404(User, id=user_id)
-    
     if other_user == request.user:
-        return JsonResponse({'error': 'Cannot block yourself'}, status=400)
-    
-    blocked_obj = BlockedUser.objects.filter(
+        return JsonResponse({'error': 'Cannot block self'}, status=400)
+        
+    blocked_obj, created = BlockedUser.objects.get_or_create(
         blocker=request.user,
         blocked=other_user
-    ).first()
+    )
     
-    if blocked_obj:
+    if not created:
         blocked_obj.delete()
-        return JsonResponse({
-            'success': True,
-            'is_blocked': False,
-            'message': f'{other_user.get_full_name()} unblocked'
-        })
+        is_blocked = False
+        msg = 'User unblocked'
     else:
-        BlockedUser.objects.create(blocker=request.user, blocked=other_user)
-        return JsonResponse({
-            'success': True,
-            'is_blocked': True,
-            'message': f'{other_user.get_full_name()} blocked'
-        })
-
+        is_blocked = True
+        msg = 'User blocked'
+        
+    return JsonResponse({'success': True, 'is_blocked': is_blocked, 'message': msg})
 
 @login_required
 def get_blocked_users(request):
