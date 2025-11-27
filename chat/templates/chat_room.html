@@ -994,6 +994,49 @@
     #toggleSidebarBtn {
         display: flex !important;
     }
+    
+    /* Fix send button visibility on mobile */
+    .chat-input-area {
+        position: relative;
+        z-index: 100;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+    
+    .chat-input-container {
+        position: sticky;
+        bottom: 0;
+        background: var(--card-bg);
+        padding: 8px 0;
+        z-index: 101;
+    }
+    
+    .send-button {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 10px 16px;
+        flex-shrink: 0;
+    }
+    
+    /* Prevent keyboard from hiding input */
+    @supports (padding: max(0px)) {
+        .chat-input-area {
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+        }
+    }
+    
+    /* Ensure input area is always visible */
+    .chat-room-main {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    .chat-messages-container {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 </style>
 {% endblock %}
@@ -1194,21 +1237,21 @@
             <div class="file-preview-area" id="filePreviewArea"></div>
 
             {% if room.room_type == 'personal' %}
-            <div class="message-type-toggle">
+            {% comment %} <div class="message-type-toggle">
                 <button class="message-type-btn active" data-type="casual" onclick="setMsgType('casual')">
                     <i class="bi bi-chat"></i> Casual
                 </button>
                 <button class="message-type-btn" data-type="formal" onclick="setMsgType('formal')">
                     <i class="bi bi-envelope"></i> Formal
                 </button>
-            </div>
-            <div class="formal-compose" id="formalCompose">
+            </div> {% endcomment %}
+            {% comment %} <div class="formal-compose" id="formalCompose">
                 <div><label>Subject</label><input type="text" id="formalSubject" placeholder="Subject"></div>
                 <div><label>To</label><select id="formalTo" multiple style="height: 50px;">{% for m in members %}{% if m.user != user %}<option value="{{ m.user.id }}">{{ m.user.get_full_name }}</option>{% endif %}{% endfor %}</select></div>
                 <div><label>CC</label><select id="formalCc" multiple style="height: 50px;">{% for m in members %}{% if m.user != user %}<option value="{{ m.user.id }}">{{ m.user.get_full_name }}</option>{% endif %}{% endfor %}</select></div>
                 <div><label>Message</label><textarea id="formalBody" rows="4" placeholder="Compose message..."></textarea></div>
                 <button class="send-button" onclick="sendMessage()"><i class="bi bi-send"></i> Send</button>
-            </div>
+            </div> {% endcomment %}
             {% endif %}
 
             <div class="chat-input-container">
@@ -1349,16 +1392,22 @@ function initWS() {
 
 function handleWsMsg(data) {
     const handlers = {
-        'chat_message': () => appendMsg(data.message),
         'chat.message': () => appendMsg(data.message),
-        'message_edited': () => updateMsg(data.message),
         'message.edited': () => updateMsg(data.message),
-        'message_deleted': () => removeMsg(data.message_id),
         'message.deleted': () => removeMsg(data.message_id),
-        'typing_indicator': () => showTyping(data.user_name, data.is_typing),
         'typing.indicator': () => showTyping(data.user_name, data.is_typing),
+        'user.joined': () => updateUserStatus(data.user_id, true),
+        'user.left': () => updateUserStatus(data.user_id, false),
+        'message.read.receipt': () => updateReadStatus(data.message_id, data.user_id),
+        'chat.pinned': () => handleChatPinned(data),
+        'chat.muted': () => handleChatMuted(data),
+        'user.blocked': () => handleUserBlocked(data),
     };
-    (handlers[data.type] || (() => {}))();
+    const handler = handlers[data.type];
+    if (handler) handler();
+    else if (data.type && !data.type.startsWith('message_history')) {
+        console.warn('Unhandled WebSocket event:', data.type);
+    }
 }
 
 function appendMsg(msg) {
@@ -1369,9 +1418,11 @@ function appendMsg(msg) {
     
     let replyHtml = '';
     if (msg.reply_to) {
+        const replySender = msg.reply_to.sender?.name || msg.reply_to.sender_name || 'Unknown';
+        const replyContent = msg.reply_to.content || '';
         replyHtml = `<div class="reply-preview" onclick="scrollToMsg('${msg.reply_to.id}')">
-            <div class="reply-preview-sender">${esc(msg.reply_to.sender_name || 'Unknown')}</div>
-            <div class="reply-preview-content">${esc((msg.reply_to.content || '').substring(0, 50))}</div>
+            <div class="reply-preview-sender">${esc(replySender)}</div>
+            <div class="reply-preview-content">${esc(replyContent.substring(0, 50))}</div>
         </div>`;
     }
     
@@ -1408,9 +1459,28 @@ function appendMsg(msg) {
 function updateMsg(msg) {
     const el = document.querySelector(`[data-id="${msg.id}"]`);
     if (el) {
-        el.dataset.content = msg.content;
+        el.dataset.content = msg.content || '';
         const bubble = el.querySelector('.message-bubble');
-        if (bubble) bubble.innerHTML = esc(msg.content) + '<span class="message-edited">(edited)</span>';
+        if (bubble) {
+            bubble.innerHTML = esc(msg.content || '') + '<span class="message-edited">(edited)</span>';
+        }
+        // Update attachments if present
+        if (msg.attachments && msg.attachments.length > 0) {
+            let attachHtml = '<div class="message-attachments">' + msg.attachments.map(a => 
+                a.file_type === 'image' 
+                    ? `<img src="${a.file_url}" class="attachment-image" onclick="window.open('${a.file_url}')">`
+                    : `<div class="attachment-file" onclick="window.open('${a.file_url}')">
+                        <i class="bi bi-file-earmark attachment-icon"></i>
+                        <div><div class="attachment-name">${esc(a.file_name)}</div><div class="attachment-size">${formatSize(a.file_size)}</div></div>
+                       </div>`
+            ).join('') + '</div>';
+            const existingAttach = el.querySelector('.message-attachments');
+            if (existingAttach) {
+                existingAttach.outerHTML = attachHtml;
+            } else {
+                bubble.insertAdjacentHTML('afterend', attachHtml);
+            }
+        }
     }
 }
 
@@ -1830,9 +1900,48 @@ function esc(str) {
 }
 
 function formatSize(bytes) {
+    if (!bytes) return '0 B';
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function updateUserStatus(userId, isOnline) {
+    if (typeof OTHER_USER_ID !== 'undefined' && userId === OTHER_USER_ID) {
+        const statusEl = document.getElementById('userStatus');
+        if (statusEl) {
+            statusEl.textContent = isOnline ? 'Online' : 'Offline';
+            statusEl.style.color = isOnline ? 'var(--accent-green)' : 'var(--text-secondary)';
+        }
+    }
+}
+
+function updateReadStatus(messageId, userId) {
+    const msgEl = document.querySelector(`[data-id="${messageId}"]`);
+    if (msgEl && msgEl.classList.contains('own')) {
+        const checkIcon = msgEl.querySelector('.bi-check-all');
+        if (checkIcon) {
+            checkIcon.classList.add('read');
+            checkIcon.title = 'Read';
+        }
+    }
+}
+
+function handleChatPinned(data) {
+    // Update UI to reflect pinned status
+    console.log('Chat pinned status changed:', data);
+}
+
+function handleChatMuted(data) {
+    // Update UI to reflect muted status
+    console.log('Chat muted status changed:', data);
+}
+
+function handleUserBlocked(data) {
+    // Reload page if current user is affected
+    if (data.user_id === OTHER_USER_ID || data.blocked_by === USER_ID) {
+        location.reload();
+    }
 }
 </script>
 {% endblock %}

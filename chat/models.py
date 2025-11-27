@@ -230,65 +230,10 @@ class Message(models.Model):
         return [
             meta.user for meta in self.meta.filter(read_at__isnull=False)
         ]
-    def to_json(self):
-        """Convert message to JSON-serializable dict"""
-        attachments = []
-        for att in self.attachments.all():
-            attachments.append({
-                'id': str(att.id),
-                'file_url': att.file.url if att.file else None,
-                'file_name': att.file_name,
-                'file_size': att.file_size,
-                'file_type': att.file_type,
-                'mime_type': att.mime_type,
-            })
-        
-        reply_to_data = None
-        if self.reply_to:
-            reply_to_data = {
-                'id': str(self.reply_to.id),
-                'sender': {
-                    'id': str(self.reply_to.sender.id) if self.reply_to.sender else None,
-                    'name': self.reply_to.sender.get_full_name() if self.reply_to.sender else 'System',
-                },
-                'content': self.reply_to.content[:100] if self.reply_to.content else '',
-            }
-        
-        to_users_list = []
-        cc_users_list = []
-        
-        try:
-            to_users_list = [
-                {'id': str(u.id), 'name': u.get_full_name()}
-                for u in self.to_users.all()
-            ]
-            cc_users_list = [
-                {'id': str(u.id), 'name': u.get_full_name()}
-                for u in self.cc_users.all()
-            ]
-        except:
-            pass
-        
-        return {
-            'id': str(self.id),
-            'room_id': str(self.room_id),
-            'sender': {
-                'id': str(self.sender.id) if self.sender else None,
-                'name': self.sender.get_full_name() if self.sender else 'System',
-                'avatar': self.sender.avatar.url if self.sender and hasattr(self.sender, 'avatar') and self.sender.avatar else None,
-            },
-            'content': self.content,
-            'message_type': self.message_type,
-            'subject': self.subject or '',
-            'to_users': to_users_list,
-            'cc_users': cc_users_list,
-            'reply_to': reply_to_data,
-            'attachments': attachments,
-            'is_edited': self.is_edited,
-            'is_deleted': self.is_deleted,
-            'created_at': self.created_at.isoformat(),
-            'edited_at': self.edited_at.isoformat() if self.edited_at else None,
-        }
+    def to_json(self, include_meta=False):
+        """Convert message to JSON-serializable dict using unified serializer"""
+        from .serializers import serialize_message
+        return serialize_message(self, include_meta=include_meta)
 
 class MessageMeta(models.Model):
     """Message delivery and read receipts"""

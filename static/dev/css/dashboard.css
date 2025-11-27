@@ -1317,3 +1317,359 @@ body {
         align-items: flex-start;
     }
 }
+    /* Performance-specific styles */
+    .performance-hero {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+        border: 2px solid var(--card-border);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .performance-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.15), transparent 50%);
+        pointer-events: none;
+    }
+
+    .performance-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        margin-top: 24px;
+    }
+
+    .perf-metric {
+        text-align: center;
+        padding: 20px;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid var(--card-border);
+        transition: var(--transition);
+    }
+
+    .perf-metric:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent-purple);
+    }
+
+    .perf-metric-value {
+        font-size: 36px;
+        font-weight: 900;
+        font-family: 'Space Grotesk', sans-serif;
+        margin-bottom: 8px;
+    }
+
+    .perf-metric-value.excellent {
+        color: #10b981;
+    }
+
+    .perf-metric-value.good {
+        color: #3b82f6;
+    }
+
+    .perf-metric-value.average {
+        color: #f59e0b;
+    }
+
+    .perf-metric-value.below {
+        color: #f97316;
+    }
+
+    .perf-metric-value.poor {
+        color: #ef4444;
+    }
+
+    .perf-metric-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .trend-up {
+        color: #10b981;
+    }
+
+    .trend-down {
+        color: #ef4444;
+    }
+
+    .trend-stable {
+        color: var(--text-muted);
+    }
+
+    .performance-chart-container {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 32px;
+    }
+
+    .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .chart-title {
+        font-size: 20px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .chart-controls {
+        display: flex;
+        gap: 8px;
+    }
+
+    .chart-btn {
+        padding: 8px 16px;
+        background: var(--secondary-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .chart-btn.active {
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        color: white;
+        border-color: transparent;
+    }
+
+    .chart-btn:hover:not(.active) {
+        background: rgba(139, 92, 246, 0.1);
+        border-color: var(--accent-purple);
+    }
+
+    #performanceChart {
+        width: 100%;
+        height: 400px;
+    }
+
+    .rating-distribution {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .rating-item {
+        padding: 16px;
+        background: var(--secondary-bg);
+        border-radius: 12px;
+        border: 1px solid var(--card-border);
+        text-align: center;
+    }
+
+    .rating-count {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .rating-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .today-feedback-card {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.05));
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .feedback-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .feedback-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+    }
+
+    .feedback-title {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .feedback-points {
+        font-size: 24px;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-left: auto;
+    }
+
+    .feedback-text {
+        padding: 16px;
+        background: var(--card-bg);
+        border-radius: 12px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--text-secondary);
+    }
+
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .insight-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 20px;
+        transition: var(--transition);
+    }
+
+    .insight-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(139, 92, 246, 0.4);
+    }
+
+    .insight-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .insight-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+
+    .insight-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .insight-value {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .insight-description {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .mini-stat {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: var(--secondary-bg);
+        border-radius: 10px;
+        margin-bottom: 8px;
+    }
+
+    .mini-stat-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .mini-stat-value {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .performance-badge-lg {
+        display: inline-block;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 700;
+        margin-top: 16px;
+    }
+
+    .performance-badge-lg.excellent {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border: 2px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .performance-badge-lg.good {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+        border: 2px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .performance-badge-lg.average {
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+        border: 2px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .performance-badge-lg.below {
+        background: rgba(249, 115, 22, 0.2);
+        color: #f97316;
+        border: 2px solid rgba(249, 115, 22, 0.3);
+    }
+
+    .performance-badge-lg.poor {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 2px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .compact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    @media (max-width: 1200px) {
+        .compact-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    

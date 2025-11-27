@@ -16,6 +16,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.core.paginator import Paginator
 from django.utils import timezone
+from django.conf import settings
 import json
 import logging
 
@@ -31,56 +32,23 @@ def get_csrf_token(request):
     return get_token(request)
 
 
-def broadcast_to_room(room_id, type, data):
-    """Broadcast message to WebSocket room"""
+def broadcast_to_room(room_id, event_type, data):
+    """
+    Broadcast message to WebSocket room
+    Uses normalized event names with dot notation for Channels routing
+    """
     channel_layer = get_channel_layer()
+    # Normalize event type to use dot notation
+    normalized_type = event_type.replace('_', '.')
     async_to_sync(channel_layer.group_send)(
         f'chat_{room_id}',
-        {'type': type, **data}
+        {'type': normalized_type, **data}
     )
 
 def message_to_json(message):
-    """Convert message to JSON-serializable dict"""
-    attachments = []
-    for att in message.attachments.all():
-        attachments.append({
-            'id': str(att.id),
-            'file_url': att.file.url if att.file else None,
-            'file_name': att.file_name,
-            'file_size': att.file_size,
-            'file_type': att.file_type,
-            'mime_type': att.mime_type,
-        })
-    
-    reply_to_data = None
-    if message.reply_to:
-        reply_to_data = {
-            'id': str(message.reply_to.id),
-            'sender': {
-                'id': str(message.reply_to.sender.id) if message.reply_to.sender else None,
-                'name': message.reply_to.sender.get_full_name() if message.reply_to.sender else 'System',
-            },
-            'content': message.reply_to.content[:100],
-        }
-    
-    return {
-        'id': str(message.id),
-        'room_id': str(message.room_id),
-        'sender': {
-            'id': str(message.sender.id) if message.sender else None,
-            'name': message.sender.get_full_name() if message.sender else 'System',
-            'avatar': message.sender.avatar.url if message.sender and hasattr(message.sender, 'avatar') and message.sender.avatar else None,
-        },
-        'content': message.content,
-        'message_type': message.message_type,
-        'subject': message.subject or '',
-        'reply_to': reply_to_data,
-        'attachments': attachments,
-        'is_edited': message.is_edited,
-        'is_deleted': message.is_deleted,
-        'created_at': message.created_at.isoformat(),
-        'edited_at': message.edited_at.isoformat() if message.edited_at else None,
-    }
+    """Convert message to JSON-serializable dict - uses unified serializer"""
+    from .serializers import serialize_message
+    return serialize_message(message)
 
 
 def check_user_blocked(user1, user2):
@@ -304,9 +272,19 @@ def send_message(request, room_id):
             if cc_users:
                 message.cc_users.set(User.objects.filter(id__in=cc_users))
         
-        # Broadcast via WebSocket
+        # Update room timestamp
+        room.updated_at = timezone.now()
+        room.save(update_fields=['updated_at'])
+        
+        # Broadcast via WebSocket with normalized event name
         msg_json = message_to_json(message)
         broadcast_to_room(room.id, 'chat.message', {'message': msg_json})
+        
+        # Mark as delivered to all room members except sender
+        from django.db import transaction
+        with transaction.atomic():
+            for membership in room.memberships.exclude(user=request.user):
+                message.mark_as_delivered_to(membership.user)
         
         return JsonResponse({'success': True, 'message': msg_json})
         
@@ -320,6 +298,10 @@ def send_message(request, room_id):
 @require_http_methods(["POST"])
 def upload_attachment(request, room_id):
     """Handle file upload with optional text content"""
+    from django.db import transaction
+    from .serializers import sanitize_filename
+    import os
+    
     room = get_object_or_404(ChatRoom, id=room_id)
     if not ChatRoomMembership.objects.filter(room=room, user=request.user).exists():
         return JsonResponse({'error': 'Access denied'}, status=403)
@@ -335,72 +317,76 @@ def upload_attachment(request, room_id):
     reply_to = None
     if reply_to_id:
         try:
-            reply_to = Message.objects.get(id=reply_to_id, room=room)
+            reply_to = Message.objects.get(id=reply_to_id, room=room, is_deleted=False)
         except Message.DoesNotExist:
             pass
 
-    # Create Message
-    message = Message.objects.create(
-        room=room,
-        sender=request.user,
-        content=content if content else 'Sent a file',
-        message_type='text',
-        reply_to=reply_to
-    )
-
-    attachments_data = []
-    for file in files:
-        if file.size > 50 * 1024 * 1024:  # 50MB limit
-            continue
-            
-        mime_type = file.content_type
-        file_type = 'other'
-        if mime_type.startswith('image/'): 
-            file_type = 'image'
-        elif mime_type.startswith('video/'): 
-            file_type = 'video'
-        elif mime_type.startswith('audio/'): 
-            file_type = 'audio'
-        elif mime_type in ['application/pdf', 'application/msword']: 
-            file_type = 'document'
-        
-        attachment = Attachment.objects.create(
-            message=message,
-            file=file,
-            file_name=file.name,
-            file_size=file.size,
-            file_type=file_type,
-            mime_type=mime_type
+    # Transactional message and attachment creation
+    with transaction.atomic():
+        # Create Message
+        message = Message.objects.create(
+            room=room,
+            sender=request.user,
+            content=content if content else 'Sent a file',
+            message_type='text',
+            reply_to=reply_to
         )
-        attachments_data.append({
-            'id': str(attachment.id),
-            'file_name': attachment.file_name,
-            'file_url': attachment.file.url,
-            'file_size': attachment.file_size,
-            'file_type': attachment.file_type
-        })
 
-    # Broadcast to WebSocket
-    msg_json = {
-        'id': str(message.id),
-        'sender': {
-            'id': str(request.user.id),
-            'name': request.user.get_full_name(),
-            'avatar': request.user.avatar.url if request.user.avatar else None
-        },
-        'content': message.content,
-        'message_type': 'text',
-        'created_at': message.created_at.isoformat(),
-        'is_edited': False,
-        'attachments': attachments_data,
-        'reply_to': {
-            'id': str(reply_to.id),
-            'sender_name': reply_to.sender.get_full_name(),
-            'content': reply_to.content
-        } if reply_to else None
-    }
-    
-    broadcast_to_room(room.id, 'chat_message', {'message': msg_json})
+        for file in files:
+            # Size check
+            if file.size > 50 * 1024 * 1024:  # 50MB limit
+                continue
+            
+            # Sanitize filename
+            safe_filename = sanitize_filename(file.name)
+            
+            mime_type = file.content_type or 'application/octet-stream'
+            file_type = 'other'
+            if mime_type.startswith('image/'): 
+                file_type = 'image'
+            elif mime_type.startswith('video/'): 
+                file_type = 'video'
+            elif mime_type.startswith('audio/'): 
+                file_type = 'audio'
+            elif mime_type in ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']: 
+                file_type = 'document'
+            
+            attachment = Attachment.objects.create(
+                message=message,
+                file=file,
+                file_name=safe_filename,
+                file_size=file.size,
+                file_type=file_type,
+                mime_type=mime_type
+            )
+            
+            # Generate thumbnail for images (async/background task recommended for production)
+            if file_type == 'image':
+                try:
+                    from PIL import Image
+                    img = Image.open(attachment.file.path)
+                    img.thumbnail((200, 200), Image.Resampling.LANCZOS)
+                    thumb_name = f'thumb_{os.path.basename(attachment.file.name)}'
+                    thumb_path = os.path.join(os.path.dirname(attachment.file.path), thumb_name)
+                    img.save(thumb_path)
+                    attachment.thumbnail.name = os.path.join(os.path.dirname(attachment.file.name), thumb_name)
+                    attachment.width = img.width
+                    attachment.height = img.height
+                    attachment.save()
+                except Exception as e:
+                    logger.warning(f"Could not generate thumbnail: {e}")
+        
+        # Update room timestamp
+        room.updated_at = timezone.now()
+        room.save(update_fields=['updated_at'])
+        
+        # Mark as delivered to all room members except sender
+        for membership in room.memberships.exclude(user=request.user):
+            message.mark_as_delivered_to(membership.user)
+
+    # Broadcast to WebSocket using unified serializer
+    msg_json = message_to_json(message)
+    broadcast_to_room(room.id, 'chat.message', {'message': msg_json})
 
     return JsonResponse({'success': True, 'message': msg_json})
 
@@ -429,13 +415,9 @@ def edit_message(request, message_id):
     message.edited_at = timezone.now()
     message.save(update_fields=['content', 'is_edited', 'edited_at'])
     
-    # Broadcast edit
-    msg_data = {
-        'id': str(message.id),
-        'content': message.content,
-        'is_edited': True
-    }
-    broadcast_to_room(message.room.id, 'message_edited', {'message': msg_data})
+    # Broadcast edit with full message data
+    msg_json = message_to_json(message)
+    broadcast_to_room(message.room.id, 'message.edited', {'message': msg_json})
     
     return JsonResponse({'success': True, 'message': msg_data})
 
@@ -455,8 +437,8 @@ def delete_message(request, message_id):
     message.is_deleted = True
     message.save(update_fields=['is_deleted'])
     
-    # Broadcast deletion
-    broadcast_to_room(message.room.id, 'message_deleted', {'message_id': str(message.id)})
+    # Broadcast deletion with normalized event name
+    broadcast_to_room(message.room.id, 'message.deleted', {'message_id': str(message.id)})
     
     return JsonResponse({'success': True})
 
@@ -612,6 +594,14 @@ def mute_chat(request, room_id):
     m = ChatRoomMembership.objects.get(room=room, user=request.user)
     m.is_muted = not m.is_muted
     m.save(update_fields=['is_muted'])
+    
+    # Broadcast mute status change
+    broadcast_to_room(room.id, 'chat.muted', {
+        'room_id': str(room.id),
+        'user_id': str(request.user.id),
+        'is_muted': m.is_muted
+    })
+    
     return JsonResponse({'success': True, 'is_muted': m.is_muted})
 
 @login_required
@@ -623,6 +613,13 @@ def pin_chat(request, room_id):
     
     membership.is_pinned = not membership.is_pinned
     membership.save(update_fields=['is_pinned'])
+    
+    # Broadcast pin status change
+    broadcast_to_room(room.id, 'chat.pinned', {
+        'room_id': str(room.id),
+        'user_id': str(request.user.id),
+        'is_pinned': membership.is_pinned
+    })
     
     return JsonResponse({
         'success': True,
@@ -665,6 +662,19 @@ def block_user(request, user_id):
     else:
         is_blocked = True
         msg = 'User blocked'
+    
+    # Broadcast block status change to all shared rooms
+    shared_rooms = ChatRoom.objects.filter(
+        room_type='personal',
+        memberships__user=request.user
+    ).filter(memberships__user=other_user).distinct()
+    
+    for room in shared_rooms:
+        broadcast_to_room(room.id, 'user.blocked', {
+            'user_id': str(other_user.id),
+            'blocked_by': str(request.user.id),
+            'is_blocked': is_blocked
+        })
         
     return JsonResponse({'success': True, 'is_blocked': is_blocked, 'message': msg})
 
@@ -755,7 +765,7 @@ def update_typing_status(request, room_id):
     else:
         TypingIndicator.objects.filter(room=room, user=request.user).delete()
     
-    # Broadcast typing status
+    # Broadcast typing status with normalized event name
     broadcast_to_room(room.id, 'typing.indicator', {
         'user_id': str(request.user.id),
         'user_name': request.user.get_full_name(),

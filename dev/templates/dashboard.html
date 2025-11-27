@@ -1,104 +1,314 @@
-{% extends 'base.html' %}
-{% load static %}
+    {% extends 'base.html' %}
+    {% load static %}
 
-{% block title %}Dashboard - BThinkX Employee Portal{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'dev/css/dashboard.css' %}">
-{% endblock %}
-{% block content %}
+    {% block title %}Performance Dashboard - BThinkX Employee Portal{% endblock %}
 
-<div class="dashboard-container">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="header-content">
-            <h1 class="page-title">Welcome back, <span class="gradient-text">{{ user.first_name }}</span></h1>
-            <p class="page-subtitle">Here's what's happening with your work today</p>
-        </div>
-        <div class="header-actions">
-            <button class="btn-secondary">
-                <i class="bi bi-calendar"></i>
-                {{ today|date:"F d, Y" }}
-            </button>
-        </div>
-    </div>
+    {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'dev/css/dashboard.css' %}">
+    <style>
+        .multi-series-legend {
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .multi-series-legend .legend-circle {
+            display: inline-block;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .chart-controls .chart-btn.active {
+            background: var(--accent-purple);
+            color: #fff;
+        }
+    </style>
+    {% endblock %}
 
-    <!-- Quick Stats -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon attendance">
-                <i class="bi bi-clock-history"></i>
+    {% block content %}
+    <div class="dashboard-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1 class="page-title">Performance Dashboard</h1>
+                <p class="page-subtitle">Track your daily performance and growth metrics</p>
             </div>
-            <div class="stat-content">
-                <h3 class="stat-value">{{ attendance_stats.present_days }}/{{ attendance_stats.total_working_days }}</h3>
-                <p class="stat-label">Attendance This Month</p>
-                {% if attendance_stats.logged_in_today %}
-                <span class="stat-badge success">Logged In</span>
-                {% else %}
-                <span class="stat-badge danger">Not Logged In</span>
+            <div class="header-actions">
+                <button class="btn-secondary">
+                    <i class="bi bi-calendar"></i>
+                    {{ today|date:"F d, Y" }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Daily Report Alert -->
+        {% if not daily_report_submitted %}
+        <div class="alert-banner warning">
+            <div class="alert-icon">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="alert-content">
+                <h4>Daily Report Pending</h4>
+                <p>You haven't submitted your daily report for today. Please submit it before end of day.</p>
+            </div>
+            <a href="{% url 'submit_daily_report' %}" class="btn-primary">Submit Now</a>
+        </div>
+        {% endif %}
+
+        <!-- Performance Hero Section -->
+        <div class="performance-hero">
+            <div style="position: relative; z-index: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">
+                            Your Performance Score
+                        </h2>
+                        <p style="color: var(--text-secondary); font-size: 15px;">Last 30 days average</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 56px; font-weight: 900; font-family: 'Space Grotesk', sans-serif; line-height: 1;"
+                            class="perf-metric-value {{ performance_stats.performance_color }}">
+                            {{ performance_stats.avg_points }}
+                            <span style="font-size: 24px;">/10</span>
+                        </div>
+                        <div class="performance-badge-lg {{ performance_stats.performance_color }}">
+                            {{ performance_stats.performance_label }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="performance-overview">
+                    <div class="perf-metric">
+                        <div class="perf-metric-value">{{ performance_stats.total_days_rated }}</div>
+                        <div class="perf-metric-label">Days Rated</div>
+                    </div>
+
+                    <div class="perf-metric">
+                        <div class="perf-metric-value {% if performance_stats.trend == 'up' %}trend-up{% elif performance_stats.trend == 'down' %}trend-down{% else %}trend-stable{% endif %}">
+                            {% if performance_stats.trend == 'up' %}
+                            <i class="bi bi-arrow-up"></i>
+                            {% elif performance_stats.trend == 'down' %}
+                            <i class="bi bi-arrow-down"></i>
+                            {% else %}
+                            <i class="bi bi-dash"></i>
+                            {% endif %}
+                            {{ performance_stats.trend_percentage }}%
+                        </div>
+                        <div class="perf-metric-label">Weekly Trend</div>
+                    </div>
+
+                    <div class="perf-metric">
+                        <div class="perf-metric-value">{{ attendance_stats.present_days }}</div>
+                        <div class="perf-metric-label">Attendance Days</div>
+                    </div>
+
+                    <div class="perf-metric">
+                        <div class="perf-metric-value">{{ task_stats.completed_this_week }}</div>
+                        <div class="perf-metric-label">Tasks Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Performance Feedback -->
+        {% if performance_stats.today_points %}
+        <div class="today-feedback-card">
+            <div class="feedback-header">
+                <div class="feedback-icon">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <div>
+                    <div class="feedback-title">Today's Performance</div>
+                    <div style="font-size: 13px; color: var(--text-muted);">{{ today|date:"F d, Y" }}</div>
+                </div>
+                <div class="feedback-points">{{ performance_stats.today_points }} pts</div>
+            </div>
+            {% if performance_stats.today_feedback %}
+            <div class="feedback-text">
+                <i class="bi bi-chat-left-quote" style="color: var(--accent-purple); margin-right: 8px;"></i>
+                {{ performance_stats.today_feedback }}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Performance Chart -->
+        <div class="performance-chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">
+                    <i class="bi bi-graph-up" style="color: var(--accent-purple);"></i>
+                    Performance Trend
+                </h2>
+                <div class="chart-controls">
+                    <button class="chart-btn active" data-days="30" onclick="updateChartView(30, this)">30 Days</button>
+                    <button class="chart-btn" data-days="14" onclick="updateChartView(14, this)">14 Days</button>
+                    <button class="chart-btn" data-days="7" onclick="updateChartView(7, this)">7 Days</button>
+                </div>
+            </div>
+
+            <div style="position: relative; height: 350px; margin: 20px 0;">
+                <canvas id="performanceChart"></canvas>
+            </div>
+
+            <!-- Rating Distribution -->
+            {% if performance_stats.rating_distribution %}
+            <div class="rating-distribution">
+                {% for rating in performance_stats.rating_distribution %}
+                {% if rating.count > 0 %}
+                <div class="rating-item">
+                    <div class="rating-count" style="color: 
+                        {% if rating.rating == 'excellent' %}#10b981
+                        {% elif rating.rating == 'good' %}#3b82f6
+                        {% elif rating.rating == 'average' %}#f59e0b
+                        {% elif rating.rating == 'below_average' %}#f97316
+                        {% else %}#ef4444{% endif %};">
+                        {{ rating.count }}
+                    </div>
+                    <div class="rating-label">
+                        {% if rating.rating == 'excellent' %}Excellent
+                        {% elif rating.rating == 'good' %}Good
+                        {% elif rating.rating == 'average' %}Average
+                        {% elif rating.rating == 'below_average' %}Below Average
+                        {% else %}Poor{% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Insights Grid -->
+        <div class="insights-grid">
+            <!-- Quick Stats -->
+            <div class="insight-card">
+                <div class="insight-header">
+                    <div class="insight-icon" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div class="insight-title">Attendance</div>
+                </div>
+                <div class="insight-value">{{ attendance_stats.present_days }}/{{ attendance_stats.total_working_days }}</div>
+                <div class="insight-description">Days present this month</div>
+
+                <div style="margin-top: 16px;">
+                    <div class="mini-stat">
+                        <span class="mini-stat-label">Login Today</span>
+                        <span class="mini-stat-value">
+                            {% if attendance_stats.today_login_time %}
+                            {{ attendance_stats.today_login_time|time:"h:i A" }}
+                            {% else %}
+                            <span style="color: var(--accent-red);">Not Logged In</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if attendance_stats.today_logout_time %}
+                    <div class="mini-stat">
+                        <span class="mini-stat-label">Logout Time</span>
+                        <span class="mini-stat-value">{{ attendance_stats.today_logout_time|time:"h:i A" }}</span>
+                    </div>
+                    {% endif %}
+                    {% if not attendance_stats.logged_in_today %}
+                    <button class="btn-primary full-width" onclick="loginAttendance()" style="margin-top: 12px;">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        Login Now
+                    </button>
+                    {% elif not attendance_stats.today_logout_time %}
+                    <button class="btn-secondary full-width" onclick="logoutAttendance()" style="margin-top: 12px;">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tasks Overview -->
+            <div class="insight-card">
+                <div class="insight-header">
+                    <div class="insight-icon" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">
+                        <i class="bi bi-check2-square"></i>
+                    </div>
+                    <div class="insight-title">Tasks</div>
+                </div>
+                <div class="insight-value">{{ task_stats.in_progress }}</div>
+                <div class="insight-description">Tasks in progress</div>
+
+                <div style="margin-top: 16px;">
+                    <div class="mini-stat">
+                        <span class="mini-stat-label">To Do</span>
+                        <span class="mini-stat-value">{{ task_stats.todo }}</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-label">Completed This Week</span>
+                        <span class="mini-stat-value" style="color: var(--accent-green);">{{ task_stats.completed_this_week }}</span>
+                    </div>
+                    {% if task_stats.overdue > 0 %}
+                    <div class="mini-stat">
+                        <span class="mini-stat-label">Overdue</span>
+                        <span class="mini-stat-value" style="color: var(--accent-red);">{{ task_stats.overdue }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Leave Status -->
+            <div class="insight-card">
+                <div class="insight-header">
+                    <div class="insight-icon" style="background: linear-gradient(135deg, #ec4899, #ef4444);">
+                        <i class="bi bi-calendar-x"></i>
+                    </div>
+                    <div class="insight-title">Leave Status</div>
+                </div>
+                <div class="insight-value">{{ leave_stats.total_available }}</div>
+                <div class="insight-description">Days available</div>
+
+                <div style="margin-top: 16px;">
+                    <div class="mini-stat">
+                        <span class="mini-stat-label">Pending Requests</span>
+                        <span class="mini-stat-value">{{ leave_stats.pending }}</span>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-label">Approved This Month</span>
+                        <span class="mini-stat-value">{{ leave_stats.approved_this_month }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects -->
+            <div class="insight-card">
+                <div class="insight-header">
+                    <div class="insight-icon" style="background: linear-gradient(135deg, #10b981, #3b82f6);">
+                        <i class="bi bi-folder"></i>
+                    </div>
+                    <div class="insight-title">Active Projects</div>
+                </div>
+                <div class="insight-value">{{ active_projects.count }}</div>
+                <div class="insight-description">Projects you're working on</div>
+
+                {% if active_projects %}
+                <div style="margin-top: 16px;">
+                    {% for project in active_projects|slice:":2" %}
+                    <div class="mini-stat">
+                        <span class="mini-stat-label">{{ project.name|truncatechars:20 }}</span>
+                        <span class="mini-stat-value">{{ project.progress_percent }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon tasks">
-                <i class="bi bi-check2-square"></i>
-            </div>
-            <div class="stat-content">
-                <h3 class="stat-value">{{ task_stats.in_progress }}</h3>
-                <p class="stat-label">Tasks In Progress</p>
-                <span class="stat-meta">{{ task_stats.completed_this_week }} completed this week</span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon leaves">
-                <i class="bi bi-calendar-x"></i>
-            </div>
-            <div class="stat-content">
-                <h3 class="stat-value">{{ leave_stats.pending }}</h3>
-                <p class="stat-label">Pending Leave Requests</p>
-                <span class="stat-meta">{{ leave_stats.total_available }} days available</span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon projects">
-                <i class="bi bi-folder"></i>
-            </div>
-            <div class="stat-content">
-                <h3 class="stat-value">{{ active_projects.count }}</h3>
-                <p class="stat-label">Active Projects</p>
-                {% if task_stats.overdue > 0 %}
-                <span class="stat-badge warning">{{ task_stats.overdue }} overdue tasks</span>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Daily Report Alert -->
-    {% if not daily_report_submitted %}
-    <div class="alert-banner warning">
-        <div class="alert-icon">
-            <i class="bi bi-exclamation-triangle"></i>
-        </div>
-        <div class="alert-content">
-            <h4>Daily Report Pending</h4>
-            <p>You haven't submitted your daily report for today. Please submit it before end of day.</p>
-        </div>
-        <a href="{% url 'submit_daily_report' %}" class="btn-primary">Submit Now</a>
-    </div>
-    {% endif %}
-
-    <!-- Main Dashboard Grid -->
-    <div class="dashboard-grid">
-        <!-- Left Column -->
-        <div class="dashboard-col-left">
+        <!-- Two Column Layout -->
+        <div class="compact-grid">
             <!-- Recent Tasks -->
             <div class="dashboard-card">
                 <div class="card-header">
                     <h2 class="card-title">
                         <i class="bi bi-check2-square"></i>
-                        My Tasks
+                        Recent Tasks
                     </h2>
                     <a href="{% url 'my_tasks' %}" class="btn-text">View All</a>
                 </div>
@@ -107,9 +317,6 @@
                     <div class="tasks-list">
                         {% for task in recent_tasks %}
                         <div class="task-item">
-                            <div class="task-checkbox">
-                                <input type="checkbox" {% if task.status == 'done' %}checked{% endif %}>
-                            </div>
                             <div class="task-content">
                                 <h4 class="task-title">{{ task.title }}</h4>
                                 <div class="task-meta">
@@ -138,225 +345,345 @@
                 </div>
             </div>
 
-            <!-- Active Projects -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <i class="bi bi-folder"></i>
-                        Active Projects
-                    </h2>
-                    <a href="{% url 'my_projects' %}" class="btn-text">View All</a>
-                </div>
-                <div class="card-body">
-                    {% if active_projects %}
-                    <div class="projects-list">
-                        {% for project in active_projects %}
-                        <div class="project-item">
-                            <div class="project-header">
-                                <h4 class="project-name">{{ project.name }}</h4>
-                                <span class="project-code">{{ project.code }}</span>
-                            </div>
-                            <div class="project-progress">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: {{ project.progress_percent }}%"></div>
+            <!-- Right Column Stack -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <!-- Upcoming Events -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="bi bi-calendar-event"></i>
+                            Upcoming Events
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        {% if upcoming_events %}
+                        <div class="events-list">
+                            {% for event in upcoming_events|slice:":3" %}
+                            <div class="event-item">
+                                <div class="event-date">
+                                    <span class="event-day">{{ event.start|date:"d" }}</span>
+                                    <span class="event-month">{{ event.start|date:"M" }}</span>
                                 </div>
-                                <span class="progress-text">{{ project.progress_percent }}%</span>
+                                <div class="event-details">
+                                    <h4 class="event-title">{{ event.title }}</h4>
+                                    <p class="event-time">
+                                        <i class="bi bi-clock"></i>
+                                        {{ event.start|time:"h:i A" }}
+                                    </p>
+                                </div>
                             </div>
-                            <div class="project-meta">
-                                <span class="project-status status-{{ project.status }}">{{ project.get_status_display }}</span>
-                                {% if project.end_date %}
-                                <span class="project-due">Due: {{ project.end_date|date:"M d, Y" }}</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="empty-state">
-                        <i class="bi bi-folder"></i>
-                        <p>No active projects</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column -->
-        <div class="dashboard-col-right">
-            <!-- Today's Attendance -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <i class="bi bi-clock"></i>
-                        Today's Attendance
-                    </h2>
-                </div>
-                <div class="card-body">
-                    <div class="attendance-summary">
-                        {% if attendance_stats.today_login_time %}
-                        <div class="attendance-time">
-                            <div class="time-icon success">
-                                <i class="bi bi-box-arrow-in-right"></i>
-                            </div>
-                            <div class="time-details">
-                                <span class="time-label">Login Time</span>
-                                <span class="time-value">{{ attendance_stats.today_login_time|time:"h:i A" }}</span>
-                            </div>
-                        </div>
-                        
-                        {% if attendance_stats.today_logout_time %}
-                        <div class="attendance-time">
-                            <div class="time-icon danger">
-                                <i class="bi bi-box-arrow-right"></i>
-                            </div>
-                            <div class="time-details">
-                                <span class="time-label">Logout Time</span>
-                                <span class="time-value">{{ attendance_stats.today_logout_time|time:"h:i A" }}</span>
-                            </div>
+                            {% endfor %}
                         </div>
                         {% else %}
-                        <div class="attendance-action">
-                            <button class="btn-primary full-width" onclick="logoutAttendance()">
-                                <i class="bi bi-box-arrow-right"></i>
-                                Logout
-                            </button>
-                        </div>
-                        {% endif %}
-                        {% else %}
-                        <div class="attendance-action">
-                            <button class="btn-primary full-width" onclick="loginAttendance()">
-                                <i class="bi bi-box-arrow-in-right"></i>
-                                Login
-                            </button>
+                        <div class="empty-state">
+                            <i class="bi bi-calendar-x"></i>
+                            <p>No upcoming events</p>
                         </div>
                         {% endif %}
                     </div>
                 </div>
-            </div>
 
-            <!-- Upcoming Events -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <i class="bi bi-calendar-event"></i>
-                        Upcoming Events
-                    </h2>
-                </div>
-                <div class="card-body">
-                    {% if upcoming_events %}
-                    <div class="events-list">
-                        {% for event in upcoming_events %}
-                        <div class="event-item">
-                            <div class="event-date">
-                                <span class="event-day">{{ event.start|date:"d" }}</span>
-                                <span class="event-month">{{ event.start|date:"M" }}</span>
+                <!-- Announcements -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="bi bi-megaphone"></i>
+                            Announcements
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_announcements %}
+                        <div class="announcements-list">
+                            {% for announcement in recent_announcements %}
+                            <div class="announcement-item">
+                                <h4 class="announcement-title">{{ announcement.title }}</h4>
+                                <p class="announcement-body">{{ announcement.body|truncatewords:15 }}</p>
+                                <span class="announcement-date">{{ announcement.created_at|timesince }} ago</span>
                             </div>
-                            <div class="event-details">
-                                <h4 class="event-title">{{ event.title }}</h4>
-                                <p class="event-time">
-                                    <i class="bi bi-clock"></i>
-                                    {{ event.start|time:"h:i A" }} - {{ event.end|time:"h:i A" }}
-                                </p>
-                                {% if event.location %}
-                                <p class="event-location">
-                                    <i class="bi bi-geo-alt"></i>
-                                    {{ event.location }}
-                                </p>
-                                {% endif %}
-                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="empty-state">
-                        <i class="bi bi-calendar-x"></i>
-                        <p>No upcoming events</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Announcements -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <i class="bi bi-megaphone"></i>
-                        Announcements
-                    </h2>
-                </div>
-                <div class="card-body">
-                    {% if recent_announcements %}
-                    <div class="announcements-list">
-                        {% for announcement in recent_announcements %}
-                        <div class="announcement-item">
-                            <h4 class="announcement-title">{{ announcement.title }}</h4>
-                            <p class="announcement-body">{{ announcement.body|truncatewords:20 }}</p>
-                            <span class="announcement-date">{{ announcement.created_at|timesince }} ago</span>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-megaphone"></i>
+                            <p>No announcements</p>
                         </div>
-                        {% endfor %}
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <div class="empty-state">
-                        <i class="bi bi-megaphone"></i>
-                        <p>No announcements</p>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</div>
+    {% endblock %}
 
-{% endblock %}
+    {% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // ChartJS bug fixes and dynamic data filtering for filter buttons
 
-{% block extra_js %}
-<script>
-    function loginAttendance() {
-        if (confirm('Are you sure you want to log in?')) {
-            fetch('{% url "attendance_login" %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
+        // Parse JSON safely for chart (avoid HTML escaping bugs)
+        let allPerformanceHistory = [];
+        try {
+            const historyData = {{ performance_history|safe }};
+            allPerformanceHistory = Array.isArray(historyData) ? historyData : [];
+        } catch (e) {
+            console.error('Error parsing performance history:', e);
+            allPerformanceHistory = [];
+        }
+
+        // Returns an array of the last `days` entries from performance history, ordered by date asc
+        function getFilteredPerformanceHistory(days) {
+            // Clone and sort (by date ASC)
+            const sorted = [...allPerformanceHistory].sort((a, b) => new Date(a.date) - new Date(b.date));
+            if (days >= sorted.length) return sorted;
+            return sorted.slice(sorted.length - days);
+        }
+
+        // Build chart data (labels, points, colors) for given history data array
+        function buildChartData(historyData) {
+            const labels = historyData.map(d => {
+                // Defensive parse
+                let dt = typeof d.date === "string" ? new Date(d.date) : d.date;
+                if (dt instanceof Date && !isNaN(dt)) {
+                    return dt.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Failed to log in');
+                return "";
+            });
+            const points = historyData.map(d => d.points);
+            const colors = historyData.map(d => {
+                if (d.on_leave) return 'rgba(148, 163, 184, 0.3)';
+                if (d.points === null || d.points === undefined) return 'rgba(100, 116, 139, 0.2)';
+                if (d.points >= 9) return 'rgba(16, 185, 129, 0.8)';
+                if (d.points >= 7) return 'rgba(59, 130, 246, 0.8)';
+                if (d.points >= 5) return 'rgba(245, 158, 11, 0.8)';
+                if (d.points >= 3) return 'rgba(249, 115, 22, 0.8)';
+                return 'rgba(239, 68, 68, 0.8)';
+            });
+            return { labels, points, colors, historyData };
+        }
+
+        let performanceChart;
+        let currentDaysShown = 30;
+
+        function renderPerformanceChart(days) {
+            try {
+                const historyData = getFilteredPerformanceHistory(days);
+                if (!historyData || historyData.length === 0) {
+                    console.warn('No performance history data available');
+                    return;
+                }
+                
+                const { labels, points, colors, historyData: hist } = buildChartData(historyData);
+
+                const ctx = document.getElementById('performanceChart');
+                if (!ctx) {
+                    console.error('Chart canvas element not found');
+                    return;
+                }
+                
+                const chartContainer = document.querySelector('.performance-chart-container');
+                if (chartContainer) chartContainer.style.opacity = '0.7';
+
+                if (performanceChart) {
+                    performanceChart.destroy();
+                }
+
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Performance Points',
+                        data: points,
+                        borderColor: 'rgba(139, 92, 246, 1)',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: colors,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBackgroundColor: colors,
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 3,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 15, 15, 0.9)',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1,
+                            padding: 12,
+                            titleColor: '#ffffff',
+                            bodyColor: '#94a3b8',
+                            callbacks: {
+                                label: function (context) {
+                                    const data = hist[context.dataIndex];
+                                    if (data.on_leave) return "On Leave";
+                                    if (data.points === null || data.points === undefined) return "Not Rated";
+                                    return "Points: " + data.points;
+                                },
+                                afterLabel: function (context) {
+                                    const data = hist[context.dataIndex];
+                                    if (data.feedback) return "Feedback: " + data.feedback;
+                                    return null;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                stepSize: 2,
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
                 }
             });
-        }
-    }
 
-    function logoutAttendance() {
-        if (confirm('Are you sure you want to log out?')) {
-            fetch('{% url "attendance_logout" %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Failed to log out');
-                }
+                if (chartContainer) chartContainer.style.opacity = '1';
+            } catch (error) {
+                console.error('Error rendering performance chart:', error);
+                const chartContainer = document.querySelector('.performance-chart-container');
+                if (chartContainer) chartContainer.style.opacity = '1';
+            }
+        }
+
+        // Filter switcher for days count
+        function updateChartView(days, btn) {
+            days = parseInt(days);
+            if (isNaN(days)) days = 30;
+            currentDaysShown = days;
+
+            // Remove 'active' from all buttons, add to current
+            document.querySelectorAll('.chart-btn').forEach(function (b) {
+                b.classList.remove("active");
             });
-        }
-    }
+            if (btn) btn.classList.add("active");
+            else {
+                // Fallback: add active to correct button
+                document.querySelector(`.chart-btn[data-days="${days}"]`)?.classList.add('active');
+            }
 
-    // Task checkbox toggle
-    document.querySelectorAll('.task-checkbox input').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const taskItem = this.closest('.task-item');
-            taskItem.classList.toggle('completed');
+            renderPerformanceChart(days);
+        }
+
+        // Utility: get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        // Attendance Login
+        function loginAttendance() {
+            if (confirm('Are you sure you want to log in for today?')) {
+                fetch('{% url "attendance_login" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Login successful!');
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Failed to log in');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            }
+        }
+
+        // Attendance Logout
+        function logoutAttendance() {
+            if (confirm('Are you sure you want to log out for today?')) {
+                fetch('{% url "attendance_logout" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Logout successful!');
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Failed to log out');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            }
+        }
+
+        // On page load, show default (30 days)
+        window.addEventListener("load", function () {
+            try {
+                updateChartView(30, document.querySelector('.chart-btn[data-days="30"]'));
+            } catch (error) {
+                console.error('Error initializing chart:', error);
+            }
         });
-    });
-</script>
-{% endblock %}
+        
+        // Handle window resize for responsive chart
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (performanceChart && currentDaysShown) {
+                    try {
+                        renderPerformanceChart(currentDaysShown);
+                    } catch (error) {
+                        console.error('Error resizing chart:', error);
+                    }
+                }
+            }, 250);
+        });
+    </script>
+    {% endblock %}

@@ -30,6 +30,7 @@ venv/
 env/
 ENV/
 .venv/
+staticfiles/
 .pip-selfcheck.json
 bthinkx-d17e6d002985.json
 # Testing and coverage

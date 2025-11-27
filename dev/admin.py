@@ -3,6 +3,8 @@ from django.utils.html import format_html
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .models import (
+    PerformanceCategory,
+    PerformancePoint,
     User,
     Company,
     Department,
@@ -247,3 +249,5 @@ admin.site.register(DailyReport, BaseAdmin)
 admin.site.register(Lead, BaseAdmin)
 admin.site.register(Quotation, BaseAdmin)
 admin.site.register(Campaign, BaseAdmin)
+admin.site.register(PerformancePoint, BaseAdmin)
+admin.site.register(PerformanceCategory,BaseAdmin)

@@ -7,7 +7,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 # -----------------------
 # Managers
 # -----------------------
@@ -563,3 +563,100 @@ class KBArticle(AuditModel):
     slug = models.SlugField(max_length=255)
     body = models.TextField()
     is_public = models.BooleanField(default=False)
+
+
+
+
+class PerformancePoint(AuditModel):
+    """
+    Daily performance points awarded by managers/HR to employees.
+    Maximum 10 points per day.
+    """
+    RATING_CHOICES = (
+        ('excellent', 'Excellent (9-10)'),
+        ('good', 'Good (7-8)'),
+        ('average', 'Average (5-6)'),
+        ('below_average', 'Below Average (3-4)'),
+        ('poor', 'Poor (1-2)'),
+    )
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    employee = models.ForeignKey(
+        Employee, 
+        on_delete=models.CASCADE, 
+        related_name="performance_points"
+    )
+    date = models.DateField(db_index=True)
+    points = models.DecimalField(
+        max_digits=4, 
+        decimal_places=2,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(10)
+        ]
+    )
+    rating = models.CharField(max_length=32, choices=RATING_CHOICES, blank=True)
+    feedback = models.TextField(blank=True)
+    awarded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="awarded_points"
+    )
+    
+    # Categorization
+    category = models.ForeignKey(
+        'PerformanceCategory',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='performance_points'
+    )    
+    # Leave/Absence tracking
+    on_leave = models.BooleanField(default=False)
+    absence_reason = models.CharField(max_length=255, blank=True)
+    
+    class Meta:
+        unique_together = ("employee", "date")
+        indexes = [
+            models.Index(fields=["employee", "date"]),
+            models.Index(fields=["date", "awarded_by"]),
+        ]
+        ordering = ["-date"]
+    
+    def save(self, *args, **kwargs):
+        # Auto-set rating based on points
+        if self.points is not None:
+            if self.points >= 9:
+                self.rating = 'excellent'
+            elif self.points >= 7:
+                self.rating = 'good'
+            elif self.points >= 5:
+                self.rating = 'average'
+            elif self.points >= 3:
+                self.rating = 'below_average'
+            else:
+                self.rating = 'poor'
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.employee.user.get_full_name()} - {self.date} - {self.points} pts"
+
+
+class PerformanceCategory(AuditModel):
+    """
+    Categories for performance evaluation
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="performance_categories")
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    weight = models.DecimalField(max_digits=3, decimal_places=2, default=1.0)  # For weighted averages
+    icon = models.CharField(max_length=50, blank=True)  # Icon class name
+    
+    class Meta:
+        unique_together = ("company", "name")
+        verbose_name_plural = "Performance Categories"
+    
+    def __str__(self):
+        return self.name
