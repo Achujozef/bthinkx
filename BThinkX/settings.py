@@ -157,7 +157,7 @@ AUTH_USER_MODEL = 'dev.User'
 #         },
 #     },
 # }
-ASGI_APPLICATION = 'project.asgi.application'
+ASGI_APPLICATION = 'BThinkX.asgi.application'
 
 # WebSocket
 CHANNEL_LAYERS = {
