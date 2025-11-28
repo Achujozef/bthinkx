@@ -96,27 +96,35 @@ html::-webkit-scrollbar {
    ============================================ */
 .theme-toggle {
     position: fixed;
-    bottom: 32px;
-    right: 32px;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
     z-index: 9999;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     background: var(--card-bg);
     backdrop-filter: blur(20px);
     border: 2px solid var(--card-border);
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    cursor: grab;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    user-select: none;
+}
+
+.theme-toggle:active {
+    cursor: grabbing;
+    transform: translateY(-50%) scale(0.95);
 }
 
 .theme-toggle:hover {
-    transform: scale(1.1) rotate(15deg);
-    box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 6px 30px rgba(139, 92, 246, 0.4);
     border-color: rgba(139, 92, 246, 0.5);
+    background: rgba(139, 92, 246, 0.1);
 }
 
 .theme-toggle-icon {
@@ -977,10 +985,9 @@ html::-webkit-scrollbar {
     }
 
     .theme-toggle {
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
+        left: 12px;
+        width: 44px;
+        height: 44px;
     }
 
     .theme-toggle-icon {

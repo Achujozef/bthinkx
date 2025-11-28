@@ -25,6 +25,10 @@
             background: var(--accent-purple);
             color: #fff;
         }
+        .is-weekend {
+            background: #f3f4f6 !important;
+            border-radius: 6px;
+        }
     </style>
     {% endblock %}
 
@@ -153,6 +157,12 @@
                 <canvas id="performanceChart"></canvas>
             </div>
 
+            <!-- Legend for weekends -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 14px;">
+                <span style="display: inline-block; width: 18px; height: 18px; border-radius: 4px; background: #f3f4f6; border: 1px solid #e5e7eb; margin-right: 5px;"></span>
+                <span>Saturday/Sunday</span>
+            </div>
+            
             <!-- Rating Distribution -->
             {% if performance_stats.rating_distribution %}
             <div class="rating-distribution">
@@ -438,27 +448,52 @@
             return sorted.slice(sorted.length - days);
         }
 
+        // Helper: Check if a date string 'YYYY-MM-DD' is Saturday or Sunday
+        function isWeekend(dateString) {
+            // Try to parse the dateString as YYYY-MM-DD or ISO format
+            const d = new Date(dateString);
+            if (isNaN(d.getTime())) return false;
+            const day = d.getDay();
+            return day === 6 || day === 0; // 0 = Sunday, 6 = Saturday
+        }
+
         // Build chart data (labels, points, colors) for given history data array
         function buildChartData(historyData) {
             const labels = historyData.map(d => {
-                // Defensive parse
                 let dt = typeof d.date === "string" ? new Date(d.date) : d.date;
                 if (dt instanceof Date && !isNaN(dt)) {
-                    return dt.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+                    // Weekend highlight: add (S) or (Su)
+                    const day = dt.getDay();
+                    let label = dt.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+                    if (day === 0) label += ' (Su)';
+                    if (day === 6) label += ' (S)';
+                    return label;
                 }
                 return "";
             });
-            const points = historyData.map(d => d.points);
-            const colors = historyData.map(d => {
+            // Map points - convert null/undefined to numbers, keep valid numbers
+            const points = historyData.map(d => {
+                const p = d.points;
+                if (p === null || p === undefined || isNaN(p)) return null; // Use null for gaps, spanGaps will connect them
+                return parseFloat(p);
+            });
+            const backgroundColors = historyData.map(d => {
                 if (d.on_leave) return 'rgba(148, 163, 184, 0.3)';
                 if (d.points === null || d.points === undefined) return 'rgba(100, 116, 139, 0.2)';
-                if (d.points >= 9) return 'rgba(16, 185, 129, 0.8)';
-                if (d.points >= 7) return 'rgba(59, 130, 246, 0.8)';
-                if (d.points >= 5) return 'rgba(245, 158, 11, 0.8)';
-                if (d.points >= 3) return 'rgba(249, 115, 22, 0.8)';
+                const p = parseFloat(d.points);
+                if (isNaN(p)) return 'rgba(100, 116, 139, 0.2)';
+                if (p >= 9) return 'rgba(16, 185, 129, 0.8)';
+                if (p >= 7) return 'rgba(59, 130, 246, 0.8)';
+                if (p >= 5) return 'rgba(245, 158, 11, 0.8)';
+                if (p >= 3) return 'rgba(249, 115, 22, 0.8)';
                 return 'rgba(239, 68, 68, 0.8)';
             });
-            return { labels, points, colors, historyData };
+            // Find weekend indices for point styling
+            const weekendIndices = [];
+            historyData.forEach((d, idx) => {
+                if (isWeekend(d.date)) weekendIndices.push(idx);
+            });
+            return { labels, points, backgroundColors, historyData, weekendIndices };
         }
 
         let performanceChart;
@@ -472,7 +507,7 @@
                     return;
                 }
                 
-                const { labels, points, colors, historyData: hist } = buildChartData(historyData);
+                const { labels, points, backgroundColors, historyData: hist, weekendIndices } = buildChartData(historyData);
 
                 const ctx = document.getElementById('performanceChart');
                 if (!ctx) {
@@ -487,84 +522,156 @@
                     performanceChart.destroy();
                 }
 
-            performanceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Performance Points',
-                        data: points,
-                        borderColor: 'rgba(139, 92, 246, 1)',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                        pointBackgroundColor: colors,
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointHoverBackgroundColor: colors,
-                        pointHoverBorderColor: '#fff',
-                        pointHoverBorderWidth: 3,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index',
-                    },
-                    plugins: {
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 15, 15, 0.9)',
-                            borderColor: 'rgba(255, 255, 255, 0.1)',
-                            borderWidth: 1,
-                            padding: 12,
-                            titleColor: '#ffffff',
-                            bodyColor: '#94a3b8',
-                            callbacks: {
-                                label: function (context) {
-                                    const data = hist[context.dataIndex];
-                                    if (data.on_leave) return "On Leave";
-                                    if (data.points === null || data.points === undefined) return "Not Rated";
-                                    return "Points: " + data.points;
-                                },
-                                afterLabel: function (context) {
-                                    const data = hist[context.dataIndex];
-                                    if (data.feedback) return "Feedback: " + data.feedback;
-                                    return null;
+                // Build array for point styling. We'll use pointStyle callback to highlight weekends.
+                performanceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Performance Points',
+                            data: points,
+                            borderColor: 'rgba(139, 92, 246, 1)',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            spanGaps: true, // Connect dots even with gaps in data
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: backgroundColors,
+                            pointBorderColor: function(context) {
+                                // Highlight border color for weekends
+                                if (context && context.dataIndex != null && isWeekend(hist[context.dataIndex].date)) {
+                                    return '#8b5cf6'; // purple border
                                 }
-                            }
-                        },
-                        legend: {
-                            display: false
-                        }
+                                return '#fff';
+                            },
+                            pointBorderWidth: function(context) {
+                                if (context && context.dataIndex != null && isWeekend(hist[context.dataIndex].date)) return 3;
+                                return 2;
+                            },
+                            pointStyle: function(ctx) {
+                                // Star marker for Saturdays/Sundays
+                                if (ctx && ctx.dataIndex != null && isWeekend(hist[ctx.dataIndex].date)) {
+                                    return 'rectRounded';
+                                }
+                                return 'circle';
+                            },
+                            pointHoverBackgroundColor: backgroundColors,
+                            pointHoverBorderColor: function(context) {
+                                if (context && context.dataIndex != null && isWeekend(hist[context.dataIndex].date)) return '#8b5cf6';
+                                return '#fff';
+                            },
+                            pointHoverBorderWidth: function(context) {
+                                if (context && context.dataIndex != null && isWeekend(hist[context.dataIndex].date)) return 4;
+                                return 3;
+                            },
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 10,
-                            ticks: {
-                                stepSize: 2,
-                                color: '#94a3b8'
-                            },
-                            grid: {
-                                color: 'rgba(148, 163, 184, 0.1)'
-                            }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index',
                         },
-                        x: {
-                            ticks: {
-                                color: '#94a3b8'
+                        plugins: {
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 15, 15, 0.9)',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                padding: 12,
+                                titleColor: '#ffffff',
+                                bodyColor: '#94a3b8',
+                                callbacks: {
+                                    title: function(context) {
+                                        // Show date with (Sat) or (Sun) if weekend
+                                        if (context.length > 0) {
+                                            const idx = context[0].dataIndex;
+                                            const data = hist[idx];
+                                            let dt = typeof data.date === "string" ? new Date(data.date) : data.date;
+                                            let label = dt.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+                                            if (dt.getDay() === 0) label += " (Sunday)";
+                                            if (dt.getDay() === 6) label += " (Saturday)";
+                                            return label;
+                                        }
+                                        return "";
+                                    },
+                                    label: function (context) {
+                                        const data = hist[context.dataIndex];
+                                        if (data.on_leave) return "On Leave";
+                                        if (data.points === null || data.points === undefined) return "Not Rated";
+                                        return "Points: " + data.points;
+                                    },
+                                    afterLabel: function (context) {
+                                        const data = hist[context.dataIndex];
+                                        if (data.feedback) return "Feedback: " + data.feedback;
+                                        return null;
+                                    }
+                                }
                             },
-                            grid: {
+                            legend: {
                                 display: false
                             }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 10,
+                                ticks: {
+                                    stepSize: 2,
+                                    color: '#94a3b8'
+                                },
+                                grid: {
+                                    color: 'rgba(148, 163, 184, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#94a3b8',
+                                    callback: function(value, index) {
+                                        // Highlight Saturday or Sunday with a background
+                                        const label = this.getLabelForValue(value);
+                                        // Check if (S) or (Su) is in label and wrap in a <span>
+                                        if (label.includes('(S)') || label.includes('(Su)')) {
+                                            return label.replace(' (S)', '').replace(' (Su)', '');
+                                        }
+                                        return label;
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
                         }
-                    }
-                }
-            });
+                    },
+                    plugins: [{
+                        // Custom draw plugin to highlight weekend x-axis ticks
+                        afterDraw: function(chart) {
+                            const xAxis = chart.scales.x;
+                            const tickLabels = xAxis.getLabelItems();
+                            tickLabels.forEach((item, i) => {
+                                const data = chart.data.labels[i];
+                                if (typeof data === "string" && (data.includes('(S)') || data.includes('(Su)'))) {
+                                    // Draw highlight rectangle for weekend label
+                                    const ctx = chart.ctx;
+                                    ctx.save();
+                                    const width = 42, height = 18;
+                                    ctx.fillStyle = '#f3f4f6';
+                                    ctx.globalAlpha = 0.95;
+                                    const x = item.translation[0] - width / 2;
+                                    const y = xAxis.bottom + 4;
+                                    ctx.beginPath();
+                                    ctx.roundRect
+                                        ? ctx.roundRect(x, y, width, height, 5)
+                                        : ctx.rect(x, y, width, height);
+                                    ctx.fill();
+                                    ctx.restore();
+                                }
+                            });
+                        }
+                    }]
+                });
 
                 if (chartContainer) chartContainer.style.opacity = '1';
             } catch (error) {

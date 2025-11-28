@@ -1,0 +1,86 @@
+<form method="post" id="projectForm">
+    {% csrf_token %}
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div>
+            <label for="id_name" style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Project Name <span style="color: var(--accent-red);">*</span></label>
+            <input type="text" name="name" id="id_name" required class="form-control" placeholder="Enter project name" value="{{ form.name.value|default:'' }}">
+            {% if form.name.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ form.name.errors.0 }}</div>{% endif %}
+        </div>
+        <div>
+            <label for="id_code" style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Project Code</label>
+            <input type="text" name="code" id="id_code" class="form-control" placeholder="PROJ-001" value="{{ form.code.value|default:'' }}">
+            {% if form.code.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ form.code.errors.0 }}</div>{% endif %}
+        </div>
+        <div>
+            <label for="id_description" style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Description</label>
+            <textarea name="description" id="id_description" rows="4" class="form-control" placeholder="Project description...">{{ form.description.value|default:'' }}</textarea>
+            {% if form.description.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ form.description.errors.0 }}</div>{% endif %}
+        </div>
+        <div>
+            <label for="id_client" style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Client</label>
+            <select name="client" id="id_client" class="form-control">
+                <option value="">Select a client</option>
+                {% for client in clients %}
+                <option value="{{ client.id }}" {% if form.client.value == client.id|stringformat:"s" %}selected{% endif %}>{{ client.name }}</option>
+                {% endfor %}
+            </select>
+            {% if form.client.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ form.client.errors.0 }}</div>{% endif %}
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+                <label for="id_start_date" style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Start Date</label>
+                <input type="date" name="start_date" id="id_start_date" class="form-control" value="{% if form.start_date.value %}{{ form.start_date.value|date:'Y-m-d' }}{% endif %}">
+                {% if form.start_date.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ form.start_date.errors.0 }}</div>{% endif %}
+            </div>
+            <div>
+                <label for="id_end_date" style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">End Date</label>
+                <input type="date" name="end_date" id="id_end_date" class="form-control" value="{% if form.end_date.value %}{{ form.end_date.value|date:'Y-m-d' }}{% endif %}">
+                {% if form.end_date.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ form.end_date.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+                <label for="id_status" style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Status</label>
+                <select name="status" id="id_status" class="form-control">
+                    <option value="planning" {% if form.status.value == 'planning' %}selected{% endif %}>Planning</option>
+                    <option value="ongoing" {% if form.status.value == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                    <option value="on_hold" {% if form.status.value == 'on_hold' %}selected{% endif %}>On Hold</option>
+                    <option value="completed" {% if form.status.value == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if form.status.value == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+                {% if form.status.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ form.status.errors.0 }}</div>{% endif %}
+            </div>
+            <div>
+                <label for="id_progress_percent" style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Progress (%)</label>
+                <input type="number" name="progress_percent" id="id_progress_percent" min="0" max="100" step="0.1" class="form-control" value="{{ form.progress_percent.value|default:'0' }}">
+                {% if form.progress_percent.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ form.progress_percent.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+        <div>
+            <label for="id_budget" style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Budget ($)</label>
+            <input type="number" name="budget" id="id_budget" min="0" step="0.01" class="form-control" placeholder="0.00" value="{{ form.budget.value|default:'' }}">
+            {% if form.budget.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ form.budget.errors.0 }}</div>{% endif %}
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 12px; font-weight: 600; color: var(--text-primary);">Team Members</label>
+            <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; background: var(--secondary-bg);">
+                {% for member in assign_form.members %}
+                <div style="display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px; transition: background 0.2s;">
+                    {{ member.tag }}
+                    <label for="{{ member.id_for_label }}" style="margin: 0; cursor: pointer; flex: 1; color: var(--text-primary);">
+                        {{ member.choice_label }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            {% if assign_form.members.errors %}<div style="color: var(--accent-red); font-size: 12px; margin-top: 4px;">{{ assign_form.members.errors.0 }}</div>{% endif %}
+        </div>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--card-border);">
+            <button type="button" class="project-action-btn" onclick="closeProjectFormModal()">Cancel</button>
+            <button type="submit" class="project-action-btn primary">
+                <i class="bi bi-check-circle"></i> Update Project
+            </button>
+        </div>
+    </div>
+</form>
+

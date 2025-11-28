@@ -231,6 +231,9 @@ class Employee(AuditModel):
     class Meta:
         indexes = [models.Index(fields=["company", "employee_code"]), models.Index(fields=["manager"])]
 
+    def __str__(self):
+        return self.user.get_full_name() if self.user else f"Employee {self.employee_code}"
+
 # -----------------------
 # Attendance & Breaks app
 # -----------------------
@@ -332,6 +335,9 @@ class Client(AuditModel):
 
     class Meta:
         indexes = [models.Index(fields=["company", "name"])]
+
+    def __str__(self):
+        return self.name
 
 class Project(AuditModel):
     STATUS_CHOICES = (("planning", "Planning"), ("ongoing", "Ongoing"), ("on_hold", "On Hold"), ("completed", "Completed"), ("cancelled", "Cancelled"))

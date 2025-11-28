@@ -18,7 +18,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body data-theme="dark">
-    <!-- Theme Toggle Button -->
+    <!-- Theme Toggle Button (Draggable on Left Side) -->
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
         <span class="theme-toggle-icon">🌙</span>
     </button>
@@ -172,7 +172,11 @@
                         <a href="{% url 'chat_list' %}" class="nav-link">
                             <i class="bi bi-chat-dots"></i>
                             <span>Chat</span>
+                            <span class="badge-mini warning" style="margin-left:8px;">Beta</span>
+
                         </a>
+                        <div style="font-size:11px; color:var(--accent-orange); margin-top:3px; margin-left:30px;">Under development &ndash; don&rsquo;t rely on this</div>
+
                     </li>
                 </ul>
             </div>
@@ -195,11 +199,12 @@
                             <span>Team Attendance</span>
                         </a>
                     </li>
-                    <li class="nav-menu-item">
-                        <a href="{% url 'approve_leaves' %}" class="nav-link">
+                    <li class="nav-menu-item coming-soon">
+                        <div class="nav-link disabled-link">
                             <i class="bi bi-check-circle"></i>
                             <span>Approve Leaves</span>
-                        </a>
+                            <span class="badge-coming-soon">Coming Soon</span>
+                        </div>
                     </li>
                     {% endif %}
                     
@@ -295,7 +300,7 @@
     <!-- Base Scripts -->
     <script>
         // ========================================
-        // Theme Toggle Functionality
+        // Theme Toggle Functionality with Drag
         // ========================================
         (function() {
             const themeToggle = document.getElementById('themeToggle');
@@ -307,20 +312,110 @@
             body.setAttribute('data-theme', currentTheme);
             themeIcon.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
 
-            // Theme toggle event
-            themeToggle.addEventListener('click', () => {
-                const current = body.getAttribute('data-theme');
-                const newTheme = current === 'dark' ? 'light' : 'dark';
+            // Initialize position from localStorage
+            const savedTop = localStorage.getItem('themeToggleTop');
+            if (savedTop) {
+                themeToggle.style.top = savedTop + 'px';
+                themeToggle.style.transform = 'translateY(-50%)';
+            }
+
+            // Drag functionality
+            let isDragging = false;
+            let startY = 0;
+            let startTop = 0;
+
+            themeToggle.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return; // Only left mouse button
+                isDragging = true;
+                startY = e.clientY;
+                const rect = themeToggle.getBoundingClientRect();
+                startTop = rect.top + (rect.height / 2);
+                themeToggle.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaY = e.clientY - startY;
+                let newTop = startTop + deltaY;
                 
-                body.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+                // Constrain to viewport
+                const minTop = 100;
+                const maxTop = window.innerHeight - 100;
+                newTop = Math.max(minTop, Math.min(maxTop, newTop));
                 
-                // Animate toggle button
-                themeToggle.style.transform = 'rotate(360deg) scale(1.1)';
-                setTimeout(() => {
-                    themeToggle.style.transform = 'rotate(0deg) scale(1)';
-                }, 400);
+                themeToggle.style.top = newTop + 'px';
+                themeToggle.style.transform = 'translateY(-50%)';
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    themeToggle.style.cursor = 'grab';
+                    const rect = themeToggle.getBoundingClientRect();
+                    const top = rect.top + (rect.height / 2);
+                    localStorage.setItem('themeToggleTop', top);
+                }
+            });
+
+            // Touch support for mobile
+            themeToggle.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                startY = e.touches[0].clientY;
+                const rect = themeToggle.getBoundingClientRect();
+                startTop = rect.top + (rect.height / 2);
+                e.preventDefault();
+            });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                const deltaY = e.touches[0].clientY - startY;
+                let newTop = startTop + deltaY;
+                
+                const minTop = 100;
+                const maxTop = window.innerHeight - 100;
+                newTop = Math.max(minTop, Math.min(maxTop, newTop));
+                
+                themeToggle.style.top = newTop + 'px';
+                themeToggle.style.transform = 'translateY(-50%)';
+                e.preventDefault();
+            });
+
+            document.addEventListener('touchend', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    const rect = themeToggle.getBoundingClientRect();
+                    const top = rect.top + (rect.height / 2);
+                    localStorage.setItem('themeToggleTop', top);
+                }
+            });
+
+            // Theme toggle event (only if not dragging)
+            let clickStartTime = 0;
+            themeToggle.addEventListener('mousedown', () => {
+                clickStartTime = Date.now();
+            });
+
+            themeToggle.addEventListener('click', (e) => {
+                const clickDuration = Date.now() - clickStartTime;
+                if (clickDuration < 200 && !isDragging) { // Quick click, not drag
+                    const current = body.getAttribute('data-theme');
+                    const newTheme = current === 'dark' ? 'light' : 'dark';
+                    
+                    body.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+                    
+                    // Animate toggle button
+                    themeToggle.style.transform = 'translateY(-50%) rotate(360deg) scale(1.1)';
+                    setTimeout(() => {
+                        const savedTop = localStorage.getItem('themeToggleTop');
+                        if (savedTop) {
+                            themeToggle.style.top = savedTop + 'px';
+                        }
+                        themeToggle.style.transform = 'translateY(-50%)';
+                    }, 400);
+                }
             });
         })();
 

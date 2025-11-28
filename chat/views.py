@@ -144,6 +144,15 @@ def chat_room(request, room_id):
     messages = list(reversed(messages))
     membership.mark_as_read()
     
+    # Add read status to messages
+    for message in messages:
+        if message.sender == user:
+            read_meta = message.meta.filter(read_at__isnull=False)
+            total_recipients = room.memberships.exclude(user=user).count()
+            message.is_read_by_all = read_meta.count() == total_recipients and total_recipients > 0
+            message.read_count = read_meta.count()
+            message.total_recipients = total_recipients
+    
     # Get members
     members = room.memberships.select_related('user').all()
     
@@ -419,7 +428,7 @@ def edit_message(request, message_id):
     msg_json = message_to_json(message)
     broadcast_to_room(message.room.id, 'message.edited', {'message': msg_json})
     
-    return JsonResponse({'success': True, 'message': msg_data})
+    return JsonResponse({'success': True, 'message': msg_json})
 
 
 @login_required

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -455,17 +455,17 @@ def employee_dashboard(request):
 
 @login_required
 def award_performance_points(request):
-    """Manager/HR view to award daily performance points"""
+    """Manager/HR view to award daily performance points (returns JSON response, not a template)"""
     user = request.user
-    
+
     if user.role not in ['manager', 'admin', 'hr']:
-        return HttpResponseForbidden("You don't have permission to access this page.")
-    
+        return JsonResponse({'success': False, 'error': "You don't have permission to access this page."}, status=403)
+
     try:
         employee_profile = user.employee_profile
-    except:
-        return redirect('employee_dashboard')
-    
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Employee profile not found.'}, status=400)
+
     # Get team members
     if user.role == 'manager':
         team_members = Employee.objects.filter(
@@ -477,7 +477,7 @@ def award_performance_points(request):
             company=employee_profile.company,
             is_active_employee=True
         ).select_related('user', 'department', 'designation')
-    
+
     # Handle POST request
     if request.method == 'POST':
         employee_id = request.POST.get('employee_id')
@@ -486,25 +486,24 @@ def award_performance_points(request):
         feedback = request.POST.get('feedback', '')
         category_id = request.POST.get('category', '')
         on_leave = request.POST.get('on_leave') == 'on'
-        
+
         try:
             employee = get_object_or_404(Employee, id=employee_id)
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
             points_decimal = Decimal(points)
-            
+
             # Validate points
             if points_decimal < 0 or points_decimal > 10:
-                messages.error(request, 'Points must be between 0 and 10')
-                return redirect('award_performance_points')
-            
+                return JsonResponse({'success': False, 'error': 'Points must be between 0 and 10'}, status=400)
+
             # Get category if provided
             category = None
             if category_id:
                 try:
                     category = PerformanceCategory.objects.get(id=category_id, company=employee_profile.company)
                 except PerformanceCategory.DoesNotExist:
-                    pass
-            
+                    category = None
+
             # Create or update performance record
             perf, created = PerformancePoint.objects.update_or_create(
                 employee=employee,
@@ -518,7 +517,7 @@ def award_performance_points(request):
                     'updated_by': user
                 }
             )
-            
+
             # Send notification to employee
             Notification.objects.create(
                 recipient=employee.user,
@@ -526,31 +525,29 @@ def award_performance_points(request):
                 body=f'You received {points} points for {date.strftime("%B %d, %Y")}. {feedback[:100]}',
                 notif_type='info'
             )
-            
+
             action = 'updated' if not created else 'awarded'
-            messages.success(request, f'Performance points {action} successfully!')
-            
+            return JsonResponse({'success': True, 'message': f'Performance points {action} successfully!'})
+
         except Exception as e:
-            messages.error(request, f'Error: {str(e)}')
-        
-        return redirect('award_performance_points')
-    
-    # Get selected date or default to today
+            return JsonResponse({'success': False, 'error': f'Error: {str(e)}'}, status=400)
+
+    # GET request - Return performance summary as JSON
     selected_date_str = request.GET.get('date', timezone.now().date().isoformat())
     try:
         selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
-    except:
+    except Exception:
         selected_date = timezone.now().date()
-    
+
     # Get performance records for selected date
     performance_records = PerformancePoint.objects.filter(
         date=selected_date,
         employee__in=team_members
     ).select_related('employee', 'employee__user')
-    
+
     # Create a map for quick lookup
     performance_map = {pr.employee.id: pr for pr in performance_records}
-    
+
     # Get leave records for the date
     leave_records = LeaveRequest.objects.filter(
         employee__in=team_members,
@@ -558,44 +555,77 @@ def award_performance_points(request):
         start_date__lte=selected_date,
         end_date__gte=selected_date
     ).select_related('employee')
-    
+
     leave_map = {lr.employee.id: lr for lr in leave_records}
-    
+
     # Prepare team data
     team_data = []
     for member in team_members:
         perf = performance_map.get(member.id)
-        on_leave = member.id in leave_map
-        
+        on_leave_val = member.id in leave_map
+
+        # Serialize employee and performance data for JSON
+        emp_data = {
+            "id": member.id,
+            "name": member.user.get_full_name(),
+            "email": member.user.email,
+            "department": member.department.name if member.department else None,
+            "designation": member.designation.title if member.designation else None,
+        }
+        perf_data = None
+        if perf:
+            perf_data = {
+                'id': perf.id,
+                'points': float(perf.points),
+                'feedback': perf.feedback,
+                'category': perf.category.name if perf.category else None,
+                'on_leave': perf.on_leave,
+                'awarded_by': perf.awarded_by.get_full_name() if perf.awarded_by else None,
+                'updated_by': perf.updated_by.get_full_name() if perf.updated_by else None,
+                'date': perf.date.strftime('%Y-%m-%d'),
+            }
+        leave_info = None
+        if on_leave_val:
+            leave = leave_map.get(member.id)
+            leave_info = {
+                'id': leave.id,
+                'status': leave.status,
+                'start_date': leave.start_date.strftime('%Y-%m-%d'),
+                'end_date': leave.end_date.strftime('%Y-%m-%d'),
+                'reason': leave.reason,
+            }
+
         team_data.append({
-            'employee': member,
-            'performance': perf,
-            'on_leave': on_leave,
-            'leave_info': leave_map.get(member.id) if on_leave else None
+            'employee': emp_data,
+            'performance': perf_data,
+            'on_leave': on_leave_val,
+            'leave_info': leave_info
         })
-    
+
     # Get performance categories
-    categories = PerformanceCategory.objects.filter(
+    categories_qs = PerformanceCategory.objects.filter(
         company=employee_profile.company
     )
-    
+    categories = [{"id": cat.id, "name": cat.name} for cat in categories_qs]
+
     # Statistics
     stats = {
         'total_team': team_members.count(),
         'rated_today': performance_records.count(),
         'pending': team_members.count() - performance_records.count(),
-        'avg_points': performance_records.aggregate(avg=Avg('points'))['avg'] or 0,
+        'avg_points': float(performance_records.aggregate(avg=Avg('points'))['avg'] or 0),
         'on_leave': len(leave_map)
     }
-    
-    context = {
+
+    data = {
         'team_data': team_data,
-        'selected_date': selected_date,
+        'selected_date': selected_date.strftime('%Y-%m-%d'),
         'categories': categories,
         'stats': stats,
     }
-    
-    return render(request, 'award_performance.html', context)
+
+    return JsonResponse({'success': True, 'data': data})
+
 
 
 @login_required
@@ -1725,6 +1755,13 @@ class ProjectForm(ModelForm):
     class Meta:
         model = Project
         fields = ['name', 'code', 'description', 'client', 'start_date', 'end_date', 'status', 'budget', 'progress_percent']
+    
+    def __init__(self, *args, **kwargs):
+        company = kwargs.pop('company', None)
+        super().__init__(*args, **kwargs)
+        if company:
+            self.fields['client'].queryset = Client.objects.filter(company=company, is_deleted=False).order_by('name')
+            self.fields['client'].empty_label = "Select a client"
 
 class ProjectAssignForm(ModelForm):
     members = ModelMultipleChoiceField(
@@ -1739,94 +1776,203 @@ class ProjectAssignForm(ModelForm):
     def __init__(self, *args, **kwargs):
         company = kwargs.pop('company')
         super().__init__(*args, **kwargs)
-        self.fields['members'].queryset = Employee.objects.filter(company=company)
+        self.fields['members'].queryset = Employee.objects.filter(company=company).select_related('user').order_by('user__first_name', 'user__last_name')
 
 @login_required
 @require_http_methods(["GET", "POST"])
 def project_create(request):
-    """Create a new project"""
     employee = request.user.employee_profile
     company = employee.company
+    clients = Client.objects.filter(company=company, is_deleted=False).order_by('name')
+    
     if request.method == 'POST':
-        form = ProjectForm(request.POST)
+        form = ProjectForm(request.POST, company=company)
         assign_form = ProjectAssignForm(request.POST, company=company)
         if form.is_valid() and assign_form.is_valid():
-            with transaction.atomic():
-                project = form.save(commit=False)
-                project.company = company
-                project.save()
-                project.members.add(employee)  # Creator auto assigned to project
-                # Save memberships
-                selected_members = assign_form.cleaned_data['members']
-                for member in selected_members:
-                    ProjectMembership.objects.get_or_create(project=project, employee=member)
-            messages.success(request, 'Project created successfully.')
-            return redirect('my_projects')
+            try:
+                with transaction.atomic():
+                    project = form.save(commit=False)
+                    project.company = company
+                    project.created_by = request.user
+                    project.save()
+                    ProjectMembership.objects.get_or_create(project=project, employee=employee)
+                    selected_members = assign_form.cleaned_data.get('members', [])
+                    for member in selected_members:
+                        if member.id != employee.id:
+                            ProjectMembership.objects.get_or_create(project=project, employee=member)
+                
+                if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                    return JsonResponse({'success': True, 'message': 'Project created successfully.'})
+                messages.success(request, 'Project created successfully.')
+                return redirect('my_projects')
+            except Exception as e:
+                if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                    return JsonResponse({'success': False, 'error': str(e), 'form_html': None}, status=400)
+                messages.error(request, f'Error creating project: {str(e)}')
+        else:
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                from django.template.loader import render_to_string
+                form_html = render_to_string('project_form_partial.html', {
+                    'form': form,
+                    'assign_form': assign_form,
+                    'is_create': True
+                }, request=request)
+                return JsonResponse({'success': False, 'form_html': form_html})
     else:
-        form = ProjectForm()
+        form = ProjectForm(company=company)
         assign_form = ProjectAssignForm(company=company)
+    
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        from django.template.loader import render_to_string
+        form_html = render_to_string('project_form_partial.html', {
+            'form': form,
+            'assign_form': assign_form,
+            'is_create': True
+        }, request=request)
+        return HttpResponse(form_html)
+    
     return render(request, 'project_create.html', {
         'form': form,
-        'assign_form': assign_form
+        'assign_form': assign_form,
+        'clients': clients
     })
 
 @login_required
 @require_http_methods(["GET", "POST"])
 def project_update(request, project_id):
-    """Update an existing project - only creator can update"""
     employee = request.user.employee_profile
     company = employee.company
-    project = get_object_or_404(Project, id=project_id, company=company)
-    # Only the creator (first membership) can edit
-    creator = ProjectMembership.objects.filter(project=project).order_by('joined_at').first()
-    if not creator or creator.employee != employee:
-        messages.error(request, "Only the project creator can update this project.")
+    user = request.user
+    
+    try:
+        project = Project.objects.get(id=project_id, company=company, is_deleted=False)
+    except Project.DoesNotExist:
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({'success': False, 'error': 'Project not found.'}, status=404)
+        messages.error(request, 'Project not found.')
         return redirect('my_projects')
+    
+    creator_membership = ProjectMembership.objects.filter(project=project).order_by('joined_at').first()
+    creator_employee = creator_membership.employee if creator_membership else None
+    creator_user = creator_employee.user if creator_employee else None
+    
+    can_edit = (
+        user.role in ['admin', 'hr'] or
+        (user.role == 'manager' and employee in project.members.all()) or
+        (creator_user and creator_user.id == user.id)
+    )
+    
+    if not can_edit:
+        error_msg = "You don't have permission to edit this project."
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({'success': False, 'error': error_msg}, status=403)
+        messages.error(request, error_msg)
+        return redirect('my_projects')
+    
+    clients = Client.objects.filter(company=company, is_deleted=False).order_by('name')
+    
     if request.method == 'POST':
-        form = ProjectForm(request.POST, instance=project)
+        form = ProjectForm(request.POST, instance=project, company=company)
         assign_form = ProjectAssignForm(request.POST, company=company)
         if form.is_valid() and assign_form.is_valid():
-            with transaction.atomic():
-                project = form.save()
-                # Re-assign members logic: remove old, add new, retain creator
-                input_members = assign_form.cleaned_data.get('members', [])
-                old_members = set(project.members.exclude(id=creator.employee.id))
-                new_members = set(input_members)
-                # Remove unselected members (not creator)
-                for mem in old_members - new_members:
-                    ProjectMembership.objects.filter(project=project, employee=mem).delete()
-                for mem in new_members - old_members:
-                    ProjectMembership.objects.get_or_create(project=project, employee=mem)
-            messages.success(request, 'Project updated successfully.')
-            return redirect('my_projects')
+            try:
+                with transaction.atomic():
+                    project = form.save()
+                    project.updated_by = user
+                    project.save(update_fields=['updated_by'])
+                    
+                    input_members = assign_form.cleaned_data.get('members', [])
+                    current_members = set(project.members.all())
+                    new_members = set(input_members)
+                    
+                    if creator_employee:
+                        new_members.add(creator_employee)
+                    
+                    for mem in current_members - new_members:
+                        if mem.id != creator_employee.id:
+                            ProjectMembership.objects.filter(project=project, employee=mem).delete()
+                    
+                    for mem in new_members - current_members:
+                        ProjectMembership.objects.get_or_create(project=project, employee=mem)
+                
+                if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                    return JsonResponse({'success': True, 'message': 'Project updated successfully.'})
+                messages.success(request, 'Project updated successfully.')
+                return redirect('my_projects')
+            except Exception as e:
+                if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                    from django.template.loader import render_to_string
+                    form_html = render_to_string('project_form_partial.html', {
+                        'form': form,
+                        'assign_form': assign_form,
+                        'project': project,
+                        'is_create': False
+                    }, request=request)
+                    return JsonResponse({'success': False, 'error': str(e), 'form_html': form_html}, status=400)
+                messages.error(request, f'Error updating project: {str(e)}')
+        else:
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                from django.template.loader import render_to_string
+                form_html = render_to_string('project_form_partial.html', {
+                    'form': form,
+                    'assign_form': assign_form,
+                    'is_create': False
+                }, request=request)
+                return JsonResponse({'success': False, 'form_html': form_html})
     else:
-        form = ProjectForm(instance=project)
-        assign_form = ProjectAssignForm(
-            company=company,
-            initial={'members': project.members.exclude(id=creator.employee.id)}
-        )
+        form = ProjectForm(instance=project, company=company)
+        current_members = project.members.exclude(id=creator_employee.id) if creator_employee else project.members.all()
+        assign_form = ProjectAssignForm(company=company, initial={'members': current_members})
+    
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        from django.template.loader import render_to_string
+        form_html = render_to_string('project_form_partial.html', {
+            'form': form,
+            'assign_form': assign_form,
+            'project': project,
+            'is_create': False
+        }, request=request)
+        return HttpResponse(form_html)
+    
     return render(request, 'project_update.html', {
         'form': form,
         'assign_form': assign_form,
-        'project': project
+        'project': project,
+        'clients': clients
     })
 
 @login_required
 @require_http_methods(["POST"])
 def project_delete(request, project_id):
-    """
-    Delete an existing project - only creator can delete.
-    Only accessible to the project creator (first membership).
-    """
     employee = request.user.employee_profile
     company = employee.company
-    project = get_object_or_404(Project, id=project_id, company=company)
-    creator = ProjectMembership.objects.filter(project=project).order_by('joined_at').first()
-    if not creator or creator.employee != employee:
+    user = request.user
+    
+    try:
+        project = Project.objects.get(id=project_id, company=company, is_deleted=False)
+    except Project.DoesNotExist:
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            return JsonResponse({'success': False, 'error': "Only the project creator can delete this project."}, status=403)
-        messages.error(request, "Only the project creator can delete this project.")
+            return JsonResponse({'success': False, 'error': 'Project not found.'}, status=404)
+        messages.error(request, 'Project not found.')
         return redirect('my_projects')
+    
+    creator_membership = ProjectMembership.objects.filter(project=project).order_by('joined_at').first()
+    creator_employee = creator_membership.employee if creator_membership else None
+    creator_user = creator_employee.user if creator_employee else None
+    
+    can_delete = (
+        user.role in ['admin', 'hr'] or
+        (user.role == 'manager' and employee in project.members.all()) or
+        (creator_user and creator_user.id == user.id)
+    )
+    
+    if not can_delete:
+        error_msg = "You don't have permission to delete this project."
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({'success': False, 'error': error_msg}, status=403)
+        messages.error(request, error_msg)
+        return redirect('my_projects')
+    
     try:
         with transaction.atomic():
             project.delete()
@@ -1837,6 +1983,7 @@ def project_delete(request, project_id):
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse({'success': False, 'error': f"Could not delete project: {str(e)}"}, status=500)
         messages.error(request, f"Could not delete project: {str(e)}")
+    
     return redirect('my_projects')
 
 @login_required
@@ -1858,12 +2005,22 @@ def my_projects(request):
     if filter_status:
         projects_qs = projects_qs.filter(status=filter_status)
 
-    # Attach creator_id for template check (created_by from model)
     projects = []
+    user = request.user
+    employee = request.user.employee_profile
+    
     for project in projects_qs:
-        # if created_by is related to Employee model
-        creator_id = getattr(project.created_by, 'id', None)
-        project.creator_id = creator_id
+        creator_membership = ProjectMembership.objects.filter(project=project).order_by('joined_at').first()
+        creator_employee = creator_membership.employee if creator_membership else None
+        creator_user = creator_employee.user if creator_employee else None
+        
+        project.creator_id = creator_user.id if creator_user else None
+        project.can_edit = (
+            user.role in ['admin', 'hr'] or
+            (user.role == 'manager' and employee in project.members.all()) or
+            (creator_user and creator_user.id == user.id)
+        )
+        project.can_delete = project.can_edit
         projects.append(project)
 
     # Stats for bar
@@ -2177,11 +2334,44 @@ def all_employees(request):
 
     employees = employees.order_by('-created_at')
     
+    # Paginate first
     paginator = Paginator(employees, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    # Efficiently fetch latest performance for all employees on this page
+    from dev.models import PerformancePoint
+    
+    # Get employee IDs from current page
+    employee_ids = [emp.id for emp in page_obj]
+    
+    # Fetch latest performance for each employee (one query per employee, but only for current page)
+    # This is acceptable since we're only querying 20 employees max per page
+    latest_perf_map = {}
+    if employee_ids:
+        # Use a more efficient approach: get all performances and group by employee
+        all_perfs = PerformancePoint.objects.filter(
+            employee_id__in=employee_ids
+        ).select_related('category', 'awarded_by').order_by('employee_id', '-date')
+        
+        # Group by employee and take the first (latest) for each
+        seen_employees = set()
+        for perf in all_perfs:
+            if perf.employee_id not in seen_employees:
+                latest_perf_map[perf.employee_id] = perf
+                seen_employees.add(perf.employee_id)
+                if len(seen_employees) == len(employee_ids):
+                    break
+    
+    # Attach latest performance to each employee
+    for employee in page_obj:
+        employee.latest_performance = latest_perf_map.get(employee.id)
+    
     departments = Department.objects.filter(company=company)
+    
+    # Get performance categories for the award modal
+    from dev.models import PerformanceCategory
+    performance_categories = PerformanceCategory.objects.filter(company=company).order_by('name')
     
     stats = {
         'total_employees': Employee.objects.filter(company=company, is_active_employee=True).count(),
@@ -2205,6 +2395,7 @@ def all_employees(request):
         'status_filter': status_filter,
         'search_query': search_query,
         'stats': stats,
+        'performance_categories': performance_categories,
     }
     
     return render(request, 'all_employees.html', context)

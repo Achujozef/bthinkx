@@ -8,7 +8,7 @@
 /* ========== CHAT LAYOUT (RESPECTS BASE SIDEBAR) ========== */
 .chat-wrapper {
     display: grid;
-    grid-template-columns: 320px 1fr; /* UNCOMMENTED - Shows sidebar + main chat */
+    grid-template-columns: 320px 1fr;
     height: calc(100vh - var(--topnav-height));
     position: fixed;
     top: var(--topnav-height);
@@ -17,6 +17,25 @@
     bottom: 0;
     overflow: hidden;
     background: var(--primary-bg);
+    border-left: 1px solid var(--card-border);
+}
+
+@media (max-width: 768px) {
+    .chat-wrapper {
+        grid-template-columns: 1fr;
+        left: 0;
+    }
+    
+    .chat-sidebar {
+        position: fixed;
+        left: -320px;
+        z-index: 2000;
+        transition: left 0.3s ease;
+    }
+    
+    .chat-sidebar.mobile-open {
+        left: 0;
+    }
 }
 
 /* ========== CHAT SIDEBAR (LIST) ========== */
@@ -27,6 +46,7 @@
     flex-direction: column;
     overflow: hidden;
     height: 100%;
+    backdrop-filter: blur(20px);
 }
 
 .chat-sidebar-header {
@@ -83,19 +103,35 @@
 }
 
 .chat-item {
-    padding: 12px 16px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--card-border);
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
     display: flex;
     gap: 12px;
     align-items: center;
     text-decoration: none;
     color: inherit;
+    position: relative;
 }
 
 .chat-item:hover {
-    background: rgba(139, 92, 246, 0.05);
+    background: rgba(139, 92, 246, 0.08);
+}
+
+.chat-item.active {
+    background: rgba(139, 92, 246, 0.15);
+    border-left: 3px solid var(--accent-purple);
+}
+
+.chat-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent-purple);
 }
 
 .chat-item.active {
@@ -334,8 +370,8 @@
 }
 
 .message-bubble {
-    padding: 8px 12px;
-    border-radius: 12px;
+    padding: 10px 16px;
+    border-radius: 18px;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     word-wrap: break-word;
@@ -344,12 +380,25 @@
     line-height: 1.5;
     cursor: pointer;
     position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    max-width: 70%;
+}
+
+.message-bubble:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .message-item.own .message-bubble {
     background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
     border: none;
     color: white;
+    border-bottom-right-radius: 4px;
+    margin-left: auto;
+}
+
+.message-item:not(.own) .message-bubble {
+    border-bottom-left-radius: 4px;
 }
 
 .message-edited {
@@ -699,21 +748,25 @@
 
 .chat-input {
     flex: 1;
-    padding: 10px 14px;
+    padding: 12px 16px;
     border: 1px solid var(--card-border);
-    border-radius: 10px;
-    background: var(--primary-bg);
+    border-radius: 24px;
+    background: var(--card-bg);
     color: var(--text-primary);
     font-size: 14px;
     resize: none;
-    max-height: 100px;
+    max-height: 120px;
+    min-height: 44px;
     font-family: 'Inter', sans-serif;
     line-height: 1.5;
+    transition: all 0.2s ease;
 }
 
 .chat-input:focus {
     outline: none;
     border-color: var(--accent-purple);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    background: var(--primary-bg);
 }
 
 .chat-input:disabled {
@@ -781,20 +834,28 @@
     background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 24px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: 6px;
     font-size: 14px;
     flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
-.send-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+.send-button:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+.send-button:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
 }
 
 .send-button:disabled {
@@ -1030,12 +1091,54 @@
         flex-direction: column;
         height: 100%;
         overflow: hidden;
+        position: relative;
     }
     
     .chat-messages-container {
         flex: 1;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        padding-bottom: 80px;
+    }
+    
+    .chat-input-area {
+        position: fixed;
+        bottom: 0;
+        left: var(--sidebar-width);
+        right: 0;
+        background: var(--card-bg);
+        border-top: 1px solid var(--card-border);
+        z-index: 1000;
+        padding: 12px 16px;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .chat-input-area {
+            left: 0 !important;
+            right: 0 !important;
+            padding: 12px 16px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+            position: fixed !important;
+            z-index: 1000 !important;
+        }
+        
+        .chat-wrapper {
+            left: 0;
+        }
+        
+        .chat-messages-container {
+            padding-bottom: 100px !important;
+        }
+        
+        .chat-input {
+            font-size: 16px;
+        }
+        
+        .send-button {
+            min-width: 48px;
+            min-height: 48px;
+        }
     }
 }
 </style>
@@ -1172,7 +1275,13 @@
                                 {% endif %}
                                 <div class="message-status">
                                     <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
-                                    <i class="bi bi-check-all {% if message.meta.all %}read{% endif %}" title="{% if message.meta.all %}Read{% else %}Delivered{% endif %}"></i>
+                                    {% if message.is_read_by_all %}
+                                    <i class="bi bi-check-all read" title="Read by all"></i>
+                                    {% elif message.read_count > 0 %}
+                                    <i class="bi bi-check-all" title="Read by {{ message.read_count }}/{{ message.total_recipients }}"></i>
+                                    {% else %}
+                                    <i class="bi bi-check-all" title="Delivered"></i>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -1316,15 +1425,15 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="editModal">
-    <div class="modal">
+<div class="modal-overlay" id="editModal" onclick="if(event.target.id === 'editModal') closeModal('editModal')">
+    <div class="modal" onclick="event.stopPropagation()">
         <h3>Edit Message</h3>
         <div class="form-group">
             <textarea id="editContent" rows="4" style="width:100%;padding:10px;border:1px solid var(--card-border);border-radius:6px;background:var(--primary-bg);color:var(--text-primary);font-size:13px;"></textarea>
         </div>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
-            <button class="btn-primary" style="width:auto;padding:8px 20px;" onclick="saveEdit()">Save</button>
+            <button class="btn-primary" id="saveEditBtn" style="width:auto;padding:8px 20px;" onclick="saveEdit(event)">Save</button>
         </div>
     </div>
 </div>
@@ -1459,11 +1568,15 @@ function appendMsg(msg) {
 function updateMsg(msg) {
     const el = document.querySelector(`[data-id="${msg.id}"]`);
     if (el) {
+        // Update all data attributes
         el.dataset.content = msg.content || '';
+        el.dataset.sender = msg.sender?.name || msg.sender_name || (msg.sender?.get_full_name ? msg.sender.get_full_name() : '') || '';
+        
         const bubble = el.querySelector('.message-bubble');
         if (bubble) {
             bubble.innerHTML = esc(msg.content || '') + '<span class="message-edited">(edited)</span>';
         }
+        
         // Update attachments if present
         if (msg.attachments && msg.attachments.length > 0) {
             let attachHtml = '<div class="message-attachments">' + msg.attachments.map(a => 
@@ -1480,6 +1593,12 @@ function updateMsg(msg) {
             } else {
                 bubble.insertAdjacentHTML('afterend', attachHtml);
             }
+        }
+        
+        // If this message was being edited, clear the selectedMsg reference and ensure modal is closed
+        if (selectedMsg && selectedMsg.dataset.id === msg.id) {
+            selectedMsg = null;
+            closeModal('editModal');
         }
     }
 }
@@ -1699,8 +1818,10 @@ function replyToSelected() {
 function showContext(e, el) {
     e.preventDefault();
     e.stopPropagation();
+    // Always update selectedMsg to the current element
     selectedMsg = el;
     const menu = document.getElementById('contextMenu');
+    if (!menu) return;
     const isOwn = el.classList.contains('own');
     menu.querySelectorAll('.own-only').forEach(i => i.style.display = isOwn ? 'flex' : 'none');
     menu.style.left = e.pageX + 'px';
@@ -1718,26 +1839,125 @@ function copyMsg() {
 }
 
 function editMsg() {
-    if (!selectedMsg) return;
-    document.getElementById('editContent').value = selectedMsg.dataset.content;
-    document.getElementById('editModal').classList.add('active');
+    if (!selectedMsg) {
+        console.warn('No message selected for editing');
+        return;
+    }
+    
+    // Ensure selectedMsg has valid data
+    if (!selectedMsg.dataset.id) {
+        console.error('Selected message has no ID');
+        return;
+    }
+    
+    const currentContent = selectedMsg.dataset.content || '';
+    const editContent = document.getElementById('editContent');
+    if (editContent) {
+        editContent.value = currentContent;
+    }
+    
+    const modal = document.getElementById('editModal');
+    if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
     closeContextMenu();
+    
+    // Reset save button state
+    const saveBtn = document.getElementById('saveEditBtn') || document.querySelector('#editModal .btn-primary');
+    if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+        saveBtn.innerHTML = 'Save';
+    }
+    
+    // Focus the textarea
+    setTimeout(() => {
+        if (editContent) {
+            editContent.focus();
+            editContent.setSelectionRange(editContent.value.length, editContent.value.length);
+        }
+    }, 100);
 }
 
-function saveEdit() {
-    if (!selectedMsg) return;
-    const content = document.getElementById('editContent').value.trim();
-    if (!content) return alert('Content required');
+function saveEdit(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     
-    fetch(`/chat/message/${selectedMsg.dataset.id}/edit/`, {
+    if (!selectedMsg) {
+        console.warn('No message selected for editing');
+        closeModal('editModal');
+        return;
+    }
+    
+    const content = document.getElementById('editContent').value.trim();
+    if (!content) {
+        alert('Content required');
+        return;
+    }
+    
+    const btn = event?.target || document.getElementById('saveEditBtn') || document.querySelector('#editModal .btn-primary');
+    const originalBtnText = btn ? btn.textContent : 'Save';
+    const originalBtnHTML = btn ? btn.innerHTML : '';
+    
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
+    }
+    
+    const messageId = selectedMsg.dataset.id;
+    if (!messageId) {
+        console.error('Message ID not found');
+        alert('Error: Message ID not found');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalBtnText;
+            btn.innerHTML = originalBtnHTML;
+        }
+        return;
+    }
+    
+    fetch(`/chat/message/${messageId}/edit/`, {
         method: 'POST',
         headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
         body: JSON.stringify({ content })
     })
-    .then(r => r.json())
+    .then(r => {
+        if (!r.ok) {
+            return r.json().then(err => Promise.reject(err));
+        }
+        return r.json();
+    })
     .then(d => {
-        if (d.success) closeModal('editModal');
-        else alert(d.error || 'Edit failed');
+        if (d.success) {
+            // Clear state first
+            selectedMsg = null;
+            document.getElementById('editContent').value = '';
+            closeContextMenu();
+            // Close modal
+            closeModal('editModal');
+        } else {
+            alert(d.error || 'Edit failed');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = originalBtnText;
+                btn.innerHTML = originalBtnHTML;
+            }
+        }
+    })
+    .catch(err => {
+        console.error('Edit error:', err);
+        alert(err.error || err.message || 'An error occurred. Please try again.');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalBtnText;
+            btn.innerHTML = originalBtnHTML;
+        }
     });
 }
 
@@ -1762,7 +1982,30 @@ function setMsgType(type) {
 function openSearchModal() { document.getElementById('searchModal').classList.add('active'); }
 function openNewChatModal() { document.getElementById('newChatModal').classList.add('active'); }
 function openOptionsModal() { document.getElementById('optionsModal').classList.add('active'); }
-function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+function closeModal(id) { 
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        
+        if (id === 'editModal') {
+            // Reset edit modal state
+            selectedMsg = null;
+            const editContent = document.getElementById('editContent');
+            if (editContent) {
+                editContent.value = '';
+            }
+            const saveBtn = document.getElementById('saveEditBtn') || document.querySelector('#editModal .btn-primary');
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save';
+                saveBtn.innerHTML = 'Save';
+            }
+            closeContextMenu();
+        }
+    }
+}
 
 function toggleSidebar() {
     document.getElementById('chatSidebar').classList.toggle('mobile-open');
